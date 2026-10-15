@@ -16,11 +16,19 @@ The scaffold exists but has never been installed. Start with brief **T02** in `d
 
 ## Git
 
-- Branch per task: `t<id>-<short-name>` (for example `t03-db-schema`), from `main`.
+- Remote: the private GitHub repository `origin` (see `docs/INFRA.md`). `main` is protected: changes land only through pull requests with green CI.
+- Branch per task: `t<id>-<short-name>` (for example `t03-db-schema`), from an up-to-date `main`.
 - Commit messages: `type(scope): summary` (feat, fix, chore, docs, test, refactor), for example `feat(api): daily check-in endpoint (T09)`.
-- Never commit `.env`, secrets or `node_modules`. Do not push or add remotes unless Hadukem asks.
-- There is no GitHub remote yet. Until there is, "pull request" means: the task's branch, all checks passing, and a final summary in your reply in the PR description format below. Hadukem merges into `main` after Claude's review.
-- When a task is done, say so in that summary; Hadukem updates the Task Board.
+- Push the task branch to `origin` and give Hadukem the link to open the pull request (`https://github.com/<owner>/<repo>/compare/main...<branch>`). The PR description follows the format below, in Portuguese.
+- Never merge your own PR. Claude reviews, Hadukem approves and merges.
+- Never commit `.env`, secrets or `node_modules`. Never force-push `main`.
+- When a task is done, say so in the PR summary; Claude updates the Task Board.
+
+## Accounts and secrets
+
+- Hadukem owns every external account (GitHub, Supabase, Discord, Telegram, Vercel, Railway). Claude configures the web dashboards; you work only from this repository and the terminal.
+- Never ask for passwords or tokens in chat. Secret values live only in the local `.env` and in the hosting dashboards, entered by Hadukem.
+- If a command needs a login (for example the first `git push`), stop and tell Hadukem what window will open and what to click.
 
 ## How to work
 

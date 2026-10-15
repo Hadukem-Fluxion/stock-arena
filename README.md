@@ -29,6 +29,7 @@ Full rules and point values: `docs/GAME_RULES.md`, implemented in `packages/game
 | `docs/GAME_RULES.md`   | Everyone        | Games, points, leaderboards, fair play                         |
 | `docs/PLAYER_GUIDE.md` | Players         | How to play on Discord and Telegram, FAQ                       |
 | `docs/ADMIN_GUIDE.md`  | Admins and mods | Permissions, routines, abuse signals, incidents, payouts       |
+| `docs/INFRA.md`        | Everyone        | Infrastructure services, account ownership and secret storage  |
 
 ## Project status
 

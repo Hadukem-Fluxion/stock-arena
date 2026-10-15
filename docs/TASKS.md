@@ -29,25 +29,35 @@ One brief = one pull request. Paste the whole brief into Codex together with AGE
 
 **Goal**: all tables for Season 1, with constraints that make double awards impossible.
 
+**Database for development and tests**: there is no Supabase project yet. Use Drizzle with PGlite (`@electric-sql/pglite`) in tests and as the local fallback when `DATABASE_URL` is not set. With `DATABASE_URL` set, use the regular Postgres driver. The same migrations must run on both.
+
 **Do** (in `packages/db`, Drizzle migrations)
 
-- `users` (id, display_name, avatar_url, created_at, status: active | suspended | banned)
-- `identities` (user_id, platform: discord | telegram, platform_user_id, platform_created_at nullable, unique on platform + platform_user_id)
-- `checkins` (user_id, day, streak, unique on user_id + day)
-- `quiz_questions` (id, prompt, options jsonb[4], answer_index, topic, active, scheduled_day nullable)
+- `users` (id uuid default `gen_random_uuid()`, display_name, avatar_url, created_at, status enum: active | suspended | banned)
+- `identities` (user_id, platform enum: discord | telegram, platform_user_id, platform_created_at nullable, unique on platform + platform_user_id)
+- `checkins` (user_id, day date, streak, unique on user_id + day)
+- `quiz_questions` (id, prompt, options jsonb with exactly 4 items, answer_index 0..3, topic, active, scheduled_day date nullable)
 - `quiz_attempts` (user_id, day, question_ids, answers, started_at per question, score, unique on user_id + day)
-- `hl_runs` (id, user_id, day, run_number 1..3, correct_count, ended_at, unique on user_id + day + run_number)
+- `hl_runs` (id, user_id, day, run_number check 1..3, correct_count, ended_at, unique on user_id + day + run_number)
 - `price_snapshots` (ticker, price_usd numeric, block_number, taken_at, index on ticker + taken_at)
-- `ticker_status` (ticker, state: live | paused, reason, updated_at)
-- `points_ledger` (id, user_id, amount int, reason, ref_id, created_at) — insert only
-- `referrals` (inviter_id, invitee_id unique, qualified_at nullable)
-- `flags` (id, user_id, raised_by, note, state: open | cleared | actioned, created_at)
+- `ticker_status` (ticker, state enum: live | paused, reason, updated_at)
+- `points_ledger` (id, user_id, amount int, reason, ref_id, created_at), indexes on (user_id, created_at) and (created_at)
+- `referrals` (inviter_id, invitee_id unique, qualified_at nullable, check inviter_id <> invitee_id)
+- `flags` (id, user_id, raised_by, note, state enum: open | cleared | actioned, created_at)
 - `admin_actions` (id, admin_id, action, target_user_id, reason, created_at)
-- A DB role used by the API that has no UPDATE or DELETE on `points_ledger`.
+- Ledger immutability: a trigger that raises an error on any UPDATE or DELETE on `points_ledger`. Corrections are new rows with a negative amount and reason `admin_adjustment`.
+- All times `timestamptz`, game days `date`.
+- Root scripts `pnpm db:generate` and `pnpm db:migrate`; update README.
+- Scope: `packages/db` only (schema, migrations, typed client, test helpers). Do not wire the API or worker yet.
 
-**Acceptance**
+**Acceptance** (tests run on PGlite)
 
-- Migrations run from empty. A test proves a second check-in for the same user and day fails.
+- Migrations apply from an empty database.
+- A second check-in for the same user and day fails.
+- UPDATE and DELETE on `points_ledger` fail.
+- `identities` rejects the same platform account twice.
+- `referrals`: one inviter per invitee; self-invite fails.
+- `hl_runs` rejects `run_number` 4.
 
 ---
 
