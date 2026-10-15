@@ -119,6 +119,40 @@ Commit generated SQL and Drizzle metadata together. Custom SQL such as the ledge
 trigger lives in a separate committed migration; use migrations rather than
 `drizzle-kit push` so this protection is installed too.
 
+### Authentication development (T07)
+
+`POST /api/auth/telegram` accepts `{initData}` (the original raw Telegram string).
+`POST /api/auth/discord` accepts `{code}` from the embedded SDK authorization
+command. The server validates these inputs and resolves a unique platform identity
+inside one database transaction. Discord account creation time comes from its
+snowflake; Telegram account creation time stays unknown.
+
+Both routes return `{session: {token, expiresAt, user}}`; Discord also returns
+`access_token` for `sdk.commands.authenticate`. Keep the session token in memory
+and send `Authorization: Bearer <token>` on game requests. Tokens use HS256 with a
+24-hour expiration and fixed issuer/audience. The API checks identity ownership
+and the current user status on every authenticated request. Suspended or banned
+accounts cannot log in or use an existing session.
+
+Configure `SESSION_SECRET` with at least 32 random bytes. Configure only the
+provider being used: Discord needs `DISCORD_CLIENT_ID` and
+`DISCORD_CLIENT_SECRET`; Telegram needs `TELEGRAM_BOT_TOKEN`. Missing configuration
+disables login with a typed `AUTH_UNAVAILABLE` response; health remains public.
+No default signing secret or fake login endpoint exists. Run `pnpm db:migrate`
+before API logins; the API does not apply migrations itself.
+
+All registered `/api/*` routes require a session by default, except `/api/health`
+and the two login routes. Routes under `/api/admin` additionally require a matching
+platform ID in `ADMIN_DISCORD_IDS` or `ADMIN_TELEGRAM_IDS`. Errors contain only
+`{error: {code}}`; the client maps these codes to copy. Authentication responses
+are not cacheable. Logs omit request bodies, authorization headers and query
+strings, and never include raw database/provider errors.
+
+Tests need no platform app, bot or real credentials. They sign Telegram init data
+with a fake bot token, mock both Discord HTTP calls, and use an isolated migrated
+PGlite database for identities and permissions. Real platform smoke tests remain
+pending account setup; the client adapters arrive in T08.
+
 ### Environment variables
 
 | Name                                       | Used by               | What it is                                                 |
