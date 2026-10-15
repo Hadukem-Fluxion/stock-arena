@@ -3,11 +3,19 @@
  * Keep the tone short, friendly and plain. No price predictions or advice.
  */
 export const en = {
-  appName: "Stock Arena",
+  appName: "mStocks Arena",
   tagline: "Live xStock prices, as quoted on Fluxion RFQ.",
   disclaimer:
     "For entertainment and education only. Not financial advice. Points have no cash value.",
-  regionNotice: "xStocks are not available in the United States and other restricted regions.",
+  regionNotice: "xStocks are not available in the U.S. or to U.S. persons. Geo restrictions apply.",
+  footer: {
+    prices: "Prices ·",
+    tradeOn: "Trade on",
+    builtOn: "Built on",
+    xstocks: "xStocks",
+    fluxion: "Fluxion",
+    mantle: "Mantle",
+  },
   host: {
     discord: "Running in Discord",
     telegram: "Running in Telegram",

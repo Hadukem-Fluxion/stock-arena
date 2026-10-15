@@ -77,8 +77,63 @@ h2 {
 }
 
 .tickers li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 4px 10px;
   border: 1px solid var(--border);
   border-radius: 8px;
   font-variant-numeric: tabular-nums;
+}
+
+.app-brand,
+.featured-stock {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-brand img {
+  object-fit: contain;
+}
+
+.app-brand h1 {
+  margin: 0;
+}
+
+.featured-stock {
+  gap: 16px;
+}
+
+.brand-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding-block: 8px;
+}
+
+.brand-footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.brand-footer img {
+  display: block;
+  max-width: 90px;
+  object-fit: contain;
+}
+
+.legal-notice {
+  color: var(--muted);
+  text-underline-offset: 3px;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
 }

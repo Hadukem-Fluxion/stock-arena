@@ -4,3 +4,5 @@ coverage
 pnpm-lock.yaml
 .corepack/
 packages/db/.local/
+apps/web/public/brand/*.svg
+docs/design/prototype-*.html
