@@ -1,5 +1,3 @@
-/**
- * Database schema, migrations and typed queries.
- * Implemented in task T03 (Drizzle + Postgres on Supabase). See docs/TASKS.md.
- */
-export const DB_PACKAGE = "@stock-arena/db";
+export { createDatabase, createLocalDatabase } from "./client.js";
+export type { DatabaseConnection } from "./client.js";
+export * from "./schema.js";

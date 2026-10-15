@@ -81,7 +81,41 @@ pnpm dev                    # web on :5173, api on :8787, worker
 pnpm test                   # unit tests
 ```
 
-`pnpm db:migrate` is added in task T03.
+### Database development (T03)
+
+```bash
+pnpm db:generate            # generate SQL migrations from packages/db/src/schema.ts
+pnpm db:migrate             # apply committed migrations; loads the optional root .env
+```
+
+With `DATABASE_URL` set, migrations use Postgres through `pg`. Without it, they
+use a persistent PGlite database in `packages/db/.local/pglite` (ignored by Git).
+PGlite runs locally without Supabase, Docker or database credentials. Both drivers
+apply the same SQL migrations in `packages/db/drizzle`; rerunning the migration
+command only applies pending migrations. The API and worker are not wired to the
+database yet.
+
+`@stock-arena/db` exports the tables and `createDatabase()` (selected by
+`DATABASE_URL`), plus `createLocalDatabase()` for an isolated in-memory database.
+Connections expose a typed `db`, `migrate()` and `close()`. Call `migrate()` before
+queries and close the connection when finished. Tests use isolated in-memory or
+temporary PGlite databases and never read `DATABASE_URL`.
+
+The schema includes all 12 Season 1 tables, their foreign keys and action
+uniqueness constraints. Days are SQL `date`; instants are `timestamptz` (quiz
+start times are an ordered `timestamptz[]` aligned with question IDs). Prices stay
+decimal strings and block numbers stay `bigint`, avoiding JavaScript number
+precision loss.
+
+The ledger rejects UPDATE, DELETE and TRUNCATE through a statement trigger,
+including raw SQL. Corrections must be new negative `admin_adjustment` rows with
+their own reference IDs. Awards are unique by `(user_id, reason, ref_id)`; use
+stable action references to prevent retrying an action from awarding twice.
+Keep each action and its award in one database transaction.
+
+Commit generated SQL and Drizzle metadata together. Custom SQL such as the ledger
+trigger lives in a separate committed migration; use migrations rather than
+`drizzle-kit push` so this protection is installed too.
 
 ### Environment variables
 
