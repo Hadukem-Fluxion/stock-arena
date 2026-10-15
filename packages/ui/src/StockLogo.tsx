@@ -13,6 +13,7 @@ export type StockLogoProps = {
 export function StockLogo({ ticker, size = 56, showBadge = true, alt = "" }: StockLogoProps) {
   const src = ASSETS[ticker].logo;
   const [failedSource, setFailedSource] = useState<string | null>(null);
+  const [loadedSource, setLoadedSource] = useState<string | null>(null);
   const badgeSize = Math.max(12, Math.round(size * 0.4));
   return (
     <span
@@ -26,7 +27,7 @@ export function StockLogo({ ticker, size = 56, showBadge = true, alt = "" }: Sto
         verticalAlign: "middle",
       }}
     >
-      {failedSource === src ? (
+      {loadedSource !== src && (
         <span
           aria-label={alt || undefined}
           style={{
@@ -35,21 +36,26 @@ export function StockLogo({ ticker, size = 56, showBadge = true, alt = "" }: Sto
             width: "100%",
             height: "100%",
             borderRadius: "50%",
-            background: "#242a31",
-            color: "#eef0f4",
+            background: "var(--surface-2)",
+            color: "var(--text)",
             fontSize: size * 0.23,
           }}
         >
           {ticker}
         </span>
-      ) : (
+      )}
+      {failedSource !== src && (
         <img
           src={src}
           alt={alt}
           width={size}
           height={size}
           onError={() => setFailedSource(src)}
+          onLoad={() => setLoadedSource(src)}
           style={{
+            position: "absolute",
+            inset: 0,
+            visibility: loadedSource === src ? "visible" : "hidden",
             display: "block",
             objectFit: "cover",
             borderRadius: "50%",
@@ -71,8 +77,8 @@ export function StockLogo({ ticker, size = 56, showBadge = true, alt = "" }: Sto
             display: "grid",
             placeItems: "center",
             borderRadius: "50%",
-            background: "#101418",
-            border: "1px solid #39414b",
+            background: "var(--bg)",
+            border: "1px solid var(--line)",
             padding: Math.max(3, Math.round(badgeSize * 0.18)),
           }}
         >

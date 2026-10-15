@@ -10,10 +10,15 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@discord/embedded-app-sdk": "^2.5.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@fontsource/ibm-plex-sans": "^5.3.0",
+    "@fontsource/space-grotesk": "^5.3.0",
     "@stock-arena/game-core": "workspace:*",
     "@stock-arena/ui": "workspace:*",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",
