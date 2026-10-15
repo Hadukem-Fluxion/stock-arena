@@ -108,7 +108,7 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
   return (
     <div className="shell" data-host={platform.host}>
       <a className="skip-link" href="#main-content">
-        {en.labels.playTitle}
+        {en.labels.skipToContent}
       </a>
       <header className="app-header">
         <div className="app-brand">

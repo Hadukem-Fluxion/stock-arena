@@ -158,15 +158,21 @@ describe("Telegram adapter", () => {
     expect(request).not.toHaveBeenCalled();
     expect(adapter.user).toBeNull();
   });
-  it("applies valid dark host colors and resets them on a light theme", () => {
+  it("keeps brand tokens unchanged and matches Telegram chrome in either theme", () => {
     const app = telegram();
-    const style = { setProperty: vi.fn(), removeProperty: vi.fn() };
-    applyTelegramTheme(app, style);
-    expect(style.setProperty).toHaveBeenCalledWith("--bg", "#123456");
-    expect(style.setProperty).toHaveBeenCalledWith("--accent", "#22bb88");
-    applyTelegramTheme({ ...app, colorScheme: "light" }, style);
-    expect(style.removeProperty).toHaveBeenCalledWith("--bg");
-    expect(style.removeProperty).toHaveBeenCalledWith("--accent");
+    const style = {
+      getPropertyValue: vi.fn(() => " #0b0e11 "),
+      setProperty: vi.fn(),
+      removeProperty: vi.fn(),
+    };
+    for (const colorScheme of ["dark", "light"] as const) {
+      applyTelegramTheme({ ...app, colorScheme }, style);
+    }
+    expect(style.getPropertyValue).toHaveBeenCalledWith("--bg");
+    expect(app.setHeaderColor.mock.calls).toEqual([["#0b0e11"], ["#0b0e11"]]);
+    expect(app.setBackgroundColor.mock.calls).toEqual([["#0b0e11"], ["#0b0e11"]]);
+    expect(style.setProperty).not.toHaveBeenCalled();
+    expect(style.removeProperty).not.toHaveBeenCalled();
   });
 });
 

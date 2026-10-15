@@ -20,6 +20,9 @@ logins reais no Discord ou Telegram.
 - Logos usam as URLs da xStocks; se a imagem demorar ou falhar, o círculo mostra
   o ticker. Selo e fallback usam os tokens de cor do design.
 - Aviso legal exato aprovado e link para a documentação da xStocks no app e README.
+- A paleta da marca permanece inalterada nos temas claro e escuro do Telegram,
+  inclusive em `themeChanged`; somente header e background do host recebem nosso
+  `--bg`. Verificado nos testes unitários e no navegador. Skip link: "Skip to content".
 
 Novas dependências: `@discord/embedded-app-sdk` 2.5.0 (ponte oficial), Zod 3.25.76
 (validação das respostas de login), Fontsource 5.3.0 para as três fontes locais do

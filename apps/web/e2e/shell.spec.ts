@@ -13,6 +13,7 @@ for (const width of [360, 768, 1024, 1440]) {
     });
     await page.goto("/");
     await expect(page.getByRole("status")).toHaveText(en.auth.preview);
+    await expect(page.locator(".skip-link")).toHaveText(en.labels.skipToContent);
     await page.evaluate(() => document.fonts.ready);
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
@@ -57,12 +58,21 @@ test("production disables the local user and game buttons", async ({ page }) => 
 async function telegramPage(page: Page) {
   await page.addInitScript(() => {
     const calls: string[] = [];
-    Object.assign(window, { bridgeCalls: calls });
+    const chromeColors: string[] = [];
+    Object.assign(window, { bridgeCalls: calls, chromeColors });
     window.Telegram = {
       WebApp: {
         initData: "mock-raw-init-data",
         colorScheme: "dark",
-        themeParams: { bg_color: "#0b0e11", button_color: "#1fd59a" },
+        themeParams: {
+          bg_color: "#ffffff",
+          secondary_bg_color: "#eeeeee",
+          text_color: "#000000",
+          hint_color: "#111111",
+          link_color: "#222222",
+          button_color: "#333333",
+          button_text_color: "#444444",
+        },
         ready() {
           calls.push("ready");
         },
@@ -72,9 +82,15 @@ async function telegramPage(page: Page) {
         openLink(url: string) {
           calls.push("open:" + url);
         },
-        onEvent() {},
-        setHeaderColor() {},
-        setBackgroundColor() {},
+        onEvent(_event, callback) {
+          Object.assign(window, { changeTelegramTheme: callback });
+        },
+        setHeaderColor(color) {
+          chromeColors.push("header:" + color);
+        },
+        setBackgroundColor(color) {
+          chromeColors.push("background:" + color);
+        },
       },
     };
   });
@@ -102,6 +118,39 @@ test("Telegram production login uses the relative API and host links", async ({ 
   });
   await page.goto("http://127.0.0.1:5174/#tgWebAppData=mock");
   await expect(page.getByRole("status")).toContainText("Telegram test player");
+  const palette = {
+    "--bg": "#0b0e11",
+    "--surface": "#151a1f",
+    "--text": "#eef2f4",
+    "--muted": "#9aa6b2",
+    "--accent": "#1fd59a",
+    "--accent-text": "#7fe3c0",
+    "--accent-ink": "#06261a",
+  };
+  for (const colorScheme of ["dark", "light"] as const) {
+    await page.evaluate((scheme) => {
+      if (!window.Telegram) throw new Error("Missing Telegram fixture");
+      window.Telegram.WebApp.colorScheme = scheme;
+      const update: () => void = Reflect.get(window, "changeTelegramTheme");
+      update();
+    }, colorScheme);
+    expect(
+      await page.evaluate((tokens) => {
+        const style = getComputedStyle(document.documentElement);
+        return Object.fromEntries(
+          tokens.map((token) => [token, style.getPropertyValue(token).trim()]),
+        );
+      }, Object.keys(palette)),
+    ).toEqual(palette);
+  }
+  expect(await page.evaluate(() => Reflect.get(window, "chromeColors"))).toEqual([
+    "header:#0b0e11",
+    "background:#0b0e11",
+    "header:#0b0e11",
+    "background:#0b0e11",
+    "header:#0b0e11",
+    "background:#0b0e11",
+  ]);
   await page.getByRole("link", { name: en.labels.viewOnFluxion }).click();
   expect(await page.evaluate(() => Reflect.get(window, "bridgeCalls"))).toEqual([
     "ready",

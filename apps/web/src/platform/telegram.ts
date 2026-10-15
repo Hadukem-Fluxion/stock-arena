@@ -52,37 +52,21 @@ export function loadTelegram(): Promise<TelegramBridge> {
   }));
 }
 
-/** Dark theme overrides are host-provided; light hosts keep the approved dark palette. */
+/** Match Telegram chrome to the brand background without changing any app tokens. */
 export function applyTelegramTheme(
   app: TelegramBridge,
-  style: Pick<CSSStyleDeclaration, "setProperty" | "removeProperty">,
+  style: Pick<CSSStyleDeclaration, "getPropertyValue"> = getComputedStyle(document.documentElement),
 ) {
-  const mapping = {
-    "--bg": app.themeParams.bg_color,
-    "--surface": app.themeParams.secondary_bg_color,
-    "--text": app.themeParams.text_color,
-    "--muted": app.themeParams.hint_color,
-    "--accent-text": app.themeParams.link_color,
-    "--accent": app.themeParams.button_color,
-    "--accent-ink": app.themeParams.button_text_color,
-  };
-  for (const [token, value] of Object.entries(mapping)) {
-    if (app.colorScheme === "dark" && value && /^#[0-9a-f]{6}$/i.test(value)) {
-      style.setProperty(token, value);
-    } else style.removeProperty(token);
-  }
+  const background = style.getPropertyValue("--bg").trim();
+  app.setHeaderColor(background);
+  app.setBackgroundColor(background);
 }
 
 export function createTelegramAdapter(
   load: () => Promise<TelegramBridge> = loadTelegram,
   exchange = createLoginClient(),
   theme: (app: TelegramBridge) => void = (app) => {
-    const update = () => {
-      applyTelegramTheme(app, document.documentElement.style);
-      const background = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();
-      app.setHeaderColor(background);
-      app.setBackgroundColor(background);
-    };
+    const update = () => applyTelegramTheme(app);
     update();
     app.onEvent("themeChanged", update);
   },

@@ -28,6 +28,7 @@ export const en = {
     profile: "Profile",
   },
   labels: {
+    skipToContent: "Skip to content",
     stockOfTheDay: "Stock of the Day",
     launchSet: "Launch set",
     navigation: "Main navigation",

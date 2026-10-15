@@ -290,9 +290,9 @@ Only the public ID belongs in the Vite build. Never prefix a server secret with
 visits show instructions to open Discord or Telegram; no fake login is available.
 
 The shell uses `docs/design/DESIGN.md`: mobile bottom navigation, two tablet
-columns and three desktop columns. Dark Telegram theme colors update the shell
-on `themeChanged`; light hosts keep the approved dark design and get matching
-header/background colors. Typography is bundled locally with Fontsource, so fonts
+columns and three desktop columns. The app always keeps the approved brand palette,
+regardless of Telegram's theme. Only Telegram's header/background colors match our
+`--bg`, including on `themeChanged`. Typography is bundled locally with Fontsource, so fonts
 need no third-party URL mapping. The stock logos still use the official xStocks
 metadata URLs; allow their host in Discord URL mappings when configuring staging.
 
