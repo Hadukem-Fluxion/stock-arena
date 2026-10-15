@@ -6,14 +6,14 @@ Free-to-play mini games about tokenized US stocks, running as a **Discord Activi
 
 ## Season 1 games
 
-| Game | Summary |
-| --- | --- |
-| Daily Check-in | Once per UTC day. Reveals the Stock of the Day (live price, 24h change, one fact). Streak bonuses on day 7 and day 30. |
-| Daily Quiz | 3 multiple-choice questions, 30 s each, one attempt per day. |
-| Higher or Lower | Pick which of two stocks moved more in 24h. Run ends at the first miss or 10 correct. 3 runs per day. |
-| Invite friends | Referral counts after the friend checks in on 3 different days. |
-| Daily Call (later) | Up or Down on 3 stocks, settled 24h later on Fluxion TWAP. |
-| Weekly Fantasy Portfolio (later) | Pick 3 stocks plus a captain; scored on weekly % change. |
+| Game                             | Summary                                                                                                                |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Daily Check-in                   | Once per UTC day. Reveals the Stock of the Day (live price, 24h change, one fact). Streak bonuses on day 7 and day 30. |
+| Daily Quiz                       | 3 multiple-choice questions, 30 s each, one attempt per day.                                                           |
+| Higher or Lower                  | Pick which of two stocks moved more in 24h. Run ends at the first miss or 10 correct. 3 runs per day.                  |
+| Invite friends                   | Referral counts after the friend checks in on 3 different days.                                                        |
+| Daily Call (later)               | Up or Down on 3 stocks, settled 24h later on Fluxion TWAP.                                                             |
+| Weekly Fantasy Portfolio (later) | Pick 3 stocks plus a captain; scored on weekly % change.                                                               |
 
 Launch asset set: AAPL, MSFT, GOOGL, AMZN, META, NVDA, TSLA (their xStocks on Fluxion).
 
@@ -21,14 +21,14 @@ Full rules and point values: `docs/GAME_RULES.md`, implemented in `packages/game
 
 ## Documentation
 
-| File | For | What it holds |
-| --- | --- | --- |
-| `AGENTS.md` | Codex | How to work in this repo, code rules, platform and price rules |
-| `docs/TASKS.md` | Codex | One brief per pull request, with acceptance criteria |
-| `docs/ROADMAP.md` | Everyone | Phases, dates, gates, who does what, open questions |
-| `docs/GAME_RULES.md` | Everyone | Games, points, leaderboards, fair play |
-| `docs/PLAYER_GUIDE.md` | Players | How to play on Discord and Telegram, FAQ |
-| `docs/ADMIN_GUIDE.md` | Admins and mods | Permissions, routines, abuse signals, incidents, payouts |
+| File                   | For             | What it holds                                                  |
+| ---------------------- | --------------- | -------------------------------------------------------------- |
+| `AGENTS.md`            | Codex           | How to work in this repo, code rules, platform and price rules |
+| `docs/TASKS.md`        | Codex           | One brief per pull request, with acceptance criteria           |
+| `docs/ROADMAP.md`      | Everyone        | Phases, dates, gates, who does what, open questions            |
+| `docs/GAME_RULES.md`   | Everyone        | Games, points, leaderboards, fair play                         |
+| `docs/PLAYER_GUIDE.md` | Players         | How to play on Discord and Telegram, FAQ                       |
+| `docs/ADMIN_GUIDE.md`  | Admins and mods | Permissions, routines, abuse signals, incidents, payouts       |
 
 ## Project status
 
@@ -84,17 +84,17 @@ pnpm test                   # unit tests
 
 ### Environment variables
 
-| Name | Used by | What it is |
-| --- | --- | --- |
-| `DATABASE_URL` | api, worker | Postgres connection string |
-| `SESSION_SECRET` | api | Signs session tokens |
-| `DISCORD_CLIENT_ID` | web, api, discord-bot | Discord application id |
-| `DISCORD_CLIENT_SECRET` | api | Discord OAuth secret, server only |
-| `DISCORD_BOT_TOKEN` | discord-bot | Bot token |
-| `TELEGRAM_BOT_TOKEN` | api, telegram-bot | Bot token; also used to verify Mini App init data |
-| `MANTLE_RPC_URL` | worker | Mantle mainnet RPC (chain id 5000) |
-| `FLUXION_POOLS_JSON` | worker | Ticker to pool address map, from the Fluxion team |
-| `ADMIN_DISCORD_IDS` / `ADMIN_TELEGRAM_IDS` | api | Comma-separated admin ids |
+| Name                                       | Used by               | What it is                                        |
+| ------------------------------------------ | --------------------- | ------------------------------------------------- |
+| `DATABASE_URL`                             | api, worker           | Postgres connection string                        |
+| `SESSION_SECRET`                           | api                   | Signs session tokens                              |
+| `DISCORD_CLIENT_ID`                        | web, api, discord-bot | Discord application id                            |
+| `DISCORD_CLIENT_SECRET`                    | api                   | Discord OAuth secret, server only                 |
+| `DISCORD_BOT_TOKEN`                        | discord-bot           | Bot token                                         |
+| `TELEGRAM_BOT_TOKEN`                       | api, telegram-bot     | Bot token; also used to verify Mini App init data |
+| `MANTLE_RPC_URL`                           | worker                | Mantle mainnet RPC (chain id 5000)                |
+| `FLUXION_POOLS_JSON`                       | worker                | Ticker to pool address map, from the Fluxion team |
+| `ADMIN_DISCORD_IDS` / `ADMIN_TELEGRAM_IDS` | api                   | Comma-separated admin ids                         |
 
 Never commit `.env`. Secrets live only in the hosting provider's settings.
 
@@ -116,3 +116,33 @@ Point the bot's Mini App URL (BotFather) at the same tunnel. Use a separate test
 ## Disclaimer
 
 For entertainment and education only. Not financial advice. Points have no cash value. xStocks are not available in the United States and other restricted regions.
+
+### Bootstrap verification (T02)
+
+Verified on Windows PowerShell with Node 24.19.0 (`.nvmrc`) and pnpm 10.28.0.
+If your Node installation does not include Corepack, install it with
+`npm install --global corepack`, then run `corepack enable`. The `packageManager`
+field selects the pnpm version; keep it when installing dependencies.
+
+In the Codex bundled runtime (which has no npm or Corepack on PATH), the equivalent
+local setup is:
+
+```powershell
+New-Item -ItemType Directory -Force .corepack | Out-Null
+pnpm dlx corepack@0.36.0 enable --install-directory .corepack
+$env:Path = "$PWD\.corepack;$env:Path"
+pnpm install
+```
+
+The local `.corepack` shims are ignored by Git and formatting. Normal Node
+installations do not need this local setup. No dependency ranges were changed;
+`pnpm-lock.yaml` records the resolved versions.
+
+`pnpm dev` starts web, API and the worker together. The optional root `.env` is
+loaded by Node's `--env-file-if-exists`; no secrets are needed for this scaffold.
+The worker currently prints a heartbeat; price polling arrives in T04. Use Ctrl+C
+to stop all three processes. Verify the API at `http://localhost:8787/api/health`
+and the browser scaffold at `http://localhost:5173`.
+
+The scaffold has 23 existing tests (14 game-core, 5 oracle, 3 host detection and
+1 API health test), rather than the 22 stated in the original T02 acceptance.

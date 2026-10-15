@@ -25,7 +25,8 @@ export type SpotPrice = {
 
 export type Snapshot = { priceUsd: number; takenAt: Date };
 
-export type TickerState = { state: "live" } | { state: "paused"; reason: "stale" | "jump" | "manual" };
+export type TickerState =
+  { state: "live" } | { state: "paused"; reason: "stale" | "jump" | "manual" };
 
 export function parsePoolsJson(raw: string): Partial<Record<Ticker, PoolInfo>> {
   const parsed: unknown = JSON.parse(raw || "{}");

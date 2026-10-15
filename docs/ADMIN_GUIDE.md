@@ -4,16 +4,16 @@ Mods keep the game fair and the community informed; admins own content, points a
 
 ## Roles and permissions
 
-| Action | Mod | Admin |
-| --- | --- | --- |
-| View any player's profile and point history | Yes | Yes |
-| Flag a player for review | Yes | Yes |
-| Answer questions in support channels | Yes | Yes |
-| Add, edit and schedule quiz questions | No | Yes |
-| Adjust points (always with a written reason) | No | Yes |
-| Suspend or ban a player | No | Yes |
-| Pause or resume price-based games | No | Yes |
-| Export the leaderboard for rewards | No | Yes |
+| Action                                       | Mod | Admin |
+| -------------------------------------------- | --- | ----- |
+| View any player's profile and point history  | Yes | Yes   |
+| Flag a player for review                     | Yes | Yes   |
+| Answer questions in support channels         | Yes | Yes   |
+| Add, edit and schedule quiz questions        | No  | Yes   |
+| Adjust points (always with a written reason) | No  | Yes   |
+| Suspend or ban a player                      | No  | Yes   |
+| Pause or resume price-based games            | No  | Yes   |
+| Export the leaderboard for rewards           | No  | Yes   |
 
 Admin access is limited to Hadukem plus at most two people named by the Mantle team.
 
@@ -46,25 +46,25 @@ Admin access is limited to Hadukem plus at most two people named by the Mantle t
 
 ## Abuse signals and what to do
 
-| Signal | Action |
-| --- | --- |
-| Many new accounts arriving through one invite link in a short time | Flag the inviter; an admin freezes those referral points pending review |
-| Perfect quiz scores answered in under 2 seconds, day after day | Flag for review; compare with that player's other games |
-| Several accounts with near-identical names or avatars, playing at the same minutes | Flag all of them; an admin decides together |
-| A player sharing quiz answers publicly | Remove the message, warn once, then flag |
-| Someone DMing players about prizes or wallets | Ban from the server or group and post a scam warning |
+| Signal                                                                             | Action                                                                  |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| Many new accounts arriving through one invite link in a short time                 | Flag the inviter; an admin freezes those referral points pending review |
+| Perfect quiz scores answered in under 2 seconds, day after day                     | Flag for review; compare with that player's other games                 |
+| Several accounts with near-identical names or avatars, playing at the same minutes | Flag all of them; an admin decides together                             |
+| A player sharing quiz answers publicly                                             | Remove the message, warn once, then flag                                |
+| Someone DMing players about prizes or wallets                                      | Ban from the server or group and post a scam warning                    |
 
 Mods flag; admins decide. A ban removes all season points and is announced only to the player, never publicly by name.
 
 ## Incident playbook
 
-| Incident | First move | Who |
-| --- | --- | --- |
-| Prices show Paused for more than 30 minutes | Post a short notice in #stock-arena; check-in and quiz still work | Mod |
-| A price looks wrong in the game | Pause price-based games in the admin panel and alert the Fluxion team | Admin |
-| A wrong quiz answer key | Fix the question; the system re-scores that day's quiz automatically | Admin |
-| The app is down on one platform | Announce on both platforms; protect streaks for the outage day | Admin |
-| A bug that gives free points | Pause the affected game, then remove the bad points with a reason | Admin |
+| Incident                                    | First move                                                            | Who   |
+| ------------------------------------------- | --------------------------------------------------------------------- | ----- |
+| Prices show Paused for more than 30 minutes | Post a short notice in #stock-arena; check-in and quiz still work     | Mod   |
+| A price looks wrong in the game             | Pause price-based games in the admin panel and alert the Fluxion team | Admin |
+| A wrong quiz answer key                     | Fix the question; the system re-scores that day's quiz automatically  | Admin |
+| The app is down on one platform             | Announce on both platforms; protect streaks for the outage day        | Admin |
+| A bug that gives free points                | Pause the affected game, then remove the bad points with a reason     | Admin |
 
 ## Rewards and payouts
 

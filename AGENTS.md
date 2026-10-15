@@ -39,12 +39,14 @@ The scaffold exists but has never been installed. Start with brief **T02** in `d
 ## Platform specifics
 
 **Discord Activity**
+
 - Use `@discord/embedded-app-sdk`: `new DiscordSDK(clientId)`, `await sdk.ready()`, `sdk.commands.authorize({ client_id, response_type: 'code', prompt: 'none', scope: ['identify'] })`.
 - Send the code to `POST /api/auth/discord`; the API exchanges it at `https://discord.com/api/oauth2/token`, calls `/users/@me`, then returns `{ access_token, session }`. The client finishes with `sdk.commands.authenticate({ access_token })`.
 - All network calls go through relative paths (`/api/...`) because the Activity is served by Discord's proxy.
 - Discord account creation time = `(BigInt(id) >> 22n) + 1420070400000n` ms. Used by the anti-abuse rule.
 
 **Telegram Mini App**
+
 - Load `https://telegram.org/js/telegram-web-app.js`, call `Telegram.WebApp.ready()` and `expand()`.
 - Send `Telegram.WebApp.initData` (the raw string) to `POST /api/auth/telegram`.
 - Verify on the server: `secret = HMAC_SHA256(key="WebAppData", msg=BOT_TOKEN)`; `check = hex(HMAC_SHA256(key=secret, msg=data_check_string))` where `data_check_string` is every field except `hash`, sorted by key, as `key=value` joined by `\n`. Reject if `check !== hash` or `auth_date` is older than 24 h. Use a constant-time compare.

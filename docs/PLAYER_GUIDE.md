@@ -55,9 +55,9 @@ Every stock card has a View on Fluxion button that opens the real xStock on Flux
 
 ## Something is not working
 
-| Problem | Try this |
-| --- | --- |
-| The Activity will not open on Discord | Update the Discord app, then try from a voice channel |
-| Telegram shows a blank screen | Close the game, update Telegram and open it again from the bot |
-| Prices say Paused | Price updates are being checked. Games that use prices wait; check-in and quiz still work |
-| My points look wrong | Open Profile, then History. If something is still off, tag a mod in #stock-arena-support |
+| Problem                               | Try this                                                                                  |
+| ------------------------------------- | ----------------------------------------------------------------------------------------- |
+| The Activity will not open on Discord | Update the Discord app, then try from a voice channel                                     |
+| Telegram shows a blank screen         | Close the game, update Telegram and open it again from the bot                            |
+| Prices say Paused                     | Price updates are being checked. Games that use prices wait; check-in and quiz still work |
+| My points look wrong                  | Open Profile, then History. If something is still off, tag a mod in #stock-arena-support  |

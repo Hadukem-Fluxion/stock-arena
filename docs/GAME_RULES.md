@@ -12,21 +12,21 @@ A game day runs from 00:00 to 23:59 UTC. Daily games reset at 00:00 UTC. The sto
 
 ## Season 1 games
 
-| Game | How it works | Points |
-| --- | --- | --- |
-| Daily Check-in | Open the app and tap Check in. You get the Stock of the Day: its live price, 24h change and one fact about the company. | 10 per day. Streak bonus: +50 on day 7, +300 on day 30 |
-| Daily Quiz | Three multiple-choice questions on tokenized stocks, RWA, Mantle and Fluxion. 30 seconds per question, one attempt per day. | 20 per correct answer, +15 if all three are right (max 75) |
-| Higher or Lower | Two stocks appear. Pick the one with the bigger 24h price move. A run ends at your first wrong pick or after 10 correct picks. Up to 3 runs a day. | 5 per correct pick (max 150 a day) |
-| Invite friends | Share your invite link. Your friend counts once they check in on 3 different days. | 50 per friend, up to 10 friends per season |
+| Game            | How it works                                                                                                                                       | Points                                                     |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| Daily Check-in  | Open the app and tap Check in. You get the Stock of the Day: its live price, 24h change and one fact about the company.                            | 10 per day. Streak bonus: +50 on day 7, +300 on day 30     |
+| Daily Quiz      | Three multiple-choice questions on tokenized stocks, RWA, Mantle and Fluxion. 30 seconds per question, one attempt per day.                        | 20 per correct answer, +15 if all three are right (max 75) |
+| Higher or Lower | Two stocks appear. Pick the one with the bigger 24h price move. A run ends at your first wrong pick or after 10 correct picks. Up to 3 runs a day. | 5 per correct pick (max 150 a day)                         |
+| Invite friends  | Share your invite link. Your friend counts once they check in on 3 different days.                                                                 | 50 per friend, up to 10 friends per season                 |
 
 Missing a day resets your check-in streak to zero.
 
 ## Coming later in Season 1
 
-| Game | How it works | Points |
-| --- | --- | --- |
-| Daily Call | Call Up or Down for three stocks before 20:00 UTC. Calls settle 24 hours later on Fluxion's 15-minute average price. Moves under 0.1% count as no result. | 30 per correct call |
-| Weekly Fantasy Portfolio | Pick 3 stocks for the week and make one your captain (counts double). Your score is their average % change, Monday to Friday. | Top 10% of lineups earn a bonus |
+| Game                     | How it works                                                                                                                                              | Points                          |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| Daily Call               | Call Up or Down for three stocks before 20:00 UTC. Calls settle 24 hours later on Fluxion's 15-minute average price. Moves under 0.1% count as no result. | 30 per correct call             |
+| Weekly Fantasy Portfolio | Pick 3 stocks for the week and make one your captain (counts double). Your score is their average % change, Monday to Friday.                             | Top 10% of lineups earn a bonus |
 
 ## Leaderboards
 

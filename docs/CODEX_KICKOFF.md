@@ -9,6 +9,7 @@ Hi Codex. You are the implementation engineer for Stock Arena, a set of casual g
 The workspace is `C:\Users\Hadukem\Documents\projetos\mStocks-miniApp`.
 
 How we work:
+
 - I (Hadukem) own the project and approve every merge. Claude writes the specs and reviews your work. You implement.
 - Read `AGENTS.md` first and follow it on every task. Then read `README.md`, `docs/ROADMAP.md`, `docs/GAME_RULES.md` and `docs/TASKS.md`.
 - Do one brief from `docs/TASKS.md` at a time, on its own branch, with tests. Stop at the end of each task and give me the summary described in `AGENTS.md`.
@@ -17,6 +18,7 @@ How we work:
 - Never put secrets in code or commit `.env`.
 
 Start now with brief **T02 — Bootstrap and verify the scaffold**:
+
 1. Check Node is 22 or newer and run `corepack enable` so pnpm is available. Tell me if Node is missing or too old instead of working around it.
 2. `git init` on `main` and commit the files as delivered.
 3. Create branch `t02-bootstrap`, run `pnpm install`, and make lint, format check, typecheck, tests and build pass, plus `pnpm dev` on Windows.
