@@ -327,6 +327,7 @@ Do:
 - pnpm db:migrate runs before the api starts on Railway (pre-deploy command), never from the worker.
 - docs/DEPLOY.md (in Portuguese): exact dashboard settings for Vercel and Railway, which env var goes where, how to roll back, how to read logs. Claude will follow this doc in the dashboards.
 - Do not create accounts or projects; Claude does that in the dashboards with Hadukem logged in.
+- Price retention: a daily worker job keeps every snapshot from the last 48 hours and, beyond that window, only the last snapshot of each hour per ticker and source. Test with PGlite.
 
 Acceptance:
 
