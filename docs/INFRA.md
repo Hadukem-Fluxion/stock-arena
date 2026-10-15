@@ -41,8 +41,11 @@ O Claude informa as mudanças e o Codex atualiza esta tabela.
 - Data API desligada; API e worker acessam o Postgres diretamente pelo pooler.
 - Credenciais somente no `.env` local e nas variáveis do Railway. Nunca registrar
   a senha ou a string completa de conexão nesta documentação.
-- Migrações: `pnpm db:migrate` aplica `0000`, `0001` e `0002`. A confirmação no
-  Supabase está pendente do certificado CA: a primeira tentativa local retornou
-  `self-signed certificate in certificate chain`. Baixar a CA em Database Settings
-  → SSL Configuration e configurar a confiança local antes de tentar novamente,
-  mantendo a validação TLS ativa.
+- TLS: CA pública oficial em `packages/db/certs/supabase-ca.crt` (subject
+  `Supabase Root 2021 CA`, validade até 26/04/2031). O client usa
+  `ssl: { ca, rejectUnauthorized: true }`. `DATABASE_SSL_CA` pode indicar outra CA;
+  caminhos relativos partem da raiz do repositório. Não desativar a verificação.
+- Verificado no Supabase em 15/10/2026: migrations `0000`, `0001` e `0002`
+  aplicadas, com hashes conferidos no histórico do Drizzle; 12 tabelas no schema
+  `public`; trigger do ledger rejeitou UPDATE e DELETE com código `55000`,
+  sem modificar linhas.

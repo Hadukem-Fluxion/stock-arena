@@ -1,4 +1,5 @@
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle as drizzlePostgres } from "drizzle-orm/node-postgres";
@@ -29,7 +30,22 @@ export function createDatabase(options: { databaseUrl?: string; dataDir?: string
   const databaseUrl = options.databaseUrl ?? process.env.DATABASE_URL;
   if (!databaseUrl) return createLocalDatabase(options.dataDir ?? localDataDir);
 
-  const client = new pg.Pool({ connectionString: databaseUrl });
+  const defaultCa = fileURLToPath(new URL("../certs/supabase-ca.crt", import.meta.url));
+  const repositoryRoot = fileURLToPath(new URL("../../../", import.meta.url));
+  const caPath = process.env.DATABASE_SSL_CA
+    ? resolve(repositoryRoot, process.env.DATABASE_SSL_CA)
+    : defaultCa;
+  const ca = readFileSync(caPath, "utf8");
+  // pg connection-string SSL parameters override the explicit ssl object.
+  // Always use the configured CA and require certificate/hostname verification.
+  const connectionUrl = new URL(databaseUrl);
+  for (const parameter of ["sslmode", "sslrootcert", "sslcert", "sslkey", "uselibpqcompat"]) {
+    connectionUrl.searchParams.delete(parameter);
+  }
+  const client = new pg.Pool({
+    connectionString: connectionUrl.toString(),
+    ssl: { ca, rejectUnauthorized: true },
+  });
   const db = drizzlePostgres(client, { schema });
   return {
     kind: "postgres" as const,
