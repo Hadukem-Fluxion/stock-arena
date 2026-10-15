@@ -22,13 +22,13 @@ Todas as contas pertencem ao Hadukem. O Claude configura os painéis pelo navega
 
 ## Estado atual
 
-| Serviço                  | Estado  | Endereço |
-| ------------------------ | ------- | -------- |
-| GitHub                   | A criar | —        |
-| Supabase                 | A criar | —        |
-| Discord Developer Portal | A criar | —        |
-| Telegram BotFather       | A criar | —        |
-| Vercel                   | A criar | —        |
-| Railway                  | A criar | —        |
+| Serviço                  | Estado      | Endereço                                                 |
+| ------------------------ | ----------- | -------------------------------------------------------- |
+| GitHub                   | Configurado | https://github.com/Hadukem-Fluxion/stock-arena (privado) |
+| Supabase                 | A criar     | —                                                        |
+| Discord Developer Portal | A criar     | —                                                        |
+| Telegram BotFather       | A criar     | —                                                        |
+| Vercel                   | A criar     | —                                                        |
+| Railway                  | A criar     | —                                                        |
 
 O Claude atualiza esta tabela à medida que cada serviço é configurado.
