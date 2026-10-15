@@ -16,7 +16,9 @@
     "format:check": "prettier --check .",
     "typecheck": "pnpm -r typecheck",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "db:generate": "pnpm --filter @stock-arena/db db:generate",
+    "db:migrate": "pnpm --filter @stock-arena/db db:migrate"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",

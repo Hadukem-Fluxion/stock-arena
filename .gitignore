@@ -11,3 +11,4 @@ Thumbs.db
 !.vscode/extensions.json
 .idea/
 .corepack/
+packages/db/.local/
