@@ -28,6 +28,7 @@ The scaffold exists but has never been installed. Start with brief **T02** in `d
 
 - Hadukem owns every external account (GitHub, Supabase, Discord, Telegram, Vercel, Railway). Claude configures the web dashboards; you work only from this repository and the terminal.
 - Never ask for passwords or tokens in chat. Secret values live only in the local `.env` and in the hosting dashboards, entered by Hadukem.
+- Never commit the quiz question bank or anti-abuse thresholds; both come from the database or environment variables.
 - If a command needs a login (for example the first `git push`), stop and tell Hadukem what window will open and what to click.
 
 ## How to work
@@ -67,9 +68,11 @@ The scaffold exists but has never been installed. Start with brief **T02** in `d
 
 ## Prices
 
-- Only `packages/fluxion-oracle` talks to the chain. Everything else reads `price_snapshots`.
+- The xStocks public API is the primary price source for all seven tickers. Fluxion V3 pools on Mantle are cross-checks for the five configured tickers.
+- Only `packages/fluxion-oracle` talks to external price sources or the chain. Everything else reads `price_snapshots`, using `source = xstocks` for game prices; `fluxion_pool` rows are for cross-checking.
 - Settlement uses the 15-minute TWAP from snapshots, never one spot read.
 - If the newest snapshot for a ticker is older than 2 minutes, or two consecutive snapshots differ by more than the configured jump limit, mark that ticker `paused`. Paused tickers are excluded from Higher or Lower and from settlement until resumed.
+- Pause a ticker with reason `divergence` when its pool price differs from the primary quote by more than `PRICE_DIVERGENCE_PCT` (default 3). Pause with reason `closed` when trading is halted or the market period is closed; keep the last price and display "Market closed".
 
 ## Definition of done
 

@@ -10,9 +10,12 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "oracle:print": "tsx --env-file-if-exists=../../.env src/print.ts"
   },
   "dependencies": {
-    "@stock-arena/game-core": "workspace:*"
+    "@stock-arena/game-core": "workspace:*",
+    "viem": "2.57.7",
+    "zod": "^3.25.76"
   }
 }

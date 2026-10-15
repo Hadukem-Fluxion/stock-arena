@@ -31,4 +31,4 @@ Todas as contas pertencem ao Hadukem. O Claude configura os painéis pelo navega
 | Vercel                   | A criar     | —                                                        |
 | Railway                  | A criar     | —                                                        |
 
-O Claude atualiza esta tabela à medida que cada serviço é configurado.
+O Claude informa as mudanças e o Codex atualiza esta tabela.

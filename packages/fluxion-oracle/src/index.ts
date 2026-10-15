@@ -1,9 +1,8 @@
 import type { Ticker } from "@stock-arena/game-core";
 
 /**
- * Fluxion price oracle. The only module allowed to read the chain.
- * Implementation is task T04 (see docs/TASKS.md). Pool addresses and the
- * correct read method come from the Fluxion team (task T01).
+ * xStocks price oracle with Fluxion pool cross-checks.
+ * The only package allowed to read external price sources or the chain.
  */
 
 export type PoolInfo = {
@@ -19,14 +18,16 @@ export type SpotPrice = {
   ticker: Ticker;
   /** Decimal string, quote units per 1 xStock. */
   priceUsd: string;
-  blockNumber: bigint;
+  blockNumber: bigint | null;
+  source: "xstocks" | "fluxion_pool";
   takenAt: Date;
 };
 
 export type Snapshot = { priceUsd: number; takenAt: Date };
 
 export type TickerState =
-  { state: "live" } | { state: "paused"; reason: "stale" | "jump" | "manual" };
+  | { state: "live" }
+  | { state: "paused"; reason: "stale" | "jump" | "manual" | "divergence" | "closed" };
 
 export function parsePoolsJson(raw: string): Partial<Record<Ticker, PoolInfo>> {
   const parsed: unknown = JSON.parse(raw || "{}");
@@ -77,10 +78,10 @@ export function checkTicker(
   return { state: "live" };
 }
 
-/** Reads spot prices for all configured pools. Implemented in T04. */
-export async function getSpotPrices(
-  _pools: Partial<Record<Ticker, PoolInfo>>,
-  _rpcUrl: string,
-): Promise<SpotPrice[]> {
-  throw new Error("getSpotPrices is not implemented yet (task T04)");
-}
+export { readOracleConfig } from "./config.js";
+export { createXStocksClient, parsePrice, tradingSchema } from "./xstocks.js";
+export type { TradingStatus, XStocksClient } from "./xstocks.js";
+export { slot0ToPriceUsd, createPoolReader } from "./pools.js";
+export { createPriceOracle, evaluateTicker } from "./oracle.js";
+export type { OraclePoll } from "./oracle.js";
+export { retry, OracleError } from "./retry.js";
