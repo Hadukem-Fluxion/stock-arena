@@ -296,3 +296,31 @@ One brief = one pull request. Paste the whole brief into Codex together with AGE
 **Acceptance**
 
 - Tests for scoring, captain weight, lock time, code expiry and merge.
+
+---
+
+## T23 — Staging deploy
+
+Goal: a public staging environment that Discord and Telegram can load, with live prices.
+
+Layout:
+
+- apps/web on Vercel (static Vite build).
+- apps/api and apps/worker on Railway as two services from this repo (bots later, same pattern).
+- Database: Supabase Postgres (DATABASE_URL in Railway, set by Hadukem).
+- One origin for the client: vercel.json rewrites /api/* to the Railway API URL, so the web app keeps calling relative /api paths in browser, Discord (URL mapping points to the Vercel domain) and Telegram. No CORS needed.
+
+Do:
+
+- vercel.json in apps/web: build command, output dir, SPA fallback, /api/* rewrite to the URL in an env var (document how to set it in the Vercel dashboard).
+- Railway config for api and worker (railway.json or documented start commands): pnpm install with frozen lockfile, start with tsx, Node version from .nvmrc, health check on /api/health for the api service.
+- api: listen on process.env.PORT when present (Railway), fall back to API_PORT.
+- pnpm db:migrate runs before the api starts on Railway (pre-deploy command), never from the worker.
+- docs/DEPLOY.md (in Portuguese): exact dashboard settings for Vercel and Railway, which env var goes where, how to roll back, how to read logs. Claude will follow this doc in the dashboards.
+- Do not create accounts or projects; Claude does that in the dashboards with Hadukem logged in.
+
+Acceptance:
+
+- Staging web loads at its Vercel URL and /api/health answers through the rewrite.
+- Worker logs show price snapshots for all 7 tickers.
+- README links to docs/DEPLOY.md.
