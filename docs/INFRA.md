@@ -25,10 +25,24 @@ Todas as contas pertencem ao Hadukem. O Claude configura os painéis pelo navega
 | Serviço                  | Estado      | Endereço                                                 |
 | ------------------------ | ----------- | -------------------------------------------------------- |
 | GitHub                   | Configurado | https://github.com/Hadukem-Fluxion/stock-arena (privado) |
-| Supabase                 | A criar     | —                                                        |
+| Supabase                 | Configurado | Projeto `mstocks-arena`, ref `djlyrllwnvvljxexusbw`      |
 | Discord Developer Portal | A criar     | —                                                        |
 | Telegram BotFather       | A criar     | —                                                        |
 | Vercel                   | A criar     | —                                                        |
 | Railway                  | A criar     | —                                                        |
 
 O Claude informa as mudanças e o Codex atualiza esta tabela.
+
+## Supabase
+
+- Projeto: `mstocks-arena` (`djlyrllwnvvljxexusbw`).
+- Região: `sa-east-1` (São Paulo); plano free.
+- Conexão: session pooler (IPv4), porta `5432`, `sslmode=require`.
+- Data API desligada; API e worker acessam o Postgres diretamente pelo pooler.
+- Credenciais somente no `.env` local e nas variáveis do Railway. Nunca registrar
+  a senha ou a string completa de conexão nesta documentação.
+- Migrações: `pnpm db:migrate` aplica `0000`, `0001` e `0002`. A confirmação no
+  Supabase está pendente do certificado CA: a primeira tentativa local retornou
+  `self-signed certificate in certificate chain`. Baixar a CA em Database Settings
+  → SSL Configuration e configurar a confiança local antes de tentar novamente,
+  mantendo a validação TLS ativa.
