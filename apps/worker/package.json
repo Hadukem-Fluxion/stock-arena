@@ -10,7 +10,9 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@stock-arena/db": "workspace:*",
     "@stock-arena/fluxion-oracle": "workspace:*",
-    "@stock-arena/game-core": "workspace:*"
+    "@stock-arena/game-core": "workspace:*",
+    "drizzle-orm": "0.45.4"
   }
 }

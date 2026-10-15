@@ -154,7 +154,7 @@ describe("migrations and typed client", () => {
       takenAt,
     };
     const [stored] = await connection.db.insert(priceSnapshots).values(snapshot).returning();
-    expect(stored).toEqual(snapshot);
+    expect(stored).toEqual({ ...snapshot, source: "fluxion_pool" });
     await connection.db
       .insert(tickerStatus)
       .values({ ticker: "AAPL", state: "paused", reason: "stale" });

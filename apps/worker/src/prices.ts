@@ -1,0 +1,96 @@
+import { TICKERS } from "@stock-arena/game-core";
+import type { Ticker } from "@stock-arena/game-core";
+import { priceSnapshots, tickerStatus } from "@stock-arena/db";
+import type { DatabaseConnection } from "@stock-arena/db";
+import { evaluateTicker } from "@stock-arena/fluxion-oracle";
+import type { OraclePoll, TickerState } from "@stock-arena/fluxion-oracle";
+import { and, desc, eq } from "drizzle-orm";
+
+export function createPriceStore(
+  connection: DatabaseConnection,
+  options: { divergencePct: number; jumpLimitPct: number },
+  warn: (message: string) => void = console.warn,
+) {
+  return async (poll: OraclePoll) =>
+    connection.db.transaction(async (tx) => {
+      if (poll.snapshots.length) await tx.insert(priceSnapshots).values(poll.snapshots);
+      const statuses: { ticker: Ticker; status: TickerState }[] = [];
+      for (const ticker of TICKERS) {
+        const history = await tx
+          .select()
+          .from(priceSnapshots)
+          .where(and(eq(priceSnapshots.ticker, ticker), eq(priceSnapshots.source, "xstocks")))
+          .orderBy(desc(priceSnapshots.takenAt))
+          .limit(2);
+        const [previous] = await tx
+          .select()
+          .from(tickerStatus)
+          .where(eq(tickerStatus.ticker, ticker));
+        const previousState: TickerState | undefined =
+          previous?.state === "paused" && ["manual", "divergence"].includes(previous.reason ?? "")
+            ? { state: "paused", reason: previous.reason as "manual" | "divergence" }
+            : undefined;
+        const pool = poll.snapshots.find(
+          (snapshot) => snapshot.ticker === ticker && snapshot.source === "fluxion_pool",
+        );
+        const result = evaluateTicker({
+          snapshots: history.reverse().map((snapshot) => ({
+            priceUsd: Number(snapshot.priceUsd),
+            takenAt: snapshot.takenAt,
+          })),
+          now: poll.takenAt,
+          trading: poll.trading[ticker],
+          poolPrice: pool?.priceUsd,
+          previousState,
+          ...options,
+        });
+        const row = {
+          ticker,
+          state: result.status.state,
+          reason: result.status.state === "paused" ? result.status.reason : null,
+          updatedAt: poll.takenAt,
+        };
+        await tx
+          .insert(tickerStatus)
+          .values(row)
+          .onConflictDoUpdate({ target: tickerStatus.ticker, set: row });
+        if (result.divergencePct !== null && result.divergencePct > options.divergencePct) {
+          warn(`[worker] ${ticker} divergence ${result.divergencePct.toFixed(3)}%; ticker paused.`);
+        }
+        statuses.push({ ticker, status: result.status });
+      }
+      return statuses;
+    });
+}
+
+/** One in-flight cycle at a time; failures are retried on the next interval. */
+export function startPricePolling(
+  action: () => Promise<void>,
+  intervalMs: number,
+  onError: () => void,
+) {
+  let stopped = false;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let active: Promise<void>;
+  async function run() {
+    const started = Date.now();
+    try {
+      await action();
+    } catch {
+      onError();
+    }
+    if (!stopped)
+      timer = setTimeout(
+        () => {
+          active = run();
+        },
+        Math.max(0, intervalMs - (Date.now() - started)),
+      );
+  }
+  active = run();
+  return async () => {
+    stopped = true;
+    clearTimeout(timer);
+    await active;
+  };
+}

@@ -21,6 +21,7 @@ export const userStatus = pgEnum("user_status", ["active", "suspended", "banned"
 export const platform = pgEnum("platform", ["discord", "telegram"]);
 export const tickerState = pgEnum("ticker_state", ["live", "paused"]);
 export const flagState = pgEnum("flag_state", ["open", "cleared", "actioned"]);
+export const priceSource = pgEnum("price_source", ["xstocks", "fluxion_pool"]);
 
 const instant = (name: string) => timestamp(name, { withTimezone: true });
 
@@ -115,7 +116,8 @@ export const priceSnapshots = pgTable(
   {
     ticker: text("ticker").notNull(),
     priceUsd: numeric("price_usd").notNull(),
-    blockNumber: bigint("block_number", { mode: "bigint" }).notNull(),
+    blockNumber: bigint("block_number", { mode: "bigint" }),
+    source: priceSource("source").default("fluxion_pool").notNull(),
     takenAt: instant("taken_at").notNull(),
   },
   (table) => [index("price_snapshots_ticker_taken_at_idx").on(table.ticker, table.takenAt)],

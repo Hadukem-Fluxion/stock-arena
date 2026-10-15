@@ -61,29 +61,38 @@ One brief = one pull request. Paste the whole brief into Codex together with AGE
 
 ---
 
-## T04 — Fluxion oracle package
+## T04 — Price oracle (xStocks primary, Fluxion pools as cross-check)
 
-**Goal**: reliable xStock prices for the Magnificent 7 from Fluxion pools on Mantle.
+Primary source (all 7 tickers): xStocks public API, no key.
 
-**Already in the scaffold**: `twap()`, `checkTicker()` and `parsePoolsJson()` in `packages/fluxion-oracle/src/index.ts`, with tests. Keep them and their tests; implement `getSpotPrices()` and the worker job.
+- GET https://api.backed.fi/api/v2/public/assets/{symbol}/price-data -> {"quote": number}. Symbols: AAPLx, MSFTx, GOOGLx, AMZNx, METAx, NVDAx, TSLAx.
+- GET https://api.backed.fi/api/v2/public/assets?page=N&pageSize=100 -> nodes[] with symbol, logo and trading: {tradingHoursMode, isTradingHalted, currentPeriod (market|extended|overnight|closed), openNow, nextChangeAt}. Refresh trading status every 5 min.
+- Rate limit header x-ratelimit-limit: 1000. Poll each ticker every 15 s (28 req/min), retry with backoff, never crash the worker.
 
-**Inputs from Fluxion (T01)**: pool addresses, pool type and the correct read method (for example reserves, a price getter or a quoter), token decimals, quote token.
+Cross-check (5 tickers with Fluxion V3 pools vs USDC, fee 0.3%, Mantle chain 5000): read slot0 via viem; USDC is token0 (6 decimals), wrapped xStock is token1 (18 decimals); priceUsd = 2^192 / sqrtPriceX96^2 * 10^12.
 
-**Do** (in `packages/fluxion-oracle`, used by `apps/worker`)
+- AAPL pool 0x2cc6a607f3445d826b9e29f507b3a2e3b9dae106
+- GOOGL pool 0x66960ed892daf022c5f282c5316c38cb6f0c1333
+- META pool 0x782bd3895a6ac561d0df11b02dd6f9e023f3a497
+- NVDA pool 0xa875ac23d106394d1baaae5bc42b951268bc04e2
+- TSLA pool 0x5e7935d70b5d14b6cf36fbde59944533fab96b3c
+  If the pool price differs from the xStocks quote by more than PRICE_DIVERGENCE_PCT (default 3), log a warning and mark the ticker paused with reason "divergence".
 
-- `getSpotPrices(): Promise<Record<Ticker, { priceUsd: string; blockNumber: bigint }>>` reading all 7 pools in one multicall via viem on `MANTLE_RPC_URL`.
-- Keep the pool-reading logic behind one adapter function so it can be swapped when Fluxion confirms the method.
-- Worker job every 15 s: read, insert into `price_snapshots`, run checks, update `ticker_status`.
-- `getTwap(ticker, endAt, minutes = 15)` from snapshots (time-weighted, not a plain average).
-- `get24hChange(ticker)` = TWAP now vs TWAP 24 h ago.
-- Add `viem` as a dependency of this package only.
-- Checks: stale if newest snapshot older than 2 min; jump if two consecutive snapshots differ more than `PRICE_JUMP_LIMIT_PCT` (config, default 5). Either pauses the ticker with a reason.
-- Retry RPC failures with backoff; never crash the worker.
+Mantle token addresses (xStock / wrapped), for links and metadata:
+AAPLx 0x9d275685dc284c8eb1c79f6aba7a63dc75ec890a / 0x5aa7649fdbda47de64a07ac81d64b682af9c0724
+MSFTx 0x5621737f42dae558b81269fcb9e9e70c19aa6b35 / 0x63ad27614231767c8c489745b9145272de50d09b
+GOOGLx 0xe92f673ca36c5e2efd2de7628f815f84807e803f / 0x1630f08370917e79df0b7572395a5e907508bbbc
+AMZNx 0x3557ba345b01efa20a1bddc61f573bfd87195081 / 0xac85d37acbadca37545e21ab0fb991bce8c1187c
+METAx 0x96702be57cd9777f835117a809c7124fe4ec989a / 0x4e41a262caa93c6575d336e0a4eb79f3c67caa06
+NVDAx 0xc845b2894dbddd03858fd2d643b4ef725fe0849d / 0x93e62845c1dd5822ebc807ab71a5fb750decd15a
+TSLAx 0x8ad3c73f833d3f9a523ab01476625f269aeb7cf0 / 0x43680abf18cf54898be84c6ef78237cfbd441883
+USDC on Mantle 0x09bc4e0d864854c6afb6eb9a9cdf58ac190d0df9
 
-**Acceptance**
-
-- Unit tests for TWAP, 24h change and both checks using fixture snapshots.
-- A script `pnpm oracle:print` prints current prices for all 7 tickers from mainnet.
+Keep: twap(), checkTicker(), parsePoolsJson() and their tests. Add reasons "divergence" and "closed" to TickerState. When currentPeriod is "closed" or isTradingHalted is true, mark the ticker paused with reason "closed" (games use the last price and say "Market closed").
+Config: XSTOCKS_API_BASE (default https://api.backed.fi/api/v2), FLUXION_POOLS_JSON (the 5 pools above), PRICE_DIVERGENCE_PCT. Put the addresses and logo URLs in packages/game-core/src/assets.ts, not in .env.
+The worker stores snapshots through packages/db (source = xstocks, plus fluxion_pool rows for the cross-check), using the local PGlite fallback when DATABASE_URL is not set.
+Tests: price parsing, slot0 math with a fixture (AAPL sqrtPriceX96 4268565857940899094584234137899180 -> ~344.50), divergence pause, closed-market pause, API error retry. Script pnpm oracle:print prints all 7 prices, period and divergence.
+Player-facing copy: "Live xStock prices, as quoted on Fluxion RFQ."
 
 ---
 

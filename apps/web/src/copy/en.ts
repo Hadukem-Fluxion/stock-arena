@@ -4,7 +4,7 @@
  */
 export const en = {
   appName: "Stock Arena",
-  tagline: "Play daily with tokenized stocks. Live prices from Fluxion on Mantle.",
+  tagline: "Live xStock prices, as quoted on Fluxion RFQ.",
   disclaimer:
     "For entertainment and education only. Not financial advice. Points have no cash value.",
   regionNotice: "xStocks are not available in the United States and other restricted regions.",
@@ -25,5 +25,6 @@ export const en = {
   status: {
     pricesPaused: "Price games are paused while we check price data. Check-in and quiz still work.",
     comingSoon: "Coming soon",
+    marketClosed: "Market closed",
   },
 } as const;
