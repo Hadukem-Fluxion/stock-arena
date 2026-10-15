@@ -1,8 +1,8 @@
-# Stock Arena
+# mStocks Arena
 
 Free-to-play mini games about tokenized US stocks, running as a **Discord Activity** and a **Telegram Mini App** from one codebase. The **xStocks public API** provides primary prices for all seven stocks; **Fluxion pools on Mantle** cross-check five of them. No wallet, no deposits, no real trading.
 
-> Working name. Final branding to be approved by Mantle and Fluxion.
+> Campaign app name: mStocks Arena. The repository and package identifiers remain stock-arena.
 
 ## Season 1 games
 
@@ -21,15 +21,16 @@ Full rules and point values: `docs/GAME_RULES.md`, implemented in `packages/game
 
 ## Documentation
 
-| File                   | For             | What it holds                                                  |
-| ---------------------- | --------------- | -------------------------------------------------------------- |
-| `AGENTS.md`            | Codex           | How to work in this repo, code rules, platform and price rules |
-| `docs/TASKS.md`        | Codex           | One brief per pull request, with acceptance criteria           |
-| `docs/ROADMAP.md`      | Everyone        | Phases, dates, gates, who does what, open questions            |
-| `docs/GAME_RULES.md`   | Everyone        | Games, points, leaderboards, fair play                         |
-| `docs/PLAYER_GUIDE.md` | Players         | How to play on Discord and Telegram, FAQ                       |
-| `docs/ADMIN_GUIDE.md`  | Admins and mods | Permissions, routines, abuse signals, incidents, payouts       |
-| `docs/INFRA.md`        | Everyone        | Infrastructure services, account ownership and secret storage  |
+| File                    | For                       | What it holds                                                  |
+| ----------------------- | ------------------------- | -------------------------------------------------------------- |
+| `AGENTS.md`             | Codex                     | How to work in this repo, code rules, platform and price rules |
+| `docs/TASKS.md`         | Codex                     | One brief per pull request, with acceptance criteria           |
+| `docs/ROADMAP.md`       | Everyone                  | Phases, dates, gates, who does what, open questions            |
+| `docs/GAME_RULES.md`    | Everyone                  | Games, points, leaderboards, fair play                         |
+| `docs/PLAYER_GUIDE.md`  | Players                   | How to play on Discord and Telegram, FAQ                       |
+| `docs/ADMIN_GUIDE.md`   | Admins and mods           | Permissions, routines, abuse signals, incidents, payouts       |
+| `docs/INFRA.md`         | Everyone                  | Infrastructure services, account ownership and secret storage  |
+| `docs/design/DESIGN.md` | Implementation and review | Visual guide and mobile/desktop prototype references for T08   |
 
 ## Project status
 
@@ -193,10 +194,16 @@ Point the bot's Mini App URL (BotFather) at the same tunnel. Use a separate test
 
 Mantle, Fluxion and xStocks names and logos belong to their owners and are used with permission for this campaign.
 
-Hadukem supplies official light/dark SVG logos in `apps/web/public/brand/`; the
+Hadukem supplied official SVG logos for dark backgrounds in `apps/web/public/brand/`; the
 README in that directory lists the expected filenames. Stock logo URLs come from
 the xStocks public assets API and are stored in `assets.ts`. No license has been
 selected for publishing this repository as open source.
+
+The shared `StockLogo` component in `packages/ui` takes `ticker`, `size` and
+`showBadge`. It uses the xStocks asset logo URL, crops it to a circle, and overlays
+the supplied xStocks mark in a dark circular badge. The header uses the Mantle
+symbol; full partner branding is reserved for the footer. Visual shell work in
+T08 follows `docs/design/DESIGN.md` and its reference prototypes.
 
 ## Disclaimer
 

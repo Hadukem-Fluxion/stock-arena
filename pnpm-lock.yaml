@@ -60,6 +60,9 @@ importers:
       '@stock-arena/game-core':
         specifier: workspace:*
         version: link:../../packages/game-core
+      '@stock-arena/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -128,7 +131,18 @@ importers:
 
   packages/game-core: {}
 
-  packages/ui: {}
+  packages/ui:
+    dependencies:
+      '@stock-arena/game-core':
+        specifier: workspace:*
+        version: link:../game-core
+    devDependencies:
+      '@types/react':
+        specifier: ^18.3.31
+        version: 18.3.31
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
 
 packages:
 

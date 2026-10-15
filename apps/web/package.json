@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@stock-arena/game-core": "workspace:*",
+    "@stock-arena/ui": "workspace:*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

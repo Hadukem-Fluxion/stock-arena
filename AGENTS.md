@@ -1,6 +1,6 @@
 # AGENTS.md — instructions for Codex
 
-You are implementing Stock Arena: casual games about tokenized stocks that run as a Discord Activity and a Telegram Mini App from one codebase. Read README.md first, then the brief you were given from docs/TASKS.md.
+You are implementing mStocks Arena: casual games about tokenized stocks that run as a Discord Activity and a Telegram Mini App from one codebase. Read README.md first, then the brief you were given from docs/TASKS.md.
 
 ## Language
 

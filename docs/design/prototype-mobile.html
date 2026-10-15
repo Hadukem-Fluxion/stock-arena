@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>mStocks Arena</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B0E11}
+a{color:#7FE3C0}a:hover{color:#B5F2DC}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #0B0E11; color: #EEF2F4; font-family: 'IBM Plex Sans', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 18px 20px 12px">
+<div style="display: flex; align-items: center; gap: 10px">
+<img src="/_blob/e35e68293ecf8590b408c3f94ec9799b" alt="Mantle" style="width: 28px; height: 28px">
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: -0.01em">mStocks Arena</div>
+</div>
+<div style="display: flex; align-items: center; gap: 8px">
+<div style="padding: 6px 10px; border-radius: 999px; background: #151A1F; border: 1px solid #26303A; font-size: 13px; font-weight: 600"><span style="font-family: 'IBM Plex Mono', monospace">{{streak}}</span>-day streak</div>
+<div style="padding: 6px 10px; border-radius: 999px; background: #10261E; border: 1px solid #1FD59A; color: #7FE3C0; font-size: 13px; font-weight: 600; font-family: 'IBM Plex Mono', monospace">{{points}} pts</div>
+</div>
+</header>
+
+<main style="flex: 1; overflow-y: auto; padding: 4px 20px 20px; display: flex; flex-direction: column; gap: 16px">
+
+<sc-if value="{{screen.home}}" hint-placeholder-val="{{ true }}">
+<section style="background: #151A1F; border: 1px solid #26303A; border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<div style="font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #9AA6B2">Stock of the Day</div>
+<div style="font-size: 12px; color: #9AA6B2">Oct 15 · UTC</div>
+</div>
+<div style="display: flex; align-items: center; gap: 12px">
+<span style="position: relative; display: inline-flex; flex-shrink: 0; width: 48px; height: 48px"><img src="/_blob/df4a5b45e319e6ed0f8ec473c5ad4448" alt="Nvidia" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover"><span style="position: absolute; right: -3px; bottom: -3px; width: 22px; height: 22px; border-radius: 50%; background: #0B0E11; border: 2px solid #0B0E11; display: flex; align-items: center; justify-content: center"><img src="/_blob/f85c509e790e173b01127893eef85b8c" alt="xStocks" style="width: 16px; height: 16px"></span></span>
+<div style="flex: 1">
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px">NVDAx</div>
+<div style="font-size: 13px; color: #9AA6B2">Nvidia</div>
+</div>
+<div style="text-align: right">
+<div style="font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 20px">$217.34</div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #FF9B73">▼ 1.63%</div>
+</div>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #C9D2DA">Nvidia designs GPUs used for gaming, data centers and AI training.</p>
+<sc-if value="{{checkedIn}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 48px; border-radius: 14px; background: #10261E; border: 1px solid #1FD59A; color: #7FE3C0; font-weight: 600">Checked in · +10 pts · see you tomorrow</div>
+</sc-if>
+<sc-if value="{{notCheckedIn}}" hint-placeholder-val="{{ true }}">
+<button onClick="{{checkIn}}" style="height: 48px; border: 0; border-radius: 14px; background: #1FD59A; color: #06261A; font-size: 16px; font-weight: 700; cursor: pointer">Check in · +10 pts</button>
+</sc-if>
+<a href="https://app.fluxion.network/trade" style="font-size: 13px; font-weight: 600; text-decoration: none">Trade on Fluxion →</a>
+</section>
+
+<section style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<button onClick="{{openQuiz}}" style="text-align: left; padding: 16px; border-radius: 18px; background: #151A1F; border: 1px solid #26303A; color: #EEF2F4; cursor: pointer; display: flex; flex-direction: column; gap: 6px">
+<span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px">Daily Quiz</span>
+<span style="font-size: 13px; color: #9AA6B2">3 questions · 30 s each</span>
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #7FE3C0">{{quizBadge}}</span>
+</button>
+<button onClick="{{openHl}}" style="text-align: left; padding: 16px; border-radius: 18px; background: #151A1F; border: 1px solid #26303A; color: #EEF2F4; cursor: pointer; display: flex; flex-direction: column; gap: 6px">
+<span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px">Higher or Lower</span>
+<span style="font-size: 13px; color: #9AA6B2">Who moved more in 24h?</span>
+<span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #7FE3C0">3 runs left · 5 pts/pick</span>
+</button>
+<div style="grid-column: span 2; padding: 14px 16px; border-radius: 18px; border: 1px dashed #26303A; display: flex; justify-content: space-between; align-items: center">
+<div>
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 16px; color: #C9D2DA">Daily Call</div>
+<div style="font-size: 13px; color: #9AA6B2">Up or Down on 3 stocks, settled in 24h</div>
+</div>
+<div style="font-size: 12px; font-weight: 600; color: #9AA6B2">Coming soon</div>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px">Magnificent 7</div>
+<div style="font-size: 12px; color: #9AA6B2">xStocks quotes · 24h</div>
+</div>
+<sc-for list="{{tickers}}" as="t" hint-placeholder-count="7">
+<div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; background: #151A1F">
+<span style="position: relative; display: inline-flex; flex-shrink: 0; width: 32px; height: 32px"><img src="{{t.logo}}" alt="{{t.name}}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover"><span style="position: absolute; right: -3px; bottom: -3px; width: 18px; height: 18px; border-radius: 50%; background: #0B0E11; border: 2px solid #0B0E11; display: flex; align-items: center; justify-content: center"><img src="/_blob/f85c509e790e173b01127893eef85b8c" alt="xStocks" style="width: 13px; height: 13px"></span></span>
+<div style="flex: 1; min-width: 0">
+<div style="font-weight: 600; font-size: 15px">{{t.sym}}</div>
+<div style="font-size: 12px; color: #9AA6B2">{{t.name}}</div>
+</div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 15px">{{t.price}}</div>
+<div style="width: 72px; text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: {{t.color}}">{{t.chg}}</div>
+</div>
+</sc-for>
+</section>
+</sc-if>
+
+<sc-if value="{{screen.quiz}}" hint-placeholder-val="{{ false }}">
+<section style="display: flex; flex-direction: column; gap: 16px">
+<button onClick="{{goHome}}" style="align-self: flex-start; background: none; border: 0; color: #9AA6B2; font-size: 14px; padding: 8px 0; cursor: pointer">← Back</button>
+<sc-if value="{{quizRunning}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; justify-content: space-between; font-size: 13px; color: #9AA6B2"><span>Question {{q.num}} of 3</span><span style="font-family: 'IBM Plex Mono', monospace">0:24</span></div>
+<div style="height: 6px; border-radius: 3px; background: #1C232A"><div style="width: 80%; height: 6px; border-radius: 3px; background: #1FD59A"></div></div>
+<div style="font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #7FE3C0">{{q.topic}}</div>
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px; line-height: 1.25">{{q.prompt}}</h2>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{q.options}}" as="o" hint-placeholder-count="4">
+<button onClick="{{o.pick}}" style="text-align: left; min-height: 52px; padding: 12px 14px; border-radius: 14px; font-size: 15px; cursor: pointer; color: #EEF2F4; background: {{o.bg}}; border: 1px solid {{o.border}}">{{o.label}}</button>
+</sc-for>
+</div>
+<sc-if value="{{q.answered}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 14px; border-radius: 14px; background: #151A1F; display: flex; flex-direction: column; gap: 6px">
+<div style="font-weight: 700; color: {{q.verdictColor}}">{{q.verdict}}</div>
+<div style="font-size: 14px; line-height: 1.5; color: #C9D2DA">{{q.explanation}}</div>
+</div>
+<button onClick="{{nextQ}}" style="height: 48px; border: 0; border-radius: 14px; background: #1FD59A; color: #06261A; font-size: 16px; font-weight: 700; cursor: pointer">{{q.nextLabel}}</button>
+</sc-if>
+</sc-if>
+<sc-if value="{{quizDone}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 24px; border-radius: 20px; background: #151A1F; border: 1px solid #26303A; text-align: center; display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 13px; color: #9AA6B2">Daily Quiz complete</div>
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 40px">{{quizScore}} / 3</div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 18px; color: #7FE3C0">+{{quizPoints}} pts</div>
+<div style="font-size: 14px; color: #C9D2DA">New questions at 00:00 UTC.</div>
+</div>
+<button onClick="{{goHome}}" style="height: 48px; border: 1px solid #26303A; border-radius: 14px; background: #151A1F; color: #EEF2F4; font-size: 16px; font-weight: 600; cursor: pointer">Back to games</button>
+</sc-if>
+</section>
+</sc-if>
+
+<sc-if value="{{screen.hl}}" hint-placeholder-val="{{ false }}">
+<section style="display: flex; flex-direction: column; gap: 16px">
+<button onClick="{{goHome}}" style="align-self: flex-start; background: none; border: 0; color: #9AA6B2; font-size: 14px; padding: 8px 0; cursor: pointer">← Back</button>
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px">Higher or Lower</h2>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #7FE3C0">{{hl.correct}} correct</div>
+</div>
+<p style="margin: 0; font-size: 15px; color: #C9D2DA">Which stock moved more in the last 24 hours, up or down?</p>
+<sc-if value="{{hl.playing}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<sc-for list="{{hl.cards}}" as="c" hint-placeholder-count="2">
+<button onClick="{{c.pick}}" style="text-align: left; padding: 18px; border-radius: 18px; cursor: pointer; color: #EEF2F4; background: {{c.bg}}; border: 2px solid {{c.border}}; display: flex; align-items: center; gap: 12px">
+<span style="position: relative; display: inline-flex; flex-shrink: 0; width: 40px; height: 40px"><img src="{{c.logo}}" alt="{{c.name}}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover"><span style="position: absolute; right: -3px; bottom: -3px; width: 20px; height: 20px; border-radius: 50%; background: #0B0E11; border: 2px solid #0B0E11; display: flex; align-items: center; justify-content: center"><img src="/_blob/f85c509e790e173b01127893eef85b8c" alt="xStocks" style="width: 14px; height: 14px"></span></span>
+<span style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+<span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px">{{c.sym}}</span>
+<span style="font-size: 13px; color: #9AA6B2">{{c.name}} · {{c.price}}</span>
+</span>
+<span style="font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 18px; color: {{c.chgColor}}">{{c.chg}}</span>
+</button>
+</sc-for>
+</div>
+<sc-if value="{{hl.answered}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 14px; border-radius: 14px; background: #151A1F; font-weight: 700; color: {{hl.verdictColor}}">{{hl.verdict}}</div>
+<button onClick="{{hl.next}}" style="height: 48px; border: 0; border-radius: 14px; background: #1FD59A; color: #06261A; font-size: 16px; font-weight: 700; cursor: pointer">{{hl.nextLabel}}</button>
+</sc-if>
+</sc-if>
+<sc-if value="{{hl.over}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 24px; border-radius: 20px; background: #151A1F; border: 1px solid #26303A; text-align: center; display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 13px; color: #9AA6B2">Run over</div>
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 40px">{{hl.correct}} correct</div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 18px; color: #7FE3C0">+{{hl.points}} pts</div>
+<div style="font-size: 14px; color: #C9D2DA">2 runs left today.</div>
+</div>
+<button onClick="{{goHome}}" style="height: 48px; border: 1px solid #26303A; border-radius: 14px; background: #151A1F; color: #EEF2F4; font-size: 16px; font-weight: 600; cursor: pointer">Back to games</button>
+</sc-if>
+</section>
+</sc-if>
+
+<sc-if value="{{screen.board}}" hint-placeholder-val="{{ false }}">
+<section style="display: flex; flex-direction: column; gap: 12px">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px">Leaderboard</h2>
+<div style="display: flex; gap: 8px">
+<sc-for list="{{periods}}" as="p" hint-placeholder-count="3">
+<button onClick="{{p.pick}}" style="flex: 1; height: 40px; border-radius: 999px; font-size: 14px; font-weight: 600; cursor: pointer; color: {{p.color}}; background: {{p.bg}}; border: 1px solid {{p.border}}">{{p.label}}</button>
+</sc-for>
+</div>
+<div style="font-size: 12px; color: #9AA6B2">Sample data · Discord + Telegram</div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 14px; background: {{r.bg}}; border: 1px solid {{r.border}}">
+<div style="width: 28px; font-family: 'IBM Plex Mono', monospace; font-weight: 600; color: #9AA6B2">{{r.rank}}</div>
+<div style="flex: 1; font-weight: 600">{{r.name}}</div>
+<div style="font-size: 12px; color: #9AA6B2">{{r.platform}}</div>
+<div style="width: 64px; text-align: right; font-family: 'IBM Plex Mono', monospace; font-weight: 600">{{r.pts}}</div>
+</div>
+</sc-for>
+</section>
+</sc-if>
+
+<sc-if value="{{screen.profile}}" hint-placeholder-val="{{ false }}">
+<section style="display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px">Profile</h2>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+<div style="padding: 14px; border-radius: 16px; background: #151A1F"><div style="font-size: 12px; color: #9AA6B2">Points</div><div style="font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 20px">{{points}}</div></div>
+<div style="padding: 14px; border-radius: 16px; background: #151A1F"><div style="font-size: 12px; color: #9AA6B2">Streak</div><div style="font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 20px">{{streak}}</div></div>
+<div style="padding: 14px; border-radius: 16px; background: #151A1F"><div style="font-size: 12px; color: #9AA6B2">Rank</div><div style="font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 20px">#42</div></div>
+</div>
+<div style="padding: 16px; border-radius: 18px; background: #151A1F; border: 1px solid #26303A; display: flex; flex-direction: column; gap: 10px">
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px">Invite friends</div>
+<div style="font-size: 14px; color: #C9D2DA">+50 pts when a friend checks in on 3 different days. Up to 10 friends per season.</div>
+<div style="display: flex; gap: 8px">
+<label for="invite" style="position: absolute; left: -9999px">Your invite link</label>
+<input id="invite" readonly value="t.me/mStocksArenaBot?startapp=hadukem" style="flex: 1; min-width: 0; height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid #26303A; background: #0B0E11; color: #EEF2F4; font-family: 'IBM Plex Mono', monospace; font-size: 13px">
+<button onClick="{{copyInvite}}" style="height: 44px; padding: 0 16px; border: 0; border-radius: 12px; background: #1FD59A; color: #06261A; font-weight: 700; cursor: pointer">{{copyLabel}}</button>
+</div>
+</div>
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px">Points history</div>
+<sc-for list="{{history}}" as="h" hint-placeholder-count="4">
+<div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1C232A; font-size: 14px">
+<span style="color: #C9D2DA">{{h.what}}</span>
+<span style="font-family: 'IBM Plex Mono', monospace; color: #7FE3C0">{{h.pts}}</span>
+</div>
+</sc-for>
+</section>
+</sc-if>
+
+<footer style="margin-top: auto; padding-top: 12px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; font-size: 11px; color: #9AA6B2">
+<span style="display: flex; align-items: center; gap: 6px">Prices <img src="/_blob/f85c509e790e173b01127893eef85b8c" alt="xStocks" style="width: 24px; height: 24px"></span>
+<span style="display: flex; align-items: center; gap: 6px">Trade on <img src="/_blob/e1923f2fa605a90112882c996fac3dad" alt="Fluxion" style="height: 14px; width: auto"></span>
+<span style="display: flex; align-items: center; gap: 6px">Built on <img src="/_blob/163b893c5bf06c408dcfcf83d142d484" alt="Mantle" style="height: 18px; width: auto"></span>
+</div>
+<p style="margin: 0; font-size: 11px; line-height: 1.45; color: #9AA6B2; text-align: center">For entertainment and education only. Not financial advice. Points have no cash value. xStocks are not available in the U.S. or to U.S. persons. Geo restrictions apply. <a href="https://assets.backed.fi/legal-documentation">Legal terms</a></p>
+</footer>
+</main>
+
+<nav aria-label="Main" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid #1C232A; background: #0F1316; padding: 6px 8px 16px">
+<sc-for list="{{tabs}}" as="tab" hint-placeholder-count="3">
+<button onClick="{{tab.pick}}" style="height: 52px; border: 0; background: none; cursor: pointer; font-size: 13px; font-weight: 600; color: {{tab.color}}; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px">
+<span style="width: 22px; height: 3px; border-radius: 2px; background: {{tab.bar}}"></span>
+{{tab.label}}
+</button>
+</sc-for>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+const TICKERS = [
+  { sym: 'AAPLx', name: 'Apple', price: 343.92, chg: 0.50, logo: '/_blob/d80da5ad00bf5d17a0e91bf8c5a26216' },
+  { sym: 'MSFTx', name: 'Microsoft', price: 539.59, chg: 0.89, logo: '/_blob/f0fbb0200d72e6c8b2e9f7d7818f6788' },
+  { sym: 'GOOGLx', name: 'Alphabet', price: 347.86, chg: -0.27, logo: '/_blob/800a5b28334d733f46149ef31034f869' },
+  { sym: 'AMZNx', name: 'Amazon', price: 253.98, chg: 0.12, logo: '/_blob/7c293800eb2cceb6ef45ad898e3ae8f6' },
+  { sym: 'METAx', name: 'Meta', price: 733.93, chg: -0.25, logo: '/_blob/06dc606315b9a72a60275de3fdc3d1a2' },
+  { sym: 'NVDAx', name: 'Nvidia', price: 217.34, chg: -1.63, logo: '/_blob/df4a5b45e319e6ed0f8ec473c5ad4448' },
+  { sym: 'TSLAx', name: 'Tesla', price: 360.90, chg: -1.17, logo: '/_blob/1e4a1651f613addd6c1da3f1cd4339b7' }
+];
+const BY = {};
+TICKERS.forEach(function (t) { BY[t.sym] = t; });
+const PAIRS = [['NVDAx', 'AAPLx'], ['METAx', 'MSFTx'], ['AMZNx', 'TSLAx'], ['AAPLx', 'GOOGLx']];
+const QUIZ = [
+  { topic: 'xStocks', prompt: 'What is an xStock?', options: ['A crypto mining stock', 'A stock index future', 'A token that tracks a real stock and is backed 1:1 by the underlying share', 'A loyalty point'], answer: 2, explanation: 'Each xStock tracks a listed stock or ETF and is backed 1:1 by the underlying asset.' },
+  { topic: 'Fluxion', prompt: 'What does RFQ stand for?', options: ['Request for Quote', 'Rapid Fund Queue', 'Reserve Fee Quota', 'Real Floating Quote'], answer: 0, explanation: 'RFQ means Request for Quote: you ask for a price and get a firm quote to execute.' },
+  { topic: 'Mantle', prompt: 'What is the ticker of Mantle’s native token?', options: ['MANT', 'ML2', 'MTL', 'MNT'], answer: 3, explanation: 'Mantle’s native token is MNT, also used to pay gas on the network.' }
+];
+const MINT = '#1FD59A', MINT_TEXT = '#7FE3C0', DOWN = '#FF9B73', MUTED = '#9AA6B2';
+function fmtPrice(p) { return '$' + p.toFixed(2); }
+function fmtChg(c) { return (c >= 0 ? '▲ ' : '▼ ') + Math.abs(c).toFixed(2) + '%'; }
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tab: 'play', view: 'home', checkedIn: false, points: 1240, qIndex: 0, qPicked: null, qCorrect: 0, quizDone: false, hlIndex: 0, hlPicked: null, hlCorrect: 0, hlOver: false, period: 'Daily', copied: false };
+  }
+  go(view) { this.setState({ view: view, tab: 'play' }); }
+  renderVals() {
+    const s = this.state;
+    const self = this;
+    const onPlay = s.tab === 'play';
+    const screen = {
+      home: onPlay && s.view === 'home',
+      quiz: onPlay && s.view === 'quiz',
+      hl: onPlay && s.view === 'hl',
+      board: s.tab === 'board',
+      profile: s.tab === 'profile'
+    };
+
+    const cur = QUIZ[s.qIndex];
+    const answered = s.qPicked !== null;
+    const q = {
+      num: s.qIndex + 1,
+      topic: cur.topic,
+      prompt: cur.prompt,
+      answered: answered,
+      explanation: cur.explanation,
+      verdict: answered ? (s.qPicked === cur.answer ? 'Correct! +20 pts' : 'Not quite.') : '',
+      verdictColor: answered && s.qPicked === cur.answer ? MINT_TEXT : DOWN,
+      nextLabel: s.qIndex === QUIZ.length - 1 ? 'See results' : 'Next question',
+      options: cur.options.map(function (label, i) {
+        let bg = '#151A1F', border = '#26303A';
+        if (answered && i === cur.answer) { bg = '#10261E'; border = MINT; }
+        else if (answered && i === s.qPicked) { bg = '#2A1A14'; border = DOWN; }
+        return {
+          label: label, bg: bg, border: border,
+          pick: function () {
+            if (self.state.qPicked !== null) return;
+            const ok = i === cur.answer;
+            self.setState({ qPicked: i, qCorrect: self.state.qCorrect + (ok ? 1 : 0), points: self.state.points + (ok ? 20 : 0) });
+          }
+        };
+      })
+    };
+    const quizPts = s.qCorrect * 20 + (s.qCorrect === 3 ? 15 : 0);
+
+    const pair = PAIRS[Math.min(s.hlIndex, PAIRS.length - 1)].map(function (sym) { return BY[sym]; });
+    const winner = Math.abs(pair[0].chg) >= Math.abs(pair[1].chg) ? pair[0].sym : pair[1].sym;
+    const hlAnswered = s.hlPicked !== null;
+    const hlRight = hlAnswered && s.hlPicked === winner;
+    const hl = {
+      correct: s.hlCorrect,
+      points: s.hlCorrect * 5,
+      playing: !s.hlOver,
+      over: s.hlOver,
+      answered: hlAnswered,
+      verdict: hlAnswered ? (hlRight ? 'Right! ' + winner + ' moved more. +5 pts' : 'Wrong pick. ' + winner + ' moved more.') : '',
+      verdictColor: hlRight ? MINT_TEXT : DOWN,
+      nextLabel: hlRight && s.hlIndex < PAIRS.length - 1 ? 'Next pair' : 'Finish run',
+      next: function () {
+        const right = self.state.hlPicked === winner;
+        if (right && self.state.hlIndex < PAIRS.length - 1) self.setState({ hlIndex: self.state.hlIndex + 1, hlPicked: null });
+        else self.setState({ hlOver: true });
+      },
+      cards: pair.map(function (t) {
+        let bg = '#151A1F', border = '#26303A';
+        if (hlAnswered && t.sym === winner) { bg = '#10261E'; border = MINT; }
+        else if (hlAnswered && t.sym === s.hlPicked) { bg = '#2A1A14'; border = DOWN; }
+        return {
+          sym: t.sym, name: t.name, logo: t.logo, price: fmtPrice(t.price), bg: bg, border: border,
+          chg: hlAnswered ? fmtChg(t.chg) : '?',
+          chgColor: hlAnswered ? (t.chg >= 0 ? MINT_TEXT : DOWN) : MUTED,
+          pick: function () {
+            if (self.state.hlPicked !== null) return;
+            const ok = t.sym === winner;
+            self.setState({ hlPicked: t.sym, hlCorrect: self.state.hlCorrect + (ok ? 1 : 0), points: self.state.points + (ok ? 5 : 0) });
+          }
+        };
+      })
+    };
+
+    const boards = {
+      Daily: [['cryptoMaria', 'TG', 210], ['0xRafa', 'DC', 195], ['moonKenji', 'DC', 180], ['hadukem', 'TG', 165], ['luana.eth', 'DC', 150], ['tradeTom', 'TG', 140], ['ayo_mnt', 'DC', 125], ['sofiaRWA', 'TG', 110]],
+      Weekly: [['0xRafa', 'DC', 1120], ['cryptoMaria', 'TG', 1065], ['luana.eth', 'DC', 990], ['moonKenji', 'DC', 940], ['sofiaRWA', 'TG', 880], ['hadukem', 'TG', 860], ['ayo_mnt', 'DC', 815], ['tradeTom', 'TG', 790]],
+      Season: [['cryptoMaria', 'TG', 4310], ['0xRafa', 'DC', 4205], ['luana.eth', 'DC', 3980], ['moonKenji', 'DC', 3720], ['tradeTom', 'TG', 3510], ['sofiaRWA', 'TG', 3400], ['ayo_mnt', 'DC', 3215], ['hadukem', 'TG', 3150]]
+    };
+    const rows = boards[s.period].map(function (r, i) {
+      const me = r[0] === 'hadukem';
+      return { rank: i + 1, name: me ? r[0] + ' (you)' : r[0], platform: r[1] === 'TG' ? 'Telegram' : 'Discord', pts: r[2].toLocaleString('en-US'), bg: me ? '#10261E' : '#151A1F', border: me ? MINT : '#151A1F' };
+    });
+
+    return {
+      screen: screen,
+      streak: s.checkedIn ? 5 : 4,
+      points: s.points.toLocaleString('en-US'),
+      checkedIn: s.checkedIn,
+      notCheckedIn: !s.checkedIn,
+      checkIn: function () { if (!self.state.checkedIn) self.setState({ checkedIn: true, points: self.state.points + 10 }); },
+      quizBadge: s.quizDone ? 'Done · +' + quizPts + ' pts' : 'Up to 75 pts',
+      openQuiz: function () { self.go('quiz'); },
+      openHl: function () { self.setState({ view: 'hl', tab: 'play', hlIndex: 0, hlPicked: null, hlCorrect: 0, hlOver: false }); },
+      goHome: function () { self.go('home'); },
+      tickers: TICKERS.map(function (t) { return { sym: t.sym, name: t.name, logo: t.logo, price: fmtPrice(t.price), chg: fmtChg(t.chg), color: t.chg >= 0 ? MINT_TEXT : DOWN }; }),
+      q: q,
+      quizRunning: !s.quizDone,
+      quizDone: s.quizDone,
+      quizScore: s.qCorrect,
+      quizPoints: quizPts,
+      nextQ: function () {
+        if (self.state.qIndex < QUIZ.length - 1) self.setState({ qIndex: self.state.qIndex + 1, qPicked: null });
+        else self.setState({ quizDone: true, points: self.state.points + (self.state.qCorrect === 3 ? 15 : 0) });
+      },
+      hl: hl,
+      periods: ['Daily', 'Weekly', 'Season'].map(function (p) {
+        const on = s.period === p;
+        return { label: p, color: on ? '#06261A' : '#C9D2DA', bg: on ? MINT : '#151A1F', border: on ? MINT : '#26303A', pick: function () { self.setState({ period: p }); } };
+      }),
+      rows: rows,
+      copyLabel: s.copied ? 'Copied' : 'Copy',
+      copyInvite: function () { self.setState({ copied: true }); },
+      history: [
+        { what: 'Higher or Lower · run 1', pts: '+25' },
+        { what: 'Daily Quiz · 2 of 3', pts: '+40' },
+        { what: 'Check-in · day 4', pts: '+10' },
+        { what: 'Friend joined · cryptoMaria', pts: '+50' }
+      ],
+      tabs: [['play', 'Play'], ['board', 'Leaderboard'], ['profile', 'Profile']].map(function (t) {
+        const on = s.tab === t[0];
+        return { label: t[1], color: on ? MINT_TEXT : MUTED, bar: on ? MINT : 'transparent', pick: function () { self.setState({ tab: t[0], view: 'home' }); } };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

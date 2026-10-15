@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>mStocks Arena · desktop</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B0E11}
+a{color:#7FE3C0}a:hover{color:#B5F2DC}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 1280px; height: 800px; box-sizing: border-box; background: #0B0E11; color: #EEF2F4; font-family: 'IBM Plex Sans', system-ui, sans-serif; display: flex; flex-direction: column">
+
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 20px 32px; border-bottom: 1px solid #1C232A">
+<div style="display: flex; align-items: center; gap: 12px">
+<img src="/_blob/e35e68293ecf8590b408c3f94ec9799b" alt="Mantle" style="width: 32px; height: 32px">
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 24px; letter-spacing: -0.01em">mStocks Arena</div>
+</div>
+<nav aria-label="Main" style="display: flex; gap: 8px">
+<a href="#" style="padding: 10px 18px; border-radius: 999px; background: #1FD59A; color: #06261A; font-weight: 700; text-decoration: none">Play</a>
+<a href="#" style="padding: 10px 18px; border-radius: 999px; background: #151A1F; color: #C9D2DA; font-weight: 600; text-decoration: none">Leaderboard</a>
+<a href="#" style="padding: 10px 18px; border-radius: 999px; background: #151A1F; color: #C9D2DA; font-weight: 600; text-decoration: none">Profile</a>
+</nav>
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="padding: 8px 14px; border-radius: 999px; background: #151A1F; border: 1px solid #26303A; font-size: 14px; font-weight: 600"><span style="font-family: 'IBM Plex Mono', monospace">5</span>-day streak</div>
+<div style="padding: 8px 14px; border-radius: 999px; background: #10261E; border: 1px solid #1FD59A; color: #7FE3C0; font-size: 14px; font-weight: 600; font-family: 'IBM Plex Mono', monospace">1,250 pts</div>
+</div>
+</header>
+
+<main style="flex: 1; display: grid; grid-template-columns: 340px minmax(0, 1fr) 340px; gap: 24px; padding: 24px 32px; min-height: 0">
+
+<section style="display: flex; flex-direction: column; gap: 16px; min-height: 0">
+<div style="background: #151A1F; border: 1px solid #26303A; border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #9AA6B2">Stock of the Day</div>
+<div style="display: flex; align-items: center; gap: 12px">
+<span style="position: relative; display: inline-flex; flex-shrink: 0; width: 48px; height: 48px"><img src="/_blob/df4a5b45e319e6ed0f8ec473c5ad4448" alt="Nvidia" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover"><span style="position: absolute; right: -3px; bottom: -3px; width: 22px; height: 22px; border-radius: 50%; background: #0B0E11; border: 2px solid #0B0E11; display: flex; align-items: center; justify-content: center"><img src="/_blob/f85c509e790e173b01127893eef85b8c" alt="xStocks" style="width: 16px; height: 16px"></span></span>
+<div style="flex: 1">
+<div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px">NVDAx</div>
+<div style="font-size: 13px; color: #9AA6B2">Nvidia</div>
+</div>
+<div style="text-align: right">
+<div style="font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 20px">$217.34</div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #FF9B73">▼ 1.63%</div>
+</div>
+</div>
+<div style="display: flex; align-items: center; justify-content: center; height: 44px; border-radius: 12px; background: #10261E; border: 1px solid #1FD59A; color: #7FE3C0; font-weight: 600; font-size: 14px">Checked in · +10 pts</div>
+</div>
+<div style="padding: 16px; border-radius: 18px; background: #151A1F; border: 1px solid #26303A; display: flex; justify-content: space-between; align-items: center">
+<div><div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px">Daily Quiz</div><div style="font-size: 13px; color: #9AA6B2">3 questions · 30 s each</div></div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #7FE3C0">Up to 75 pts</div>
+</div>
+<div style="padding: 16px; border-radius: 18px; background: #10261E; border: 1px solid #1FD59A; display: flex; justify-content: space-between; align-items: center">
+<div><div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px">Higher or Lower</div><div style="font-size: 13px; color: #9AA6B2">Playing · run 1 of 3</div></div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #7FE3C0">5 pts/pick</div>
+</div>
+<div style="padding: 16px; border-radius: 18px; border: 1px dashed #26303A; display: flex; justify-content: space-between; align-items: center">
+<div><div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px; color: #C9D2DA">Daily Call</div><div style="font-size: 13px; color: #9AA6B2">Up or Down, settled in 24h</div></div>
+<div style="font-size: 12px; font-weight: 600; color: #9AA6B2">Coming soon</div>
+</div>
+</section>
+
+<section style="background: #151A1F; border: 1px solid #26303A; border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; justify-content: space-between; align-items: baseline">
+<h1 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 30px">Higher or Lower</h1>
+<div style="font-family: 'IBM Plex Mono', monospace; font-size: 15px; color: #7FE3C0">2 correct · pair 3 of 10</div>
+</div>
+<p style="margin: 0; font-size: 16px; color: #C9D2DA">Which stock moved more in the last 24 hours, up or down?</p>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; flex: 1">
+<button style="text-align: left; padding: 24px; border-radius: 20px; background: #0F1316; border: 2px solid #26303A; color: #EEF2F4; cursor: pointer; display: flex; flex-direction: column; gap: 14px; justify-content: center">
+<span style="position: relative; display: inline-flex; flex-shrink: 0; width: 72px; height: 72px"><img src="/_blob/7c293800eb2cceb6ef45ad898e3ae8f6" alt="Amazon" style="width: 72px; height: 72px; border-radius: 50%; object-fit: cover"><span style="position: absolute; right: -3px; bottom: -3px; width: 30px; height: 30px; border-radius: 50%; background: #0B0E11; border: 2px solid #0B0E11; display: flex; align-items: center; justify-content: center"><img src="/_blob/f85c509e790e173b01127893eef85b8c" alt="xStocks" style="width: 24px; height: 24px"></span></span>
+<span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 32px">AMZNx</span>
+<span style="font-size: 15px; color: #9AA6B2">Amazon · $253.98</span>
+<span style="font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 28px; color: #9AA6B2">?</span>
+</button>
+<button style="text-align: left; padding: 24px; border-radius: 20px; background: #0F1316; border: 2px solid #26303A; color: #EEF2F4; cursor: pointer; display: flex; flex-direction: column; gap: 14px; justify-content: center">
+<span style="position: relative; display: inline-flex; flex-shrink: 0; width: 72px; height: 72px"><img src="/_blob/1e4a1651f613addd6c1da3f1cd4339b7" alt="Tesla" style="width: 72px; height: 72px; border-radius: 50%; object-fit: cover"><span style="position: absolute; right: -3px; bottom: -3px; width: 30px; height: 30px; border-radius: 50%; background: #0B0E11; border: 2px solid #0B0E11; display: flex; align-items: center; justify-content: center"><img src="/_blob/f85c509e790e173b01127893eef85b8c" alt="xStocks" style="width: 24px; height: 24px"></span></span>
+<span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 32px">TSLAx</span>
+<span style="font-size: 15px; color: #9AA6B2">Tesla · $360.90</span>
+<span style="font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 28px; color: #9AA6B2">?</span>
+</button>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: #9AA6B2">
+<span>Prices settle on a 15-minute average, so one big trade can’t swing a round.</span>
+<a href="https://app.fluxion.network/trade" style="font-weight: 600; text-decoration: none">Trade on Fluxion →</a>
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 16px; min-height: 0">
+<div style="background: #151A1F; border: 1px solid #26303A; border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; padding: 0 4px 6px"><div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px">Magnificent 7</div><div style="font-size: 12px; color: #9AA6B2">24h</div></div>
+<sc-for list="{{tickers}}" as="t" hint-placeholder-count="7">
+<div style="display: flex; align-items: center; gap: 10px; padding: 6px 4px">
+<span style="position: relative; display: inline-flex; flex-shrink: 0; width: 28px; height: 28px"><img src="{{t.logo}}" alt="{{t.name}}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover"><span style="position: absolute; right: -3px; bottom: -3px; width: 16px; height: 16px; border-radius: 50%; background: #0B0E11; border: 2px solid #0B0E11; display: flex; align-items: center; justify-content: center"><img src="/_blob/f85c509e790e173b01127893eef85b8c" alt="xStocks" style="width: 12px; height: 12px"></span></span>
+<div style="flex: 1; font-weight: 600; font-size: 14px">{{t.sym}}</div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 14px">{{t.price}}</div>
+<div style="width: 70px; text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: {{t.color}}">{{t.chg}}</div>
+</div>
+</sc-for>
+</div>
+<div style="background: #151A1F; border: 1px solid #26303A; border-radius: 20px; padding: 16px; display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; padding: 0 4px 6px"><div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 17px">Today’s top 5</div><div style="font-size: 12px; color: #9AA6B2">Sample data</div></div>
+<sc-for list="{{top}}" as="r" hint-placeholder-count="5">
+<div style="display: flex; align-items: center; gap: 10px; padding: 6px 4px">
+<div style="width: 20px; font-family: 'IBM Plex Mono', monospace; color: #9AA6B2">{{r.rank}}</div>
+<div style="flex: 1; font-weight: 600; font-size: 14px">{{r.name}}</div>
+<div style="font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 14px">{{r.pts}}</div>
+</div>
+</sc-for>
+</div>
+</section>
+</main>
+
+<footer style="display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 14px 32px; border-top: 1px solid #1C232A; font-size: 12px; color: #9AA6B2">
+<div style="display: flex; align-items: center; gap: 18px">
+<span style="display: flex; align-items: center; gap: 6px">Prices <img src="/_blob/f85c509e790e173b01127893eef85b8c" alt="xStocks" style="width: 24px; height: 24px"></span>
+<span style="display: flex; align-items: center; gap: 6px">Trade on <img src="/_blob/e1923f2fa605a90112882c996fac3dad" alt="Fluxion" style="height: 14px; width: auto"></span>
+<span style="display: flex; align-items: center; gap: 6px">Built on <img src="/_blob/163b893c5bf06c408dcfcf83d142d484" alt="Mantle" style="height: 18px; width: auto"></span>
+</div>
+<p style="margin: 0; max-width: 640px; text-align: right; line-height: 1.45">For entertainment and education only. Not financial advice. Points have no cash value. xStocks are not available in the U.S. or to U.S. persons. Geo restrictions apply. <a href="https://assets.backed.fi/legal-documentation">Legal terms</a></p>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+const TICKERS = [
+  { sym: 'AAPLx', name: 'Apple', price: 343.92, chg: 0.50, logo: '/_blob/d80da5ad00bf5d17a0e91bf8c5a26216' },
+  { sym: 'MSFTx', name: 'Microsoft', price: 539.59, chg: 0.89, logo: '/_blob/f0fbb0200d72e6c8b2e9f7d7818f6788' },
+  { sym: 'GOOGLx', name: 'Alphabet', price: 347.86, chg: -0.27, logo: '/_blob/800a5b28334d733f46149ef31034f869' },
+  { sym: 'AMZNx', name: 'Amazon', price: 253.98, chg: 0.12, logo: '/_blob/7c293800eb2cceb6ef45ad898e3ae8f6' },
+  { sym: 'METAx', name: 'Meta', price: 733.93, chg: -0.25, logo: '/_blob/06dc606315b9a72a60275de3fdc3d1a2' },
+  { sym: 'NVDAx', name: 'Nvidia', price: 217.34, chg: -1.63, logo: '/_blob/df4a5b45e319e6ed0f8ec473c5ad4448' },
+  { sym: 'TSLAx', name: 'Tesla', price: 360.90, chg: -1.17, logo: '/_blob/1e4a1651f613addd6c1da3f1cd4339b7' }
+];
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      tickers: TICKERS.map(function (t) {
+        return { sym: t.sym, name: t.name, logo: t.logo, price: '$' + t.price.toFixed(2), chg: (t.chg >= 0 ? '▲ ' : '▼ ') + Math.abs(t.chg).toFixed(2) + '%', color: t.chg >= 0 ? '#7FE3C0' : '#FF9B73' };
+      }),
+      top: [['cryptoMaria', 210], ['0xRafa', 195], ['moonKenji', 180], ['hadukem (you)', 165], ['luana.eth', 150]].map(function (r, i) {
+        return { rank: i + 1, name: r[0], pts: String(r[1]) };
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

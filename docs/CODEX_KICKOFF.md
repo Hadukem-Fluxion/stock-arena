@@ -4,7 +4,7 @@ Cole o texto abaixo no Codex com esta pasta aberta como workspace.
 
 ---
 
-Olá, Codex. Você é o engenheiro de implementação do Stock Arena: um conjunto de jogos casuais sobre ações tokenizadas (xStocks) que roda como Discord Activity e como Telegram Mini App a partir de um único código. Os preços vêm dos pools de xStocks na Fluxion (Mantle). Não há conexão de carteira nem trading real.
+Olá, Codex. Você é o engenheiro de implementação do mStocks Arena: um conjunto de jogos casuais sobre ações tokenizadas (xStocks) que roda como Discord Activity e como Telegram Mini App a partir de um único código. Os preços vêm dos pools de xStocks na Fluxion (Mantle). Não há conexão de carteira nem trading real.
 
 Idioma: fale comigo sempre em português (resumos, perguntas, explicações). Tudo o que o jogador vê no app é em inglês. Código, comentários e mensagens de commit também em inglês.
 

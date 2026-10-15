@@ -77,7 +77,7 @@ Mods flag; admins decide. A ban removes all season points and is announced only 
 
 **Launch**
 
-> Stock Arena is live! Check in daily, take the quiz and play Higher or Lower with live xStock prices from Fluxion. Free to play, no wallet needed. Start in #stock-arena or with our Telegram bot.
+> mStocks Arena is live! Check in daily, take the quiz and play Higher or Lower with live xStock prices from Fluxion. Free to play, no wallet needed. Start in #stock-arena or with our Telegram bot.
 
 **Prices paused**
 
@@ -85,4 +85,4 @@ Mods flag; admins decide. A ban removes all season points and is announced only 
 
 **Scam warning**
 
-> Reminder: the Stock Arena team will never DM you first, and never asks for a wallet, seed phrase or payment. Report anyone who does.
+> Reminder: the mStocks Arena team will never DM you first, and never asks for a wallet, seed phrase or payment. Report anyone who does.
