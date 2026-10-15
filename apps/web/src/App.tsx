@@ -37,7 +37,7 @@ export function App() {
         <ul className="tickers">
           {TICKERS.map((t) => (
             <li key={t}>
-              <StockLogo ticker={t} size={28} showBadge={false} /> {t}
+              <StockLogo ticker={t} size={28} showBadge /> {t}
             </li>
           ))}
         </ul>
