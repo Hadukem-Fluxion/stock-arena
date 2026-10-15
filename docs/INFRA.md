@@ -25,10 +25,27 @@ Todas as contas pertencem ao Hadukem. O Claude configura os painéis pelo navega
 | Serviço                  | Estado      | Endereço                                                 |
 | ------------------------ | ----------- | -------------------------------------------------------- |
 | GitHub                   | Configurado | https://github.com/Hadukem-Fluxion/stock-arena (privado) |
-| Supabase                 | A criar     | —                                                        |
+| Supabase                 | Configurado | Projeto `mstocks-arena`, ref `djlyrllwnvvljxexusbw`      |
 | Discord Developer Portal | A criar     | —                                                        |
 | Telegram BotFather       | A criar     | —                                                        |
 | Vercel                   | A criar     | —                                                        |
 | Railway                  | A criar     | —                                                        |
 
 O Claude informa as mudanças e o Codex atualiza esta tabela.
+
+## Supabase
+
+- Projeto: `mstocks-arena` (`djlyrllwnvvljxexusbw`).
+- Região: `sa-east-1` (São Paulo); plano free.
+- Conexão: session pooler (IPv4), porta `5432`, `sslmode=require`.
+- Data API desligada; API e worker acessam o Postgres diretamente pelo pooler.
+- Credenciais somente no `.env` local e nas variáveis do Railway. Nunca registrar
+  a senha ou a string completa de conexão nesta documentação.
+- TLS: CA pública oficial em `packages/db/certs/supabase-ca.crt` (subject
+  `Supabase Root 2021 CA`, validade até 26/04/2031). O client usa
+  `ssl: { ca, rejectUnauthorized: true }`. `DATABASE_SSL_CA` pode indicar outra CA;
+  caminhos relativos partem da raiz do repositório. Não desativar a verificação.
+- Verificado no Supabase em 15/10/2026: migrations `0000`, `0001` e `0002`
+  aplicadas, com hashes conferidos no histórico do Drizzle; 12 tabelas no schema
+  `public`; trigger do ledger rejeitou UPDATE e DELETE com código `55000`,
+  sem modificar linhas.

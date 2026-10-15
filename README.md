@@ -104,6 +104,13 @@ Connections expose a typed `db`, `migrate()` and `close()`. Call `migrate()` bef
 queries and close the connection when finished. Tests use isolated in-memory or
 temporary PGlite databases and never read `DATABASE_URL`.
 
+Postgres connections always verify TLS with a CA. The default public Supabase CA
+is committed in `packages/db/certs/supabase-ca.crt`; `DATABASE_SSL_CA` overrides its
+path (absolute, or relative to the repository root regardless of the working
+directory). Other Postgres providers need their own CA. URL SSL parameters cannot
+override this verification. PGlite does not read certificates. Include the certs
+directory in deployed artifacts and replace the CA before its expiry; see its README.
+
 The schema includes all 12 Season 1 tables, their foreign keys and action
 uniqueness constraints. Days are SQL `date`; instants are `timestamptz` (quiz
 start times are an ordered `timestamptz[]` aligned with question IDs). Prices stay
@@ -159,6 +166,7 @@ pending account setup; the client adapters arrive in T08.
 | Name                                       | Used by               | What it is                                                 |
 | ------------------------------------------ | --------------------- | ---------------------------------------------------------- |
 | `DATABASE_URL`                             | api, worker           | Postgres connection string                                 |
+| `DATABASE_SSL_CA`                          | api, worker, migrate  | PEM CA path; defaults to the bundled Supabase CA           |
 | `SESSION_SECRET`                           | api                   | Signs session tokens                                       |
 | `DISCORD_CLIENT_ID`                        | web, api, discord-bot | Discord application id                                     |
 | `DISCORD_CLIENT_SECRET`                    | api                   | Discord OAuth secret, server only                          |
