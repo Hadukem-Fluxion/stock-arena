@@ -2,6 +2,12 @@
 
 You are implementing Stock Arena: casual games about tokenized stocks that run as a Discord Activity and a Telegram Mini App from one codebase. Read README.md first, then the brief you were given from docs/TASKS.md.
 
+## Language
+
+- Talk to Hadukem in **Brazilian Portuguese**: task summaries, questions, explanations, review replies.
+- Everything inside the product stays in **English**: player-facing text, `apps/web/src/copy/en.ts`, player and admin guides that get published, error messages shown to players.
+- Code, identifiers, code comments and commit messages stay in English so the codebase is consistent.
+
 ## Where we are
 
 The scaffold exists but has never been installed. Start with brief **T02** in `docs/TASKS.md`. After that, follow the task order and dependencies in `docs/TASKS.md`; tasks owned by people or Claude (T00, T01, T05, T06, T17, T20) are not yours.
@@ -22,7 +28,7 @@ The scaffold exists but has never been installed. Start with brief **T02** in `d
 - Do not change game rules, point values or limits unless the brief says so. They live in `packages/game-core/src/config.ts`.
 - Keep the PR small. Touch only the files the brief names, plus tests and docs.
 - Before opening the PR run: `pnpm lint && pnpm typecheck && pnpm test`. All must pass.
-- PR description must contain: the brief ID, what changed, how it was tested, and anything left open.
+- PR description (in Portuguese) must contain: the brief ID, what changed, how it was tested, and anything left open.
 
 ## Code rules
 

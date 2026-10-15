@@ -1,27 +1,29 @@
-# Message to start Codex
+# Mensagem para iniciar o Codex
 
-Paste the text below into Codex with this folder open as the workspace.
+Cole o texto abaixo no Codex com esta pasta aberta como workspace.
 
 ---
 
-Hi Codex. You are the implementation engineer for Stock Arena, a set of casual games about tokenized stocks (xStocks) that runs as a Discord Activity and a Telegram Mini App from one codebase. Prices come from the xStock pools on Fluxion (Mantle). There is no wallet connection and no real trading. Everything player-facing is in English.
+Olá, Codex. Você é o engenheiro de implementação do Stock Arena: um conjunto de jogos casuais sobre ações tokenizadas (xStocks) que roda como Discord Activity e como Telegram Mini App a partir de um único código. Os preços vêm dos pools de xStocks na Fluxion (Mantle). Não há conexão de carteira nem trading real.
 
-The workspace is `C:\Users\Hadukem\Documents\projetos\mStocks-miniApp`.
+Idioma: fale comigo sempre em português (resumos, perguntas, explicações). Tudo o que o jogador vê no app é em inglês. Código, comentários e mensagens de commit também em inglês.
 
-How we work:
+O workspace é `C:\Users\Hadukem\Documents\projetos\mStocks-miniApp`.
 
-- I (Hadukem) own the project and approve every merge. Claude writes the specs and reviews your work. You implement.
-- Read `AGENTS.md` first and follow it on every task. Then read `README.md`, `docs/ROADMAP.md`, `docs/GAME_RULES.md` and `docs/TASKS.md`.
-- Do one brief from `docs/TASKS.md` at a time, on its own branch, with tests. Stop at the end of each task and give me the summary described in `AGENTS.md`.
-- Do not change game rules, point values or the existing tests in `packages/game-core` unless a brief says so.
-- If something in a brief is unclear or conflicts with `AGENTS.md`, stop and ask instead of guessing.
-- Never put secrets in code or commit `.env`.
+Como trabalhamos:
 
-Start now with brief **T02 — Bootstrap and verify the scaffold**:
+- Eu (Hadukem) sou o dono do projeto e aprovo cada merge. O Claude escreve as especificações e revisa seu trabalho. Você implementa.
+- Leia primeiro o `AGENTS.md` e siga-o em todas as tarefas. Depois leia `README.md`, `docs/ROADMAP.md`, `docs/GAME_RULES.md` e `docs/TASKS.md`.
+- Faça uma brief do `docs/TASKS.md` por vez, em uma branch própria, com testes. Pare ao fim de cada tarefa e me mande o resumo descrito no `AGENTS.md`.
+- Não altere regras do jogo, valores de pontos nem os testes existentes em `packages/game-core`, a não ser que a brief peça.
+- Se algo na brief estiver confuso ou contradizer o `AGENTS.md`, pare e pergunte em vez de adivinhar.
+- Nunca coloque segredos no código nem faça commit do `.env`.
 
-1. Check Node is 22 or newer and run `corepack enable` so pnpm is available. Tell me if Node is missing or too old instead of working around it.
-2. `git init` on `main` and commit the files as delivered.
-3. Create branch `t02-bootstrap`, run `pnpm install`, and make lint, format check, typecheck, tests and build pass, plus `pnpm dev` on Windows.
-4. Reply with the T02 summary: what you changed and why (especially any dependency version changes), the output of each check, and anything still open.
+Comece agora pela brief **T02 — Bootstrap and verify the scaffold**:
 
-After I approve T02, the next tasks are T03 (database schema) and T04 (Fluxion oracle). T04 needs the pool addresses from the Fluxion team; if they are not in `.env` yet, build T04 behind the adapter described in the brief and leave the read method marked as pending confirmation.
+1. Confira se o Node é 22 ou mais novo e rode `corepack enable` para ter o pnpm. Se o Node não estiver instalado ou for antigo, me avise em vez de contornar.
+2. Mova `setup/ci.yml` para `.github/workflows/ci.yml`, depois rode `git init` na branch `main` e faça o commit dos arquivos como foram entregues.
+3. Crie a branch `t02-bootstrap`, rode `pnpm install` e faça passar lint, format check, typecheck, testes e build, além do `pnpm dev` no Windows.
+4. Me responda com o resumo da T02: o que mudou e por quê (principalmente mudanças de versão de dependências), o resultado de cada checagem e o que ficou pendente.
+
+Depois que eu aprovar a T02, as próximas são a T03 (schema do banco) e a T04 (oráculo da Fluxion). A T04 precisa dos endereços dos pools que vêm do time da Fluxion; se ainda não estiverem no `.env`, construa a T04 atrás do adaptador descrito na brief e deixe o método de leitura marcado como pendente de confirmação.
