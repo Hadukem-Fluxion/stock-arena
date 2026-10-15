@@ -1,9 +1,26 @@
 import { buildServer } from "./server.js";
+import { readApiPort } from "./config.js";
 
-const port = Number(process.env.API_PORT ?? 8787);
-const app = buildServer();
+async function main() {
+  const port = readApiPort();
+  const app = buildServer();
+  try {
+    await app.listen({ port, host: "0.0.0.0" });
+  } catch {
+    await app.close();
+    throw new Error("API startup failed.");
+  }
+  const shutdown = () => {
+    void app.close().catch(() => {
+      console.error("[api] Shutdown failed.");
+      process.exitCode = 1;
+    });
+  };
+  process.once("SIGINT", shutdown);
+  process.once("SIGTERM", shutdown);
+}
 
-app.listen({ port, host: "0.0.0.0" }).catch((err: unknown) => {
-  app.log.error(err);
-  process.exit(1);
+void main().catch(() => {
+  console.error("[api] Startup failed. Check port configuration and service availability.");
+  process.exitCode = 1;
 });

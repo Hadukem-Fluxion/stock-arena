@@ -317,11 +317,11 @@ Layout:
 - apps/web on Vercel (static Vite build).
 - apps/api and apps/worker on Railway as two services from this repo (bots later, same pattern).
 - Database: Supabase Postgres (DATABASE_URL in Railway, set by Hadukem).
-- One origin for the client: vercel.json rewrites /api/* to the Railway API URL, so the web app keeps calling relative /api paths in browser, Discord (URL mapping points to the Vercel domain) and Telegram. No CORS needed.
+- One origin for the client: vercel.ts rewrites /api/* to the Railway API URL, so the web app keeps calling relative /api paths in browser, Discord (URL mapping points to the Vercel domain) and Telegram. No CORS needed.
 
 Do:
 
-- vercel.json in apps/web: build command, output dir, SPA fallback, /api/* rewrite to the URL in an env var (document how to set it in the Vercel dashboard).
+- vercel.ts in apps/web (approved by Hadukem): build command, output dir, SPA fallback, /api/* rewrite to the URL in an env var (document how to set it in the Vercel dashboard). Programmatic configuration replaces vercel.json so the destination can use the environment variable.
 - Railway config for api and worker (railway.json or documented start commands): pnpm install with frozen lockfile, start with tsx, Node version from .nvmrc, health check on /api/health for the api service.
 - api: listen on process.env.PORT when present (Railway), fall back to API_PORT.
 - pnpm db:migrate runs before the api starts on Railway (pre-deploy command), never from the worker.

@@ -30,6 +30,7 @@ Full rules and point values: `docs/GAME_RULES.md`, implemented in `packages/game
 | `docs/PLAYER_GUIDE.md`  | Players                   | How to play on Discord and Telegram, FAQ                       |
 | `docs/ADMIN_GUIDE.md`   | Admins and mods           | Permissions, routines, abuse signals, incidents, payouts       |
 | `docs/INFRA.md`         | Everyone                  | Infrastructure services, account ownership and secret storage  |
+| `docs/DEPLOY.md`        | Claude and Hadukem        | Staging dashboard settings, environment variables and rollback |
 | `docs/design/DESIGN.md` | Implementation and review | Visual guide and mobile/desktop prototype references for T08   |
 
 ## Project status
@@ -72,6 +73,13 @@ docs/
 - Vitest for tests, Playwright for a smoke test of the web app
 
 ## Getting started
+
+For the Vercel frontend, Railway API/worker and Supabase staging setup, follow
+[docs/DEPLOY.md](docs/DEPLOY.md). The API uses Railway's `PORT` when present and
+otherwise `API_PORT`. Migrations run only in the API's pre-deploy command.
+The worker retains every price sample for 48 hours, then the last sample of each
+UTC hour per ticker/source. Retention runs at startup and on each new UTC day,
+without changing the points ledger.
 
 Requirements: Node 22 or newer and pnpm (enable it once with `corepack enable`). Works on Windows, macOS and Linux.
 

@@ -10,6 +10,9 @@
   },
   "scripts": {
     "dev": "pnpm --parallel --filter @stock-arena/web --filter @stock-arena/api --filter @stock-arena/worker dev",
+    "verify:node": "node scripts/check-node.mjs",
+    "start:api": "pnpm verify:node && pnpm --filter @stock-arena/api start",
+    "start:worker": "pnpm verify:node && pnpm --filter @stock-arena/worker start",
     "build": "pnpm -r build",
     "lint": "eslint .",
     "format": "prettier --write .",

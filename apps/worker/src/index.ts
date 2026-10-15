@@ -3,11 +3,21 @@ import { createDatabase } from "@stock-arena/db";
 import type { DatabaseConnection } from "@stock-arena/db";
 import { createPriceOracle } from "@stock-arena/fluxion-oracle";
 import { createPriceStore, startPricePolling } from "./prices.js";
+import { createDailyRetention, retainPriceSnapshots } from "./retention.js";
 
 // Migrations run explicitly via pnpm db:migrate, never from this worker.
 let connection: DatabaseConnection | undefined;
 let store: ReturnType<typeof createPriceStore> | undefined;
 let oracle: ReturnType<typeof createPriceOracle> | undefined;
+const retainDaily = createDailyRetention(
+  async () => {
+    if (!connection) throw new Error("Database not initialized.");
+    return retainPriceSnapshots(connection);
+  },
+  (deleted) =>
+    console.info(`[worker] Price retention complete: ${deleted} older snapshots removed.`),
+  () => console.error("[worker] Price retention failed; will retry on a future cycle."),
+);
 const stop = startPricePolling(
   async () => {
     if (!connection) {
@@ -18,6 +28,7 @@ const stop = startPricePolling(
         );
       }
     }
+    await retainDaily();
     oracle ??= createPriceOracle();
     store ??= createPriceStore(connection, oracle.config);
     const poll = await oracle.poll();
