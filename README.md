@@ -241,7 +241,9 @@ T08 follows `docs/design/DESIGN.md` and its reference prototypes.
 
 ## Disclaimer
 
-For entertainment and education only. Not financial advice. Points have no cash value. xStocks are not available in the United States and other restricted regions.
+For entertainment and education only. Not financial advice. Points have no cash value.
+
+[xStocks are not available in the U.S. or to U.S. persons. Geo restrictions apply.](https://assets.backed.fi/legal-documentation)
 
 ### Bootstrap verification (T02)
 
@@ -272,3 +274,45 @@ and the browser scaffold at `http://localhost:5173`.
 
 The scaffold has 23 existing tests (14 game-core, 5 oracle, 3 host detection and
 1 API health test), rather than the 22 stated in the original T02 acceptance.
+
+## Platform shell development (T08)
+
+The shared adapters in `apps/web/src/platform` expose `init()`, `login()`,
+`openExternal(url)`, `user` and an in-memory `session`. Discord uses the official
+embedded SDK; Telegram loads its official bridge only when launched as a Mini
+App. All authentication requests use relative `/api/auth/*` URLs. Neither
+sessions nor provider tokens are written to browser storage or logs.
+
+Set the public `VITE_DISCORD_CLIENT_ID` to the same ID as `DISCORD_CLIENT_ID`.
+Only the public ID belongs in the Vite build. Never prefix a server secret with
+`VITE_`. The browser preview creates a local-only user on localhost in Vite
+**development** mode, without an API session or point awards. Production browser
+visits show instructions to open Discord or Telegram; no fake login is available.
+
+The shell uses `docs/design/DESIGN.md`: mobile bottom navigation, two tablet
+columns and three desktop columns. Dark Telegram theme colors update the shell
+on `themeChanged`; light hosts keep the approved dark design and get matching
+header/background colors. Typography is bundled locally with Fontsource, so fonts
+need no third-party URL mapping. The stock logos still use the official xStocks
+metadata URLs; allow their host in Discord URL mappings when configuring staging.
+
+Games, price streaming and ranking endpoints arrive in T09–T13. Their shell
+panels show explicit waiting states, without sample prices, fake rankings or local
+point mutations. Login failures offer a retry and only display copy from `en.ts`.
+
+```powershell
+pnpm exec playwright install chromium    # once, or use an installed Edge below
+pnpm test:web
+# Windows with Microsoft Edge already installed:
+$env:PLAYWRIGHT_CHANNEL = "msedge"
+pnpm test:web
+```
+
+Browser checks start web-only development and production servers on ports 5173
+and 5174. They never start the API/worker or connect to the database. Checks cover
+360/768/1024/1440px layouts, navigation, game selection, approved legal copy,
+production browser blocking, simulated Telegram login/links and retry after an
+API error. Unit tests mock Discord's ready/authorize/authenticate sequence and
+verify relative API requests. Screenshots are saved under `apps/web/test-results`.
+Real Discord test-server and Telegram test-bot screenshots remain pending platform
+account configuration and staging; simulated tests do not replace that acceptance.

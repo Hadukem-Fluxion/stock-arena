@@ -4,7 +4,7 @@ Cole o texto abaixo no Codex com esta pasta aberta como workspace.
 
 ---
 
-Olá, Codex. Você é o engenheiro de implementação do mStocks Arena: um conjunto de jogos casuais sobre ações tokenizadas (xStocks) que roda como Discord Activity e como Telegram Mini App a partir de um único código. Os preços vêm dos pools de xStocks na Fluxion (Mantle). Não há conexão de carteira nem trading real.
+Olá, Codex. Você é o engenheiro de implementação do mStocks Arena: um conjunto de jogos casuais sobre ações tokenizadas (xStocks) que roda como Discord Activity e como Telegram Mini App a partir de um único código. A API pública da xStocks é a fonte principal dos preços; os pools da Fluxion (Mantle) fazem a checagem cruzada. Não há conexão de carteira nem trading real.
 
 Idioma: fale comigo sempre em português (resumos, perguntas, explicações). Tudo o que o jogador vê no app é em inglês. Código, comentários e mensagens de commit também em inglês.
 
@@ -26,4 +26,4 @@ Comece agora pela brief **T02 — Bootstrap and verify the scaffold**:
 3. Crie a branch `t02-bootstrap`, rode `pnpm install` e faça passar lint, format check, typecheck, testes e build, além do `pnpm dev` no Windows.
 4. Me responda com o resumo da T02: o que mudou e por quê (principalmente mudanças de versão de dependências), o resultado de cada checagem e o que ficou pendente.
 
-Depois que eu aprovar a T02, as próximas são a T03 (schema do banco) e a T04 (oráculo da Fluxion). A T04 precisa dos endereços dos pools que vêm do time da Fluxion; se ainda não estiverem no `.env`, construa a T04 atrás do adaptador descrito na brief e deixe o método de leitura marcado como pendente de confirmação.
+Depois que eu aprovar a T02, as próximas são a T03 (schema do banco) e a T04 (oráculo com xStocks como fonte principal e pools da Fluxion como checagem cruzada). Siga a brief atual em `docs/TASKS.md`: os endereços públicos dos cinco pools ficam em `assets.ts`.
