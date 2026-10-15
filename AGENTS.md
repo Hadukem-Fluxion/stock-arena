@@ -51,6 +51,12 @@ The scaffold exists but has never been installed. Start with brief **T02** in `d
 - All player-facing strings go in `apps/web/src/copy/en.ts`. English only.
 - Never log tokens, secrets, Telegram init data or OAuth codes.
 
+## Asset catalog and providers (from T09 onward)
+
+- New lists, screens and games read the catalog from `packages/game-core/src/assets.ts`; never assume exactly seven assets. Cover catalogs with 3 and 30 assets in layout and game tests.
+- Each asset selects a provider. Product names, logo badges and legal notices come from one provider configuration; do not scatter xStocks branding through new code. All current assets use provider `xstocks` when this configuration is introduced.
+- Token provider and price reference are independent. The xStocks public API remains the stock price reference, including for possible future mStocks assets. Do not invent unconfirmed issuer details, branding or token addresses.
+
 ## Platform specifics
 
 **Discord Activity**

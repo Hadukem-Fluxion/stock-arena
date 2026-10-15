@@ -14,3 +14,4 @@ Thumbs.db
 packages/db/.local/
 playwright-report/
 test-results/
+.vercel/
