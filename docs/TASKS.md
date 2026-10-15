@@ -138,12 +138,15 @@ Player-facing copy: "Live xStock prices, as quoted on Fluxion RFQ."
 **Do**
 
 - `POST /api/checkin`: one per user per UTC day; streak = yesterday's streak + 1, else 1. Award 10; +50 when streak hits 7; +300 when it hits 30 (values from config).
-- Stock of the Day: deterministic rotation over the 7 tickers by day number; returns live price, 24h change, one fact from `packages/game-core/src/facts.ts`, and the Fluxion link for that xStock.
+- Stock of the Day: deterministic rotation over the catalog in `assets.ts` by day number; returns live price, 24h change, one fact from `packages/game-core/src/facts.ts`, and the asset's configured Fluxion link. Keep the launch rotation and scoring unchanged; lists, rotation and layouts must also work with 3 and 30 assets.
+- Every asset declares a provider. Product name, logo badge and legal notice come from one provider configuration; all current assets use `xstocks`, independently of the xStocks reference-price source.
+- Hadukem approved `https://app.fluxion.network/trade` as the per-asset destination until Fluxion confirms token-specific deep links. Do not invent URL parameters.
 - Check-in screen with streak counter and the stock card; card has "View on Fluxion" using `openExternal`.
 
 **Acceptance**
 
 - Tests for streak continue, break, day-7 and day-30 bonuses, and double check-in rejection.
+- Tests with 3 and 30 assets, atomic ledger/action rollback and server-confirmed UI awards. Existing game-core tests stay unchanged.
 
 ---
 
@@ -167,6 +170,10 @@ Player-facing copy: "Live xStock prices, as quoted on Fluxion RFQ."
 ## T11 — Higher or Lower
 
 **Use from game-core**: `higherOrLowerWinner`.
+
+**Staging follow-up (T11 only)**: if trading-metadata failures recur in staging,
+fetch only assets configured in the catalog instead of the complete paginated
+list, and cache the rarely changing metadata. Do not change the oracle during T09.
 
 **Do**
 

@@ -58,7 +58,9 @@ export function higherOrLowerWinner(
 }
 
 /** Stock of the Day: deterministic rotation over the launch tickers. */
-export function stockOfTheDay(day: GameDay, tickers: readonly Ticker[] = TICKERS): Ticker {
+export function stockOfTheDay(day: GameDay): Ticker;
+export function stockOfTheDay<T extends string>(day: GameDay, tickers: readonly T[]): T;
+export function stockOfTheDay(day: GameDay, tickers: readonly string[] = TICKERS): string {
   const index = ((dayNumber(day) % tickers.length) + tickers.length) % tickers.length;
   const ticker = tickers.at(index);
   if (!ticker) throw new Error("No tickers configured");

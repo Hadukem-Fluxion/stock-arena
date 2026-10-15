@@ -103,7 +103,8 @@ use a persistent PGlite database in `packages/db/.local/pglite` (ignored by Git)
 PGlite runs locally without Supabase, Docker or database credentials. Both drivers
 apply the same SQL migrations in `packages/db/drizzle`; rerunning the migration
 command only applies pending migrations. The worker writes snapshots and ticker
-status through this package; the API is not wired to the database yet. Migrations
+status through this package; the API shares its connection between authentication
+and game actions. Migrations
 run explicitly before startup, never from the worker.
 
 `@stock-arena/db` exports the tables and `createDatabase()` (selected by
@@ -309,12 +310,14 @@ The shell uses `docs/design/DESIGN.md`: mobile bottom navigation, two tablet
 columns and three desktop columns. The app always keeps the approved brand palette,
 regardless of Telegram's theme. Only Telegram's header/background colors match our
 `--bg`, including on `themeChanged`. Typography is bundled locally with Fontsource, so fonts
-need no third-party URL mapping. The stock logos still use the official xStocks
-metadata URLs; allow their host in Discord URL mappings when configuring staging.
+need no third-party URL mapping. Stock logos use the official metadata URLs outside
+Discord and the relative `/stock-logos/*` mapping inside an Activity; see
+`docs/INFRA.md` for the portal settings.
 
-Games, price streaming and ranking endpoints arrive in T09–T13. Their shell
-panels show explicit waiting states, without sample prices, fake rankings or local
-point mutations. Login failures offer a retry and only display copy from `en.ts`.
+Daily Check-in is available in T09. Other games, price streaming and ranking
+endpoints arrive in T10–T13. Their shell panels show explicit waiting states,
+without sample prices, fake rankings or local point mutations. Login failures
+offer a retry and only display copy from `en.ts`.
 
 ```powershell
 pnpm exec playwright install chromium    # once, or use an installed Edge below
@@ -332,3 +335,37 @@ API error. Unit tests mock Discord's ready/authorize/authenticate sequence and
 verify relative API requests. Screenshots are saved under `apps/web/test-results`.
 Real Discord test-server and Telegram test-bot screenshots remain pending platform
 account configuration and staging; simulated tests do not replace that acceptance.
+
+## Daily Check-in development (T09)
+
+Authenticated `GET /api/checkin` reads today's state without awarding points.
+`POST /api/checkin` accepts an empty JSON object and awards the check-in. Both
+return the server UTC day/time, streak, ledger balance, today's awards, catalog
+and Stock of the Day. The server uses the existing `nextStreak`, `checkinAwards`
+and `stockOfTheDay` helpers; scoring values and the launch rotation are unchanged.
+One transaction locks the player, inserts the daily action and its ledger awards.
+Concurrent/repeated POSTs return `409 ALREADY_CHECKED_IN`; the client then reloads
+the server state, so a lost response cannot award twice. No points are calculated
+or saved locally. Browser previews cannot check in.
+
+The stock card reads primary snapshots from the database, never from a browser
+price API. Its 24h comparison uses the primary snapshot at or immediately before
+24 hours ago, within the existing price freshness tolerance. Missing history shows
+an unavailable change; stale/closed prices keep their pause label and the last
+stored quote. Missing prices never prevent check-in points. The card refreshes
+after an action, when the app becomes visible and at the next server UTC day;
+continuous price streaming is part of T12.
+
+`packages/game-core/src/assets.ts` owns catalog order, company metadata, token
+addresses, logos, reference tickers, provider IDs and per-asset trade URLs.
+`TICKERS` and company names are derived compatibility exports. Rotation and the
+web lists work with arbitrary nonempty catalogs; tests cover 3 and 30 assets.
+Provider display name, badge and exact legal notice are configured once in
+`apps/web/src/copy/en.ts`; today every asset uses `provider = xstocks`. The price
+reference stays independent of the token's provider. New catalog entries without
+curated company facts show an explicit waiting message.
+
+Hadukem approved `https://app.fluxion.network/trade` as each asset's temporary
+trade URL. Token-specific deep links remain pending confirmation by Fluxion.
+Tests use fake sessions and isolated PGlite databases; no real platform credentials
+or Supabase data are required.
