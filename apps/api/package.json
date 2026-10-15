@@ -10,8 +10,11 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@stock-arena/db": "workspace:*",
     "@stock-arena/game-core": "workspace:*",
+    "drizzle-orm": "0.45.4",
     "fastify": "^5.1.0",
+    "jose": "6.2.12",
     "zod": "^3.23.8"
   }
 }
