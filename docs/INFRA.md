@@ -106,12 +106,10 @@ Após o merge da T24 (#14), Claude e Hadukem confirmaram:
   `https://mstocks-arena.vercel.app/api/discord/interactions`.
 - Validação do Discord concluída: PING assinado recebido e PONG respondido pela API.
 
-O registro global de `/arena` e `/start` ainda está pendente: a tentativa local
-retornou falha, e a verificação sem exibir valores identificou ausência de
-`DISCORD_CLIENT_SECRET` e `DISCORD_BOT_TOKEN`, além de `DISCORD_CLIENT_ID` diferente
-do app acima. Hadukem deve configurar o `.env` local antes da nova execução de
-`pnpm discord:register-commands`. Nenhum comando foi confirmado como registrado
-nesta verificação. O teste real de abertura pelos comandos também está pendente.
+Após a configuração do `.env` local pelo Hadukem, o Codex executou
+`pnpm discord:register-commands` com sucesso: **2 comandos globais registrados**,
+`/arena` e `/start`. Nenhuma credencial foi exibida. O teste real de abertura
+pelos comandos ainda está pendente.
 
 ## Scan de segredos do histórico
 
