@@ -91,10 +91,11 @@ cliente. O script do Telegram só é carregado no Telegram.
 
 Referências oficiais: [URL mappings e ordem dos prefixos](https://github.com/discord/discord-api-docs/blob/main/developers/activities/development-guides/local-development.mdx)
 e [mapeamento de URLs no Embedded App SDK](https://github.com/discord/embedded-app-sdk/blob/main/patch-url-mappings.md).
-Hadukem confirmou a abertura e o funcionamento da Activity no servidor de teste
-do Discord via `/launch`, após o deploy de staging. A validação real do Daily Quiz
-permanece pendente da T10 e do seed após merge; testes simulados não substituem
-essa validação.
+Hadukem confirmou a abertura e o funcionamento da Activity após entrar em um canal
+de voz do servidor de teste do Discord e usar o botão de Atividades (foguete),
+após o deploy de staging. O comando `/launch` ainda não foi testado. A validação
+real do Daily Quiz permanece pendente da T10 e do seed após merge; testes
+simulados não substituem essa validação.
 
 ## Scan de segredos do histórico
 
