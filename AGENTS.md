@@ -16,7 +16,7 @@ The scaffold exists but has never been installed. Start with brief **T02** in `d
 
 ## Git
 
-- Remote: the private GitHub repository `origin` (see `docs/INFRA.md`). `main` is protected: changes land only through pull requests with green CI.
+- Remote: the public GitHub repository `origin` (see `docs/INFRA.md`). `main` is protected: changes land only through pull requests with green CI.
 - Branch per task: `t<id>-<short-name>` (for example `t03-db-schema`), from an up-to-date `main`.
 - Commit messages: `type(scope): summary` (feat, fix, chore, docs, test, refactor), for example `feat(api): daily check-in endpoint (T09)`.
 - Push the task branch to `origin` and give Hadukem the link to open the pull request (`https://github.com/<owner>/<repo>/compare/main...<branch>`). The PR description follows the format below, in Portuguese.

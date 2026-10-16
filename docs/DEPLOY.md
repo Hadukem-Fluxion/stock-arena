@@ -25,7 +25,7 @@ nos painéis, não são executados por este PR.
 
 ## Railway: configurações dos dois serviços
 
-Em um projeto de staging, criar dois serviços a partir do repositório privado
+Em um projeto de staging, criar dois serviços a partir do repositório público
 `Hadukem-Fluxion/stock-arena`. Em cada serviço, abrir Settings e configurar:
 
 | Campo                 | API                                                                                              | Worker                                                                                              |

@@ -13,6 +13,7 @@ for (const width of [360, 768, 1024, 1440]) {
     });
     await page.goto("/");
     await expect(page.getByRole("status")).toHaveText(en.auth.preview);
+    await expect(page.locator(".host-label")).toHaveText(en.host.browserDevelopment);
     await expect(page.locator(".skip-link")).toHaveText(en.labels.skipToContent);
     await page.evaluate(() => document.fonts.ready);
     expect(
@@ -46,6 +47,7 @@ for (const width of [360, 768, 1024, 1440]) {
 
 test("production disables the local user and game buttons", async ({ page }) => {
   await page.goto("http://127.0.0.1:5174/");
+  await expect(page.locator(".host-label")).toHaveText("Running in a browser");
   await expect(page.getByRole("status")).toHaveText(en.auth.errors.BROWSER_DISABLED);
   await expect(page.getByRole("button", { name: en.games.quiz.name })).toBeDisabled();
   await expect(page.getByText(en.auth.preview)).toHaveCount(0);
