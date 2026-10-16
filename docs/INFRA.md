@@ -4,14 +4,14 @@ Todas as contas pertencem ao Hadukem. O Claude configura os painéis pelo navega
 
 ## Serviços
 
-| Serviço                  | Para que serve             | Quando é necessário     | Variáveis que gera                                                                              | Onde o valor fica                                   |
-| ------------------------ | -------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------- | --------------------------------------------------- |
-| GitHub                   | Código, pull requests e CI | Agora                   | —                                                                                               | —                                                   |
-| Supabase                 | Banco Postgres             | Antes da T04            | `DATABASE_URL`                                                                                  | `.env` local e Railway                              |
-| Discord Developer Portal | App com Activities e bot   | Antes da T07            | `DISCORD_CLIENT_ID` (público), `DISCORD_CLIENT_SECRET`, `DISCORD_BOT_TOKEN`, `DISCORD_GUILD_ID` | `.env` local, Railway; o Client ID também na Vercel |
-| Telegram BotFather       | Bot de teste e bot oficial | Antes da T07            | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_BOT_USERNAME`                                                   | `.env` local (bot de teste), Railway (bot oficial)  |
-| Vercel                   | Frontend (`apps/web`)      | Fim da fase 0 (staging) | —                                                                                               | —                                                   |
-| Railway                  | API, worker e bots         | Fim da fase 0 (staging) | `SESSION_SECRET`, `MANTLE_RPC_URL`, `FLUXION_POOLS_JSON`, ids de admin                          | Variáveis do projeto no Railway                     |
+| Serviço                  | Para que serve             | Quando é necessário     | Variáveis que gera                                                                                                              | Onde o valor fica                                   |
+| ------------------------ | -------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| GitHub                   | Código, pull requests e CI | Agora                   | —                                                                                                                               | —                                                   |
+| Supabase                 | Banco Postgres             | Antes da T04            | `DATABASE_URL`                                                                                                                  | `.env` local e Railway                              |
+| Discord Developer Portal | App com Activities e bot   | Antes da T07            | `DISCORD_CLIENT_ID` (público), `DISCORD_PUBLIC_KEY` (pública), `DISCORD_CLIENT_SECRET`, `DISCORD_BOT_TOKEN`, `DISCORD_GUILD_ID` | `.env` local, Railway; o Client ID também na Vercel |
+| Telegram BotFather       | Bot de teste e bot oficial | Antes da T07            | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_BOT_USERNAME`                                                                                   | `.env` local (bot de teste), Railway (bot oficial)  |
+| Vercel                   | Frontend (`apps/web`)      | Fim da fase 0 (staging) | —                                                                                                                               | —                                                   |
+| Railway                  | API, worker e bots         | Fim da fase 0 (staging) | `SESSION_SECRET`, `MANTLE_RPC_URL`, `FLUXION_POOLS_JSON`, ids de admin                                                          | Variáveis do projeto no Railway                     |
 
 ## Regras
 
@@ -94,8 +94,22 @@ e [mapeamento de URLs no Embedded App SDK](https://github.com/discord/embedded-a
 Hadukem confirmou a abertura e o funcionamento da Activity após entrar em um canal
 de voz do servidor de teste do Discord e usar o botão de Atividades (foguete),
 após o deploy de staging. O comando `/launch` ainda não foi testado. A validação
-real do Daily Quiz permanece pendente da T10 e do seed após merge; testes
-simulados não substituem essa validação.
+real do Daily Quiz permanece pendente; o seed já foi executado após o merge da
+T10. Testes simulados não substituem essa validação.
+
+### Interactions Endpoint e comandos (T24)
+
+Após o merge da T24 (#14), Claude e Hadukem confirmaram:
+
+- `DISCORD_PUBLIC_KEY` configurada na API Railway, com deploy concluído.
+- Interactions Endpoint URL salva no Developer Portal:
+  `https://mstocks-arena.vercel.app/api/discord/interactions`.
+- Validação do Discord concluída: PING assinado recebido e PONG respondido pela API.
+
+Após a configuração do `.env` local pelo Hadukem, o Codex executou
+`pnpm discord:register-commands` com sucesso: **2 comandos globais registrados**,
+`/arena` e `/start`. Nenhuma credencial foi exibida. O teste real de abertura
+pelos comandos ainda está pendente.
 
 ## Scan de segredos do histórico
 
@@ -143,3 +157,10 @@ alterações de refs. Nenhum histórico foi reescrito e nenhuma credencial foi a
   aplicadas, com hashes conferidos no histórico do Drizzle; 12 tabelas no schema
   `public`; trigger do ledger rejeitou UPDATE e DELETE com código `55000`,
   sem modificar linhas.
+- Após o merge da T10 (#13), a migration `0003` foi confirmada no Supabase pelo
+  histórico do Drizzle e pela presença das colunas `slug` e `explanation` e da
+  tabela `quiz_daily_sets`.
+- Seed do quiz executado localmente pelo Codex após essa confirmação: **60
+  perguntas**. O arquivo privado permanece em `packages/db/.local/`, ignorado
+  pelo Git; nenhum conteúdo do banco de perguntas foi publicado. Não é necessário
+  repetir o seed para registrar este estado.
