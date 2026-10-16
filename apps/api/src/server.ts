@@ -6,6 +6,7 @@ import type { AuthOptions } from "./auth/index.js";
 import { AuthError } from "./auth/types.js";
 import { GameError, registerCheckin } from "./checkin.js";
 import type { CheckinOptions } from "./checkin.js";
+import { QuizError, registerQuiz } from "./quiz.js";
 
 export const VERSION = "0.1.0";
 
@@ -44,8 +45,9 @@ export function buildServer(
   app.get("/api/health", async () => ({ ok: true, version: VERSION, tickers: TICKERS }));
   const auth = registerAuth(app, options.auth);
   registerCheckin(app, { ...options.checkin, database: auth.database, now: options.auth?.now });
+  registerQuiz(app, { database: auth.database, now: options.auth?.now });
   app.setErrorHandler((error, _request, reply) => {
-    if (error instanceof AuthError || error instanceof GameError) {
+    if (error instanceof AuthError || error instanceof GameError || error instanceof QuizError) {
       return reply.code(error.statusCode).send({ error: { code: error.code } });
     }
     const statusCode =

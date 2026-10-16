@@ -152,14 +152,15 @@ Player-facing copy: "Live xStock prices, as quoted on Fluxion RFQ."
 
 ## T10 — Daily Quiz
 
-**Use from game-core**: `quizPoints`, `quizAnswerInTime`. Question bank: `packages/game-core/data/quiz.json` (written by Claude in T06).
+**Use from game-core**: `quizPoints`, `quizAnswerInTime`. The private question bank is supplied by Claude outside version control, currently at `packages/db/.local/quiz-bank.json`. Never commit real questions, options, answers or explanations, including in tests or docs. Use invented fixtures only.
 
 **Do**
 
 - `POST /api/quiz/start`: picks 3 active questions for the day (scheduled ones first, then a seeded rotation so everyone gets the same 3), returns them without answers.
 - `POST /api/quiz/answer` per question: server checks time since that question was served (max 30 s + 2 s grace), stores answer, returns right or wrong and the correct option.
 - Score: 20 per correct, +15 for 3 of 3. One attempt per day.
-- Seed script loading the quiz bank from `packages/game-core/data/quiz.json`.
+- Idempotent `pnpm db:seed-quiz` reads a file path argument or `QUIZ_BANK_PATH`; JSON entries have `id`, `topic`, `prompt`, `options[4]`, `answer_index` and `explanation`. Upsert using `id` as a unique slug. Add `slug` and `explanation` to `quiz_questions` in a new migration; never edit old migrations. Print only the upserted count, never content or raw errors. Codex runs the Supabase seed locally **after merge**, not during implementation.
+- Persist the daily selection to keep it stable across seed edits. Serve only the current question; `GET /api/quiz` resumes an attempt without resetting its timer, and `POST /api/quiz/next` serves the next question after feedback. Repeated starts/replies resume the same attempt rather than awarding twice. Expose the correct option/explanation only for answered questions.
 
 **Acceptance**
 

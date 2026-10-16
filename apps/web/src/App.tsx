@@ -5,6 +5,7 @@ import type { AssetCatalog, CheckinView } from "@stock-arena/game-core";
 import { AssetLogo } from "./components/AssetLogo.js";
 import { StockCard } from "./checkin/StockCard.js";
 import { useCheckin } from "./checkin/useCheckin.js";
+import { QuizPanel } from "./quiz/QuizPanel.js";
 import { en } from "./copy/en.js";
 import { getPlatform } from "./platform/index.js";
 import { PlatformError } from "./platform/types.js";
@@ -265,7 +266,9 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
                     >
                       <span className="game-name">{en.games[name].name}</span>
                       <span className="caption muted">{en.games[name].rule}</span>
-                      <span className="caption accent">{en.status.comingSoon}</span>
+                      <span className="caption accent">
+                        {name === "quiz" ? en.quiz.available : en.status.comingSoon}
+                      </span>
                     </button>
                   ))}
                 <div className="game-tile upcoming">
@@ -288,6 +291,14 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
                     {en.labels.viewOnFluxion}
                   </External>
                 </>
+              ) : game === "quiz" ? (
+                <QuizPanel
+                  platform={platform}
+                  enabled={login.state === "ready"}
+                  onCompleted={() => {
+                    void checkin.reload();
+                  }}
+                />
               ) : (
                 <>
                   <div className="game-preview" aria-hidden="true">

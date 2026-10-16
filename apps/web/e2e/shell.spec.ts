@@ -40,7 +40,7 @@ for (const width of [360, 768, 1024, 1440]) {
       "href",
       "https://assets.backed.fi/legal-documentation",
     );
-    expect(await page.locator(".stock-logo-badge").count()).toBe(assetTickers(ASSETS).length + 2);
+    expect(await page.locator(".stock-logo-badge").count()).toBe(assetTickers(ASSETS).length + 1);
     expect(errors).toEqual([]);
     expect(apiRequests).toEqual([]);
   });

@@ -23,6 +23,7 @@
     "test:web": "pnpm --filter @stock-arena/web build && playwright test --config apps/web/playwright.config.ts",
     "db:generate": "pnpm --filter @stock-arena/db db:generate",
     "db:migrate": "pnpm --filter @stock-arena/db db:migrate",
+    "db:seed-quiz": "tsx --env-file-if-exists=.env packages/db/src/seed-quiz.ts",
     "oracle:print": "pnpm --filter @stock-arena/fluxion-oracle oracle:print"
   },
   "devDependencies": {
