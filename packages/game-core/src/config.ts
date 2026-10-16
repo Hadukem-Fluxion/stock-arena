@@ -4,18 +4,14 @@
  * and update docs/GAME_RULES.md in the same pull request.
  */
 
-export const TICKERS = ["AAPL", "MSFT", "GOOGL", "AMZN", "META", "NVDA", "TSLA"] as const;
-export type Ticker = (typeof TICKERS)[number];
+import { ASSETS, assetTickers } from "./assets.js";
+import type { Ticker } from "./assets.js";
+export type { Ticker } from "./assets.js";
 
-export const COMPANY_NAMES: Record<Ticker, string> = {
-  AAPL: "Apple",
-  MSFT: "Microsoft",
-  GOOGL: "Alphabet",
-  AMZN: "Amazon",
-  META: "Meta",
-  NVDA: "Nvidia",
-  TSLA: "Tesla",
-};
+export const TICKERS = assetTickers(ASSETS);
+export const COMPANY_NAMES = Object.fromEntries(
+  TICKERS.map((ticker) => [ticker, ASSETS[ticker].name]),
+) as Record<Ticker, string>;
 
 export const GAME_CONFIG = {
   checkin: {

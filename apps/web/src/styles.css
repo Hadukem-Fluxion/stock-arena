@@ -209,6 +209,9 @@ button:focus-visible {
 .market-column > * {
   min-width: 0;
 }
+.arena-grid {
+  align-items: start;
+}
 .card {
   padding: 20px;
   border: 1px solid var(--line);
@@ -555,4 +558,52 @@ dd {
   *::after {
     scroll-behavior: auto !important;
   }
+}
+
+.stock-card-content {
+  display: grid;
+  gap: 16px;
+}
+.stock-card-content .featured-stock > div {
+  min-width: 0;
+}
+.stock-card-content h2 {
+  overflow-wrap: anywhere;
+}
+.stock-price {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  white-space: nowrap;
+  gap: 4px;
+}
+.stock-price strong {
+  font-size: 18px;
+}
+.down {
+  color: var(--down);
+}
+.checkin-action {
+  display: grid;
+  gap: 12px;
+}
+.checkin-action .primary-button {
+  width: 100%;
+  padding: 12px;
+}
+.checkin-action [role="alert"] {
+  color: var(--down);
+  font-size: 14px;
+}
+.checkin-action [role="alert"] button {
+  min-height: 44px;
+  margin-top: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px 16px;
+}
+.active-panel .featured-stock {
+  flex-wrap: wrap;
 }

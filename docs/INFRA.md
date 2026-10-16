@@ -22,16 +22,49 @@ Todas as contas pertencem ao Hadukem. O Claude configura os painéis pelo navega
 
 ## Estado atual
 
-| Serviço                  | Estado      | Endereço                                                 |
-| ------------------------ | ----------- | -------------------------------------------------------- |
-| GitHub                   | Configurado | https://github.com/Hadukem-Fluxion/stock-arena (privado) |
-| Supabase                 | Configurado | Projeto `mstocks-arena`, ref `djlyrllwnvvljxexusbw`      |
-| Discord Developer Portal | A criar     | —                                                        |
-| Telegram BotFather       | A criar     | —                                                        |
-| Vercel                   | A criar     | —                                                        |
-| Railway                  | A criar     | —                                                        |
+| Serviço                  | Estado                                       | Endereço                                                 |
+| ------------------------ | -------------------------------------------- | -------------------------------------------------------- |
+| GitHub                   | Configurado                                  | https://github.com/Hadukem-Fluxion/stock-arena (privado) |
+| Supabase                 | Configurado                                  | Projeto `mstocks-arena`, ref `djlyrllwnvvljxexusbw`      |
+| Discord Developer Portal | Configurado (Activities pendente de staging) | mStocks Arena, Client ID `1560368721216938175`           |
+| Telegram BotFather       | A criar                                      | —                                                        |
+| Vercel                   | A criar                                      | —                                                        |
+| Railway                  | A criar                                      | —                                                        |
 
 O Claude informa as mudanças e o Codex atualiza esta tabela.
+
+## Discord e URL mappings de staging
+
+- App: **mStocks Arena**, Client ID público `1560368721216938175`.
+- OAuth2 redirect cadastrado: `https://127.0.0.1`.
+- Activities ainda desligado até existir o domínio público da Vercel. O Claude
+  configura os mappings e habilita Activities no Developer Portal com o Hadukem.
+- `DISCORD_CLIENT_ID` na API e `VITE_DISCORD_CLIENT_ID` no build web recebem o ID
+  público acima. O segredo fica somente no `.env` local e na API Railway.
+
+Em Activities → URL Mappings, cadastrar os destinos **sem `https://`** e colocar o
+prefixo mais específico antes da raiz:
+
+| Prefix         | Target                                               | Uso                                                                                                                 |
+| -------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `/stock-logos` | `xstocks-metadata.backed.fi`                         | Logos oficiais; `/stock-logos/logos/tokens/AAPLx.png` encaminha para `/logos/tokens/AAPLx.png` no host de metadados |
+| `/`            | Host público da Vercel, a registrar depois do deploy | Web, `/brand/*`, fontes locais e `/api/*` pelo rewrite da Vercel para a API Railway                                 |
+
+O código usa caminhos relativos para API e logos dentro da Activity; fora do
+Discord, os logos continuam usando suas URLs HTTPS oficiais. Não cadastrar o
+domínio Railway separadamente: o cliente chama `/api/*` no mesmo domínio do web.
+Se o catálogo passar a usar outro host de imagens, adicionar seu mapping e o
+correspondente caminho relativo antes de liberar o ativo.
+
+Links de navegação para Fluxion, Mantle, xStocks e documentação legal usam
+`openExternalLink`, sem carregar esses sites dentro do iframe. API pública da
+xStocks e RPC Mantle são acessados só pelo worker; não precisam de mapping no
+cliente. O script do Telegram só é carregado no Telegram.
+
+Referências oficiais: [URL mappings e ordem dos prefixos](https://github.com/discord/discord-api-docs/blob/main/developers/activities/development-guides/local-development.mdx)
+e [mapeamento de URLs no Embedded App SDK](https://github.com/discord/embedded-app-sdk/blob/main/patch-url-mappings.md).
+Ainda falta registrar o hostname real da Vercel e validar login, logos e check-in
+no servidor de teste do Discord; testes simulados não concluem essa validação.
 
 ## Supabase
 

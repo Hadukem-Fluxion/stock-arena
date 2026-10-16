@@ -23,13 +23,16 @@ export function registerAuth(app: FastifyInstance, options: AuthOptions = {}) {
   const now = options.now ?? (() => new Date());
   let connection = options.database;
   let store: ReturnType<typeof createIdentityStore> | undefined;
-  function identityStore() {
+  function database() {
     if (!connection) {
       connection = createDatabase({ databaseUrl: env.DATABASE_URL ?? "" });
       if (connection.kind === "postgres")
         connection.db.$client.on("error", () => app.log.error("Idle database connection failed"));
     }
-    return (store ??= createIdentityStore(connection));
+    return connection;
+  }
+  function identityStore() {
+    return (store ??= createIdentityStore(database()));
   }
   function sessions() {
     return createSessions(env.SESSION_SECRET ?? "", now);
@@ -102,5 +105,5 @@ export function registerAuth(app: FastifyInstance, options: AuthOptions = {}) {
   app.addHook("onClose", async () => {
     if (!options.database) await connection?.close();
   });
-  return { requireUser, requireAdmin };
+  return { requireUser, requireAdmin, database };
 }

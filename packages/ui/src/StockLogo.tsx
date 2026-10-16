@@ -1,17 +1,26 @@
 import { useState } from "react";
 import { ASSETS } from "@stock-arena/game-core";
-import type { Ticker } from "@stock-arena/game-core";
+import type { AssetCatalog } from "@stock-arena/game-core";
 
 export type StockLogoProps = {
-  ticker: Ticker;
+  ticker: string;
   size?: number;
   showBadge?: boolean;
   alt?: string;
+  logoSrc?: string;
+  badgeSrc?: string;
 };
 
-/** The stock image comes from the public xStocks asset metadata. */
-export function StockLogo({ ticker, size = 56, showBadge = true, alt = "" }: StockLogoProps) {
-  const src = ASSETS[ticker].logo;
+/** Images and provider branding are selected by the caller's asset catalog. */
+export function StockLogo({
+  ticker,
+  size = 56,
+  showBadge = true,
+  alt = "",
+  logoSrc,
+  badgeSrc,
+}: StockLogoProps) {
+  const src = logoSrc ?? (ASSETS as AssetCatalog)[ticker]?.logo;
   const [failedSource, setFailedSource] = useState<string | null>(null);
   const [loadedSource, setLoadedSource] = useState<string | null>(null);
   const badgeSize = Math.max(12, Math.round(size * 0.4));
@@ -27,7 +36,7 @@ export function StockLogo({ ticker, size = 56, showBadge = true, alt = "" }: Sto
         verticalAlign: "middle",
       }}
     >
-      {loadedSource !== src && (
+      {(!src || loadedSource !== src) && (
         <span
           aria-label={alt || undefined}
           style={{
@@ -44,7 +53,7 @@ export function StockLogo({ ticker, size = 56, showBadge = true, alt = "" }: Sto
           {ticker}
         </span>
       )}
-      {failedSource !== src && (
+      {src && failedSource !== src && (
         <img
           src={src}
           alt={alt}
@@ -64,7 +73,7 @@ export function StockLogo({ ticker, size = 56, showBadge = true, alt = "" }: Sto
           }}
         />
       )}
-      {showBadge && (
+      {showBadge && badgeSrc && (
         <span
           className="stock-logo-badge"
           aria-hidden="true"
@@ -83,7 +92,7 @@ export function StockLogo({ ticker, size = 56, showBadge = true, alt = "" }: Sto
           }}
         >
           <img
-            src="/brand/xstocks-mark.svg"
+            src={badgeSrc}
             alt=""
             width={badgeSize}
             height={badgeSize}

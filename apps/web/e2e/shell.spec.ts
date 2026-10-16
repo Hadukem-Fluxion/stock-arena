@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
 import { en } from "../src/copy/en.js";
+import { ASSETS, assetTickers } from "@stock-arena/game-core";
 
 for (const width of [360, 768, 1024, 1440]) {
   test(`shell navigation and layout at ${width}px`, async ({ page }, testInfo) => {
@@ -38,7 +39,7 @@ for (const width of [360, 768, 1024, 1440]) {
       "href",
       "https://assets.backed.fi/legal-documentation",
     );
-    expect(await page.locator(".stock-logo-badge").count()).toBe(9);
+    expect(await page.locator(".stock-logo-badge").count()).toBe(assetTickers(ASSETS).length + 2);
     expect(errors).toEqual([]);
     expect(apiRequests).toEqual([]);
   });
@@ -56,6 +57,9 @@ test("production disables the local user and game buttons", async ({ page }) => 
 });
 
 async function telegramPage(page: Page) {
+  await page.route("**/api/checkin", (route) =>
+    route.fulfill({ status: 503, json: { error: { code: "INTERNAL_ERROR" } } }),
+  );
   await page.addInitScript(() => {
     const calls: string[] = [];
     const chromeColors: string[] = [];
@@ -151,7 +155,7 @@ test("Telegram production login uses the relative API and host links", async ({ 
     "header:#0b0e11",
     "background:#0b0e11",
   ]);
-  await page.getByRole("link", { name: en.labels.viewOnFluxion }).click();
+  await page.locator(".featured-card").getByRole("link", { name: en.labels.viewOnFluxion }).click();
   expect(await page.evaluate(() => Reflect.get(window, "bridgeCalls"))).toEqual([
     "ready",
     "expand",
