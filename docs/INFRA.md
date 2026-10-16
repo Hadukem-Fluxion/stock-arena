@@ -22,33 +22,61 @@ Todas as contas pertencem ao Hadukem. O Claude configura os painéis pelo navega
 
 ## Estado atual
 
-| Serviço                  | Estado                                       | Endereço                                                 |
-| ------------------------ | -------------------------------------------- | -------------------------------------------------------- |
-| GitHub                   | Configurado                                  | https://github.com/Hadukem-Fluxion/stock-arena (privado) |
-| Supabase                 | Configurado                                  | Projeto `mstocks-arena`, ref `djlyrllwnvvljxexusbw`      |
-| Discord Developer Portal | Configurado (Activities pendente de staging) | mStocks Arena, Client ID `1560368721216938175`           |
-| Telegram BotFather       | A criar                                      | —                                                        |
-| Vercel                   | A criar                                      | —                                                        |
-| Railway                  | A criar                                      | —                                                        |
+| Serviço                  | Estado                                           | Endereço                                                                            |
+| ------------------------ | ------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| GitHub                   | Configurado                                      | https://github.com/Hadukem-Fluxion/stock-arena (público)                            |
+| Supabase                 | Configurado                                      | Projeto `mstocks-arena`, ref `djlyrllwnvvljxexusbw`                                 |
+| Discord Developer Portal | Configurado (Activities ligado: Web/iOS/Android) | mStocks Arena, Client ID `1560368721216938175`                                      |
+| Telegram BotFather       | A criar                                          | —                                                                                   |
+| Vercel                   | Configurado (Hobby)                              | https://mstocks-arena.vercel.app                                                    |
+| Railway                  | Configurado (API e worker)                       | https://stock-arenaapi-production.up.railway.app (API); worker sem endpoint público |
 
 O Claude informa as mudanças e o Codex atualiza esta tabela.
+
+## Staging
+
+Estado informado pelo Hadukem em 16/10/2026:
+
+- Repositório público por decisão do Hadukem, para uso da Vercel Hobby. A mudança
+  de visibilidade não altera as regras de revisão e merge nem a proibição de
+  commitar segredos, banco de perguntas do quiz ou limites do antifraude.
+- Web: https://mstocks-arena.vercel.app, Vercel Hobby, Root Directory `apps/web`.
+  `RAILWAY_API_URL` e o ID público `VITE_DISCORD_CLIENT_ID` configurados no painel.
+- API: https://stock-arenaapi-production.up.railway.app; health em `/api/health`
+  respondendo e migrations aplicadas. O web mantém chamadas relativas `/api/*`,
+  encaminhadas pelo rewrite da Vercel.
+- Worker online no Railway, gravando snapshots dos 7 ativos do catálogo de
+  lançamento e 5 conferências de pools. Sem endpoint público ou migrations no worker.
+- Discord: Activities ligado para Web, iOS e Android. App **mStocks Arena**, Client
+  ID público `1560368721216938175`; OAuth2 redirect `https://127.0.0.1`.
+
+URL mappings: ver a tabela única na seção [Discord e URL mappings de staging](#discord-e-url-mappings-de-staging).
+
+Configuração e rollback: [DEPLOY.md](DEPLOY.md). Credenciais permanecem apenas no
+`.env` local e nos painéis apropriados; segredos da API não entram no frontend.
+Activities habilitado não substitui o teste real de login, logos e jogos nas
+plataformas. O Telegram continua com o estado acima até confirmação do setup.
+
+Verificação sem autenticação pelo Codex em 16/10/2026: web, `/api/health` da API
+Railway e `/api/health` pelo rewrite da Vercel responderam HTTP 200; os dois health
+checks retornaram `ok: true`. O estado do worker e as opções do Developer Portal
+acima foram informados pelo Hadukem, sem acesso do Codex aos painéis.
 
 ## Discord e URL mappings de staging
 
 - App: **mStocks Arena**, Client ID público `1560368721216938175`.
 - OAuth2 redirect cadastrado: `https://127.0.0.1`.
-- Activities ainda desligado até existir o domínio público da Vercel. O Claude
-  configura os mappings e habilita Activities no Developer Portal com o Hadukem.
+- Activities ligado para Web, iOS e Android; mappings de staging configurados pelo Claude e pelo Hadukem.
 - `DISCORD_CLIENT_ID` na API e `VITE_DISCORD_CLIENT_ID` no build web recebem o ID
   público acima. O segredo fica somente no `.env` local e na API Railway.
 
-Em Activities → URL Mappings, cadastrar os destinos **sem `https://`** e colocar o
-prefixo mais específico antes da raiz:
+Em Activities → URL Mappings, os destinos estão cadastrados **sem `https://`**,
+com o prefixo mais específico antes da raiz:
 
-| Prefix         | Target                                               | Uso                                                                                                                 |
-| -------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `/stock-logos` | `xstocks-metadata.backed.fi`                         | Logos oficiais; `/stock-logos/logos/tokens/AAPLx.png` encaminha para `/logos/tokens/AAPLx.png` no host de metadados |
-| `/`            | Host público da Vercel, a registrar depois do deploy | Web, `/brand/*`, fontes locais e `/api/*` pelo rewrite da Vercel para a API Railway                                 |
+| Prefix         | Target                       | Uso                                                                                                                 |
+| -------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `/stock-logos` | `xstocks-metadata.backed.fi` | Logos oficiais; `/stock-logos/logos/tokens/AAPLx.png` encaminha para `/logos/tokens/AAPLx.png` no host de metadados |
+| `/`            | `mstocks-arena.vercel.app`   | Web, `/brand/*`, fontes locais e `/api/*` pelo rewrite da Vercel para a API Railway                                 |
 
 O código usa caminhos relativos para API e logos dentro da Activity; fora do
 Discord, os logos continuam usando suas URLs HTTPS oficiais. Não cadastrar o
@@ -63,8 +91,38 @@ cliente. O script do Telegram só é carregado no Telegram.
 
 Referências oficiais: [URL mappings e ordem dos prefixos](https://github.com/discord/discord-api-docs/blob/main/developers/activities/development-guides/local-development.mdx)
 e [mapeamento de URLs no Embedded App SDK](https://github.com/discord/embedded-app-sdk/blob/main/patch-url-mappings.md).
-Ainda falta registrar o hostname real da Vercel e validar login, logos e check-in
-no servidor de teste do Discord; testes simulados não concluem essa validação.
+Ainda falta validar login, logos e check-in no servidor de teste do Discord;
+testes simulados não concluem essa validação.
+
+## Scan de segredos do histórico
+
+Executado em 16/10/2026 com [Gitleaks 8.30.1](https://github.com/gitleaks/gitleaks/releases/tag/v8.30.1),
+binário oficial para Windows com SHA256 conferido contra o arquivo de checksums
+da release. Checkout completo (não shallow), após `git fetch --all --tags --prune`.
+
+```powershell
+gitleaks git . --log-opts="--all --full-history" --redact=100 --no-banner --no-color --log-level=error --ignore-gitleaks-allow --max-decode-depth=2 --max-archive-depth=2 --report-format=json --report-path=.corepack/gitleaks-history.json
+```
+
+Escopo: todo o histórico alcançável por branches locais/remotas e tags, incluindo
+a T09 (em revisão na execução original, agora integrada à main). Nenhuma baseline ou exceção local foi adicionada;
+comentários `gitleaks:allow` não foram usados para omitir achados. O scan lê o Git,
+não o `.env` local ignorado. Relatório detalhado e logs ficam em `.corepack/`,
+ignorada pelo Git, com redaction habilitado.
+
+Resultado bruto: **7 alertas**, todos classificados como falsos positivos após
+conferência das linhas históricas com os metadados públicos atuais. São os sete
+endereços públicos de contratos de tokens; nenhuma credencial foi identificada.
+O exit code do scanner é `1` por esses alertas, não um scan sem achados. Localização
+única, sem reproduzir nenhum valor detectado:
+
+| Arquivo                            | Commit                                     |
+| ---------------------------------- | ------------------------------------------ |
+| `packages/game-core/src/assets.ts` | `a07416a210556187bf5a5ec52b2135e1658be625` |
+
+O resultado representa os padrões e o histórico disponíveis nessa execução; não
+é uma garantia de ausência de qualquer segredo. Repetir após novos commits ou
+alterações de refs. Nenhum histórico foi reescrito e nenhuma credencial foi alterada.
 
 ## Supabase
 

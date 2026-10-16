@@ -33,7 +33,8 @@ export const en = {
   host: {
     discord: "Running in Discord",
     telegram: "Running in Telegram",
-    browser: "Running in a browser (development mode)",
+    browser: "Running in a browser",
+    browserDevelopment: "Running in a browser (development mode)",
   },
   tabs: {
     play: "Play",

@@ -20,6 +20,10 @@ const games: Game[] = ["checkin", "quiz", "higherLower", "invite"];
 const tabs: Tab[] = ["play", "leaderboard", "profile"];
 
 export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }) {
+  const hostLabel =
+    platform.host === "browser" && import.meta.env.DEV
+      ? en.host.browserDevelopment
+      : en.host[platform.host];
   const [tab, setTab] = useState<Tab>("play");
   const [game, setGame] = useState<Game>("checkin");
   const [login, setLogin] = useState<Login>({ state: "connecting" });
@@ -204,7 +208,7 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
                   : en.leaderboard.intro}
             </p>
           </div>
-          <span className="host-label">{en.host[platform.host]}</span>
+          <span className="host-label">{hostLabel}</span>
         </div>
 
         <div
@@ -354,7 +358,7 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
                 <h3>{login.user.displayName}</h3>
                 <dl>
                   <dt>{en.labels.platform}</dt>
-                  <dd>{en.host[platform.host]}</dd>
+                  <dd>{hostLabel}</dd>
                   <dt>{en.labels.playerId}</dt>
                   <dd className="number">{login.user.id}</dd>
                 </dl>
