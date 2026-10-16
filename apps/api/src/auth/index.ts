@@ -72,7 +72,12 @@ export function registerAuth(app: FastifyInstance, options: AuthOptions = {}) {
       reply.header("Cache-Control", "no-store");
       return;
     }
-    if (!route?.startsWith("/api/") || route === "/api/health") return;
+    if (
+      !route?.startsWith("/api/") ||
+      route === "/api/health" ||
+      (request.method === "POST" && route === "/api/discord/interactions")
+    )
+      return;
     await requireUser(request);
     if (route === "/api/admin" || route.startsWith("/api/admin/")) await requireAdmin(request);
   });

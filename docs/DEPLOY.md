@@ -78,15 +78,16 @@ container.
 
 ### Variáveis somente da API
 
-| Variável                                  | Configuração                                                               |
-| ----------------------------------------- | -------------------------------------------------------------------------- |
-| `SESSION_SECRET`                          | segredo aleatório de pelo menos 32 bytes, inserido pelo Hadukem            |
-| `PORT`                                    | automático do Railway; não copiar a porta local nem configurar manualmente |
-| `API_PORT`                                | opcional para desenvolvimento; ignorado quando `PORT` está presente        |
-| `DISCORD_CLIENT_ID`                       | ID público, quando o app de teste estiver criado                           |
-| `DISCORD_CLIENT_SECRET`                   | segredo do app, inserido pelo Hadukem                                      |
-| `TELEGRAM_BOT_TOKEN`                      | token do bot de teste, inserido pelo Hadukem                               |
-| `ADMIN_DISCORD_IDS`, `ADMIN_TELEGRAM_IDS` | opcionais, IDs de administradores autorizados                              |
+| Variável                                  | Configuração                                                                                      |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `SESSION_SECRET`                          | segredo aleatório de pelo menos 32 bytes, inserido pelo Hadukem                                   |
+| `PORT`                                    | automático do Railway; não copiar a porta local nem configurar manualmente                        |
+| `API_PORT`                                | opcional para desenvolvimento; ignorado quando `PORT` está presente                               |
+| `DISCORD_CLIENT_ID`                       | ID público, quando o app de teste estiver criado                                                  |
+| `DISCORD_CLIENT_SECRET`                   | segredo do app, inserido pelo Hadukem                                                             |
+| `DISCORD_PUBLIC_KEY`                      | chave pública Ed25519 de General Information no Developer Portal; Claude copia para a API Railway |
+| `TELEGRAM_BOT_TOKEN`                      | token do bot de teste, inserido pelo Hadukem                                                      |
+| `ADMIN_DISCORD_IDS`, `ADMIN_TELEGRAM_IDS` | opcionais, IDs de administradores autorizados                                                     |
 
 Os provedores não configurados retornam erro de login tipado; `/api/health` continua
 público e funciona sem app Discord ou bot Telegram. Não preencher credenciais
@@ -174,6 +175,56 @@ oficial de imagens antes de `/` para o web. Só então habilitar Activities no a
 Discord já cadastrado. O Client ID público está em INFRA.md; o segredo fica na API.
 
 ## Testes finais e evidências
+
+### Comandos Discord via Interactions (T24)
+
+A T24 atende `/arena` e `/start` na API por HTTP, sem processo de bot, gateway ou
+discord.js. A T15 (bot completo) continua para depois. O handler verifica a
+assinatura Ed25519 sobre timestamp + bytes brutos antes de interpretar o JSON;
+somente esse POST dispensa sessão do jogador. Assinatura inválida/ausente retorna
+401; chave pública ausente ou malformada retorna 503 para pedidos com headers
+válidos. A API não consulta o banco nem chama provedores para responder ao PING.
+
+Sequência após aprovação e merge:
+
+1. Claude abre o app **mStocks Arena** no Developer Portal → General Information,
+   copia **Public Key** para `DISCORD_PUBLIC_KEY` nas variáveis do serviço **API**
+   no Railway e aguarda o deploy. Essa é uma chave pública hexadecimal de 32 bytes
+   (64 caracteres); não é o Client Secret nem o Bot Token. Não precisa ir para a
+   Vercel, worker ou código-fonte.
+2. Confirmar que a nova versão da API está no ar. O rewrite `/api/*` da Vercel já
+   encaminha a rota; nenhum novo URL mapping é necessário.
+3. Claude cadastra em General Information → **Interactions Endpoint URL**:
+   `https://mstocks-arena.vercel.app/api/discord/interactions`.
+   O Discord faz um **PING assinado ao salvar** e espera PONG JSON. Portanto, a
+   rota e a chave pública correta precisam estar no deploy **antes** de salvar.
+   Um POST manual sem assinatura retornar 401 é esperado e não testa o PONG.
+4. Codex executa localmente, da raiz do repositório, **uma vez após o merge**:
+   `pnpm discord:register-commands`. O `.env` é carregado sem imprimir valores.
+   A opção preferida usa `DISCORD_CLIENT_ID` + `DISCORD_CLIENT_SECRET` para obter
+   um bearer com `applications.commands.update`. Sem Client Secret, usa o mesmo
+   Client ID + `DISCORD_BOT_TOKEN`. Credenciais só no ambiente local; não precisam
+   ser adicionadas à Vercel nem ao CI. O comando imprime apenas a contagem em uma
+   mensagem de sucesso e sanitiza erros.
+5. Testar `/arena` e `/start` no servidor de teste: ambos devem abrir a Activity.
+   Os dois são comandos globais CHAT_INPUT, com descrição `Open mStocks Arena`.
+   Confirmar que o app está autorizado no servidor para `applications.commands`
+   caso os comandos não apareçam. Não registrar novamente apenas por demora de
+   propagação global. O comando `/launch` não é registrado nem removido pela T24
+   e continua sem teste, conforme informado pelo Hadukem.
+
+O registro faz POST individual por nome/tipo; repetições atualizam os mesmos dois
+comandos sem apagar o entry point da Activity nem comandos futuros da T15. Se uma
+requisição falhar depois da primeira, corrigir a configuração/erro e repetir o
+comando é seguro. Não usar bulk overwrite para esta tarefa. Tokens OAuth, payloads
+de interactions e respostas brutas de erro não devem aparecer em logs ou chats.
+
+Referências oficiais: [assinaturas e validação do endpoint](https://docs.discord.com/developers/interactions/overview),
+[tipo LAUNCH_ACTIVITY](https://docs.discord.com/developers/interactions/receiving-and-responding),
+[registro global e upsert](https://docs.discord.com/developers/interactions/application-commands)
+e [client credentials](https://docs.discord.com/developers/topics/oauth2#client-credentials-grant).
+
+### Verificações do staging (T23)
 
 Preflight local em 15/10/2026: lint, formatação, tipagem, 162 testes unitários,
 build e 7 testes Playwright passaram. A entrada real da API respondeu 200 usando

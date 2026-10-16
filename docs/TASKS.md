@@ -241,7 +241,7 @@ list, and cache the rarely changing metadata. Do not change the oracle during T0
 
 **Do** (`apps/discord-bot`, discord.js)
 
-- `/arena`: replies with a button that launches the Activity.
+- `/arena` (and `/start`) Activity launch is covered by T24 via the HTTP Interactions endpoint. Do not reimplement it in this bot task.
 - `/rank`: the caller's daily, weekly and season rank (ephemeral).
 - 00:05 UTC: post the previous day's top 10 to the leaderboard channel.
 - Optional roles: grant Arena Player on first check-in; rotate Top Trader of the Week to the weekly top 10 on Monday.
@@ -342,3 +342,24 @@ Acceptance:
 - Staging web loads at its Vercel URL and /api/health answers through the rewrite.
 - Worker logs show price snapshots for all 7 tickers.
 - README links to docs/DEPLOY.md.
+
+---
+
+## T24 — /arena via Discord Interactions endpoint
+
+**Scope**: a small task separate from T15. Open the Activity from chat, without a gateway connection or discord.js. T15's rank, announcements and roles remain for later.
+
+**Do**
+
+- `POST /api/discord/interactions` verifies Ed25519 over the exact raw request body prefixed by `X-Signature-Timestamp`, using `DISCORD_PUBLIC_KEY`. Missing/invalid signatures return 401. Never verify re-serialized JSON. Parse and validate JSON only after verification.
+- Signed PING (`type: 1`) returns PONG (`type: 1`). Signed APPLICATION_COMMAND (`type: 2`) for `/arena` and `/start` returns `type: 12` (LAUNCH_ACTIVITY). Unknown commands get short English ephemeral copy from the API copy file. No database, point awards or user session is needed.
+- Exempt only this POST route from the `/api/*` session requirement; Discord's signature authenticates it. Other game/auth behavior stays unchanged. Missing/invalid public-key configuration fails closed.
+- `pnpm discord:register-commands` registers global CHAT_INPUT commands `arena` and `start`, each described as `Open mStocks Arena`. Use `DISCORD_CLIENT_ID` and `DISCORD_CLIENT_SECRET` with client credentials / `applications.commands.update`, or `DISCORD_CLIENT_ID` and `DISCORD_BOT_TOKEN`. Upsert the two commands individually, preserving unrelated commands. Never print credentials, tokens or raw provider errors.
+- Codex runs registration locally once **after merge**. Never register on API startup, build or CI. Tests use mocked HTTP only.
+- Add `DISCORD_PUBLIC_KEY` to `.env.example` and `docs/DEPLOY.md`. Claude copies this public key from Developer Portal to the Railway API variables; no secrets enter the frontend.
+- Document Developer Portal's Interactions Endpoint URL: `https://mstocks-arena.vercel.app/api/discord/interactions`. Deploy the API with the matching public key before Claude saves the URL: Discord sends a validation PING while saving.
+
+**Acceptance**
+
+- Tests: valid/invalid/missing signatures, signed PING, `/arena` and `/start` returning type 12, unknown command with ephemeral English copy, raw bytes (whitespace/Unicode/re-serialization), JSON-parser/session isolation and sanitized registration failures.
+- One PR on `t24-discord-arena`, no merge by Codex. Real registration and Discord smoke tests remain post-merge actions.
