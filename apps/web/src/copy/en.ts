@@ -2,18 +2,31 @@
  * Every player-facing string lives here. English only.
  * Keep the tone short, friendly and plain. No price predictions or advice.
  */
+const providers = {
+  xstocks: {
+    name: "xStocks",
+    badgeSrc: "/brand/xstocks-mark.svg",
+    website: "https://xstocks.com",
+    legalHref: "https://assets.backed.fi/legal-documentation",
+    legalNotice:
+      "xStocks are not available in the U.S. or to U.S. persons. Geo restrictions apply.",
+  },
+} as const;
+
 export const en = {
+  providers,
+  priceReference: providers.xstocks,
   appName: "mStocks Arena",
   tagline: "Live xStock prices, as quoted on Fluxion RFQ.",
   disclaimer:
     "For entertainment and education only. Not financial advice. Points have no cash value.",
-  regionNotice: "xStocks are not available in the U.S. or to U.S. persons. Geo restrictions apply.",
+  regionNotice: providers.xstocks.legalNotice,
   footer: {
     partners: "Partners",
     prices: "Prices ·",
     tradeOn: "Trade on",
     builtOn: "Built on",
-    xstocks: "xStocks",
+    xstocks: providers.xstocks.name,
     fluxion: "Fluxion",
     mantle: "Mantle",
   },
@@ -35,6 +48,7 @@ export const en = {
     navigation: "Main navigation",
     games: "Your daily games",
     magnificent: "Magnificent 7",
+    stocks: "Stocks",
     topFive: "Today's top 5",
     daily: "Every day, a new round.",
     playTitle: "Make your next move",
@@ -76,6 +90,24 @@ export const en = {
     },
     dailyCall: { name: "Daily Call", rule: "Up or Down, settled in 24h" },
     pending: "This game is getting ready. Check back soon.",
+  },
+  checkin: {
+    action: "Check in",
+    saving: "Checking in…",
+    loading: "Loading today's stock…",
+    done: "Checked in · see you tomorrow",
+    awarded: "Earned today",
+    factPending: "More about this stock soon.",
+    priceUnavailable: "Price unavailable",
+    paused: "Price paused",
+    lastPrice: "Last price",
+    noChange: "24h change unavailable",
+    preview: "Open in Discord or Telegram to check in and earn points.",
+    retry: "Reload check-in",
+    errors: {
+      unavailable: "We couldn't load your check-in. Please try again.",
+      session: "Your session expired. Please reopen the app to sign in.",
+    },
   },
   leaderboard: {
     title: "Leaderboard",

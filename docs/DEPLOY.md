@@ -168,6 +168,11 @@ O build de produção não oferece usuário falso no browser. Fora das plataform
 a página carrega e mostra a instrução para abrir Discord ou Telegram. Isso é o
 comportamento esperado da T08.
 
+Após obter o domínio público da Vercel, seguir os URL mappings documentados em
+[INFRA.md](INFRA.md#discord-e-url-mappings-de-staging): `/stock-logos` para o host
+oficial de imagens antes de `/` para o web. Só então habilitar Activities no app
+Discord já cadastrado. O Client ID público está em INFRA.md; o segredo fica na API.
+
 ## Testes finais e evidências
 
 Preflight local em 15/10/2026: lint, formatação, tipagem, 162 testes unitários,

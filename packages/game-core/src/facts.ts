@@ -5,7 +5,7 @@ import type { Ticker } from "./config.js";
  * neutral and verifiable. No price targets or advice.
  * TODO(T06): Claude adds more facts per ticker and rotates them.
  */
-export const STOCK_FACTS: Record<Ticker, string[]> = {
+export const STOCK_FACTS: Partial<Record<Ticker, string[]>> = {
   AAPL: ["Apple designs the iPhone, Mac and iPad, and runs the App Store."],
   MSFT: ["Microsoft makes Windows and Office and runs the Azure cloud platform."],
   GOOGL: ["Alphabet is the parent company of Google, YouTube and Waymo."],

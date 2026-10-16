@@ -4,12 +4,18 @@ import type { Writable } from "node:stream";
 import { registerAuth } from "./auth/index.js";
 import type { AuthOptions } from "./auth/index.js";
 import { AuthError } from "./auth/types.js";
+import { GameError, registerCheckin } from "./checkin.js";
+import type { CheckinOptions } from "./checkin.js";
 
 export const VERSION = "0.1.0";
 
 /** Builds the API. Routes are registered under /api so Discord's proxy mapping stays simple. */
 export function buildServer(
-  options: { auth?: AuthOptions; logger?: false | { stream: Writable } } = {},
+  options: {
+    auth?: AuthOptions;
+    checkin?: CheckinOptions;
+    logger?: false | { stream: Writable };
+  } = {},
 ): FastifyInstance {
   const app = Fastify({
     logger:
@@ -36,9 +42,10 @@ export function buildServer(
   });
 
   app.get("/api/health", async () => ({ ok: true, version: VERSION, tickers: TICKERS }));
-  registerAuth(app, options.auth);
+  const auth = registerAuth(app, options.auth);
+  registerCheckin(app, { ...options.checkin, database: auth.database, now: options.auth?.now });
   app.setErrorHandler((error, _request, reply) => {
-    if (error instanceof AuthError) {
+    if (error instanceof AuthError || error instanceof GameError) {
       return reply.code(error.statusCode).send({ error: { code: error.code } });
     }
     const statusCode =

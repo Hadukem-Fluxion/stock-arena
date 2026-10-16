@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import type { MouseEvent, ReactNode } from "react";
-import { ASSETS, COMPANY_NAMES, TICKERS, gameDay, stockOfTheDay } from "@stock-arena/game-core";
-import { StockLogo } from "@stock-arena/ui";
+import { ASSETS, assetTickers, gameDay, stockOfTheDay } from "@stock-arena/game-core";
+import type { AssetCatalog, CheckinView } from "@stock-arena/game-core";
+import { AssetLogo } from "./components/AssetLogo.js";
+import { StockCard } from "./checkin/StockCard.js";
+import { useCheckin } from "./checkin/useCheckin.js";
 import { en } from "./copy/en.js";
 import { getPlatform } from "./platform/index.js";
 import { PlatformError } from "./platform/types.js";
@@ -26,8 +29,66 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
   const [login, setLogin] = useState<Login>({ state: "connecting" });
   const [attempt, setAttempt] = useState(0);
   const [linkError, setLinkError] = useState(false);
-  const today = gameDay(new Date());
-  const featured = stockOfTheDay(today);
+  const checkin = useCheckin(platform, login.state === "ready");
+  const catalog: AssetCatalog = checkin.view?.catalog ?? ASSETS;
+  const tickers = assetTickers(catalog);
+  const today = checkin.view?.day ?? gameDay(new Date());
+  const featured = checkin.view?.stock.ticker ?? stockOfTheDay(today, tickers);
+  const asset = catalog[featured];
+  if (!asset) throw new Error("Missing featured asset.");
+  const stock: CheckinView["stock"] = checkin.view?.stock ?? {
+    ticker: featured,
+    asset,
+    fact: null,
+    price: { usd: null, change24hPct: null, takenAt: null, state: "paused", reason: "stale" },
+  };
+  const providers = [...new Set(tickers.map((ticker) => catalog[ticker]!.provider))];
+  const discord = platform.host === "discord";
+  const awardTotal =
+    checkin.view?.awardsToday.reduce((total, award) => total + award.amount, 0) ?? 0;
+  const checkinAction = () => (
+    <div className="checkin-action">
+      <button
+        className="primary-button"
+        type="button"
+        onClick={() => {
+          selectGame("checkin");
+          void checkin.award();
+        }}
+        disabled={!checkin.allowed || !checkin.view || checkin.busy || checkin.view.checkedIn}
+      >
+        {checkin.busy
+          ? en.checkin.saving
+          : checkin.view?.checkedIn
+            ? en.checkin.done
+            : en.checkin.action}
+      </button>
+      {checkin.view?.checkedIn && (
+        <p className="caption accent" role="status">
+          {en.checkin.awarded} · {awardTotal > 0 ? "+" : ""}
+          {awardTotal} {en.labels.points}
+        </p>
+      )}
+      {!checkin.allowed && <p className="caption muted">{en.checkin.preview}</p>}
+      {checkin.allowed && checkin.busy && !checkin.view && (
+        <p className="caption muted">{en.checkin.loading}</p>
+      )}
+      {checkin.error && (
+        <div role="alert">
+          <p>{en.checkin.errors[checkin.error]}</p>
+          <button
+            type="button"
+            onClick={() => {
+              void checkin.reload();
+            }}
+            disabled={checkin.busy}
+          >
+            {en.checkin.retry}
+          </button>
+        </div>
+      )}
+    </div>
+  );
 
   useEffect(() => {
     let active = true;
@@ -121,11 +182,13 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
         </div>
         {navigation("header")}
         <div className="player-stats">
-          <span className="pill" title={en.labels.unavailable}>
-            <span className="number">{en.labels.unknown}</span> {en.labels.streak}
+          <span className="pill" title={checkin.view ? undefined : en.labels.unavailable}>
+            <span className="number">{checkin.view?.streak ?? en.labels.unknown}</span>{" "}
+            {en.labels.streak}
           </span>
-          <span className="pill points" title={en.labels.unavailable}>
-            <span className="number">{en.labels.unknown}</span> {en.labels.points}
+          <span className="pill points" title={checkin.view ? undefined : en.labels.unavailable}>
+            <span className="number">{checkin.view?.balance ?? en.labels.unknown}</span>{" "}
+            {en.labels.points}
           </span>
         </div>
       </header>
@@ -182,25 +245,9 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
                     {today} · {en.labels.utc}
                   </span>
                 </div>
-                <div className="featured-stock">
-                  <StockLogo ticker={featured} size={48} />
-                  <div>
-                    <h2>{ASSETS[featured].symbol}</h2>
-                    <p className="muted caption">{COMPANY_NAMES[featured]}</p>
-                  </div>
-                  <span className="price-placeholder number" title={en.labels.unavailable}>
-                    {en.labels.unknown}
-                  </span>
-                </div>
-                <button
-                  className="primary-button"
-                  type="button"
-                  onClick={() => selectGame("checkin")}
-                  disabled={login.state !== "ready"}
-                >
-                  {en.games.checkin.name}
-                </button>
-                <External className="text-link" href="https://app.fluxion.network/trade">
+                <StockCard stock={stock} discord={discord} />
+                {checkinAction()}
+                <External className="text-link" href={stock.asset.tradeUrl}>
                   {en.labels.viewOnFluxion}
                 </External>
               </div>
@@ -233,30 +280,47 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
               <p className="eyebrow">{en.labels.games}</p>
               <h2 id="active-title">{en.games[game].name}</h2>
               <p className="body-copy">{en.games[game].detail}</p>
-              <div className="game-preview" aria-hidden="true">
-                <StockLogo ticker={featured} size={72} />
-                <span className="display-ticker">{ASSETS[featured].symbol}</span>
-                <span className="number muted">{en.labels.unknown}</span>
-              </div>
-              <div className="pending-panel">
-                <span className="pill">{en.status.comingSoon}</span>
-                <p>{en.games.pending}</p>
-              </div>
+              {game === "checkin" ? (
+                <>
+                  <StockCard stock={stock} discord={discord} />
+                  {checkinAction()}
+                  <External className="text-link" href={stock.asset.tradeUrl}>
+                    {en.labels.viewOnFluxion}
+                  </External>
+                </>
+              ) : (
+                <>
+                  <div className="game-preview" aria-hidden="true">
+                    <AssetLogo ticker={featured} asset={stock.asset} size={72} discord={discord} />
+                    <span className="display-ticker">{stock.asset.symbol}</span>
+                    <span className="number muted">{en.labels.unknown}</span>
+                  </div>
+                  <div className="pending-panel">
+                    <span className="pill">{en.status.comingSoon}</span>
+                    <p>{en.games.pending}</p>
+                  </div>
+                </>
+              )}
             </section>
 
             <aside className="market-column">
               <section className="card prices-card" aria-labelledby="prices-title">
                 <div className="section-heading">
-                  <h2 id="prices-title">{en.labels.magnificent}</h2>
+                  <h2 id="prices-title">{en.labels.stocks}</h2>
                   <span className="caption muted">{en.labels.priceWindow}</span>
                 </div>
                 <ul className="price-list">
-                  {TICKERS.map((ticker) => (
+                  {tickers.map((ticker) => (
                     <li className="price-row" key={ticker}>
-                      <StockLogo ticker={ticker} size={32} />
+                      <AssetLogo
+                        ticker={ticker}
+                        asset={catalog[ticker]!}
+                        size={32}
+                        discord={discord}
+                      />
                       <div className="stock-name">
-                        <strong>{ASSETS[ticker].symbol}</strong>
-                        <span className="caption muted">{COMPANY_NAMES[ticker]}</span>
+                        <strong>{catalog[ticker]!.symbol}</strong>
+                        <span className="caption muted">{catalog[ticker]!.name}</span>
                       </div>
                       <span className="number muted" title={en.labels.unavailable}>
                         {en.labels.unknown}
@@ -311,9 +375,10 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
 
       <footer className="app-footer caption muted">
         <nav className="brand-footer" aria-label={en.footer.partners}>
-          <External href="https://xstocks.com">
-            {en.footer.prices} <img src="/brand/xstocks-mark.svg" alt="" width="20" height="20" />{" "}
-            {en.footer.xstocks}
+          <External href={en.priceReference.website}>
+            {en.footer.prices}{" "}
+            <img src={en.priceReference.badgeSrc} alt="" width="20" height="20" />{" "}
+            {en.priceReference.name}
           </External>
           <External href="https://app.fluxion.network/trade">
             {en.footer.tradeOn}{" "}
@@ -326,9 +391,11 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
         </nav>
         <p>{en.tagline}</p>
         <p>{en.disclaimer}</p>
-        <External className="legal-notice" href="https://assets.backed.fi/legal-documentation">
-          {en.regionNotice}
-        </External>
+        {providers.map((provider) => (
+          <External key={provider} className="legal-notice" href={en.providers[provider].legalHref}>
+            {en.providers[provider].legalNotice}
+          </External>
+        ))}
       </footer>
       {navigation("bottom")}
     </div>
