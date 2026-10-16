@@ -159,8 +159,9 @@ disables login with a typed `AUTH_UNAVAILABLE` response; health remains public.
 No default signing secret or fake login endpoint exists. Run `pnpm db:migrate`
 before API logins; the API does not apply migrations itself.
 
-All registered `/api/*` routes require a session by default, except `/api/health`
-and the two login routes. Routes under `/api/admin` additionally require a matching
+All registered `/api/*` routes require a session by default, except `/api/health`,
+the two login routes and `POST /api/discord/interactions` (authenticated by the
+Discord Ed25519 signature). Routes under `/api/admin` additionally require a matching
 platform ID in `ADMIN_DISCORD_IDS` or `ADMIN_TELEGRAM_IDS`. Errors contain only
 `{error: {code}}`; the client maps these codes to copy. Authentication responses
 are not cacheable. Logs omit request bodies, authorization headers and query
