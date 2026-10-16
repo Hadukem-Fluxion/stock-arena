@@ -102,6 +102,7 @@ describe("migrations and typed client", () => {
       "points_ledger",
       "price_snapshots",
       "quiz_attempts",
+      "quiz_daily_sets",
       "quiz_questions",
       "referrals",
       "ticker_status",

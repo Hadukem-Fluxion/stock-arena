@@ -120,7 +120,8 @@ directory). Other Postgres providers need their own CA. URL SSL parameters canno
 override this verification. PGlite does not read certificates. Include the certs
 directory in deployed artifacts and replace the CA before its expiry; see its README.
 
-The schema includes all 12 Season 1 tables, their foreign keys and action
+The schema includes the 12 Season 1 tables plus the private daily quiz selection,
+their foreign keys and action
 uniqueness constraints. Days are SQL `date`; instants are `timestamptz` (quiz
 start times are an ordered `timestamptz[]` aligned with question IDs). Prices stay
 decimal strings and block numbers stay `bigint`, avoiding JavaScript number
@@ -314,8 +315,8 @@ need no third-party URL mapping. Stock logos use the official metadata URLs outs
 Discord and the relative `/stock-logos/*` mapping inside an Activity; see
 `docs/INFRA.md` for the portal settings.
 
-Daily Check-in is available in T09. Other games, price streaming and ranking
-endpoints arrive in T10–T13. Their shell panels show explicit waiting states,
+Daily Check-in and Daily Quiz are available in T09–T10. Other games, price streaming and ranking
+endpoints arrive in T11–T13. Their shell panels show explicit waiting states,
 without sample prices, fake rankings or local point mutations. Login failures
 offer a retry and only display copy from `en.ts`.
 
@@ -369,3 +370,63 @@ Hadukem approved `https://app.fluxion.network/trade` as each asset's temporary
 trade URL. Token-specific deep links remain pending confirmation by Fluxion.
 Tests use fake sessions and isolated PGlite databases; no real platform credentials
 or Supabase data are required.
+
+## Daily Quiz development (T10)
+
+The private campaign bank lives outside Git (currently
+`packages/db/.local/quiz-bank.json`). Never copy its questions, options, keys or
+explanations into this public repository, tests, screenshots or PR descriptions.
+Tests use invented markers rather than campaign content.
+
+Migration `0003_quiz-storage` adds a unique import `slug` and `explanation` to
+`quiz_questions`, plus `quiz_daily_sets` for private, frozen daily selections.
+Legacy questions keep their UUIDs, a null slug and an empty explanation; seeded
+rows always get the supplied `id` as their slug. Existing migrations are unchanged.
+
+After review and merge, **Codex** applies/verifies migrations and runs the seed
+locally against Supabase. The seed is not run during builds, API startup or worker
+startup. From the repository root:
+
+```powershell
+pnpm db:seed-quiz "packages/db/.local/quiz-bank.json"
+# Alternatively, set QUIZ_BANK_PATH privately and run pnpm db:seed-quiz.
+```
+
+The file must contain a JSON array with `id`, `topic`, `prompt`, four `options`,
+`answer_index` (0–3), and `explanation`. Argument paths take precedence over
+`QUIZ_BANK_PATH` and resolve from the command's working directory. Import validates
+the entire bank before a transaction, rejects duplicate slugs, and upserts by
+slug without replacing UUIDs or changing active/scheduled status. Repeating it
+does not duplicate questions. Successful output is only the count of upserted
+rows; errors omit file contents, validation details, SQL and connection strings.
+
+The authenticated API exposes:
+
+| Route                   | Behavior                                                                                                                 |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `GET /api/quiz`         | Today's state, without starting an attempt or resetting timers                                                           |
+| `POST /api/quiz/start`  | Empty body; creates or resumes the one UTC-day attempt                                                                   |
+| `POST /api/quiz/answer` | `{day, questionId, position, choice}`; indices start at zero; `choice: null` records expiry after the full server window |
+| `POST /api/quiz/next`   | Empty body; serves the next question after feedback, without resetting an already served question                        |
+
+The first start freezes three active questions for everyone that UTC day:
+scheduled-today questions first, then a deterministic day-seeded ordering of
+unscheduled questions. Questions scheduled for other dates are excluded. Fewer
+than three eligible questions returns `QUIZ_UNAVAILABLE` without consuming an
+attempt. Later seed edits cannot change that day's questions, keys or explanations.
+
+Only the current question is sent; future questions and all unanswered keys stay
+on the server. After a reply, feedback includes the correct option and explanation
+for that question only. The next timer starts when the player requests Next,
+after reading feedback. The existing `quizAnswerInTime` enforces 30 seconds plus
+2 seconds network grace, using server timestamps; refresh and request replay never
+extend the deadline. Expired replies store `-1` as an unanswered/expired marker.
+
+`quizPoints` computes the unchanged 20-per-correct score and 15-point perfect
+bonus. Points are inserted into the ledger once, when all three replies are
+recorded, in the same transaction as the final reply. A zero score has no award
+row. Replays return the saved verdict, so changing the submitted option cannot
+change an already recorded answer or award twice. The UI only displays server
+results, resumes through GET after errors, and refreshes the ledger balance on
+completion. Browser previews cannot start quizzes. Real quiz acceptance on Discord
+and Telegram remains pending the post-merge seed and platform checks.

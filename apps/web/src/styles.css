@@ -607,3 +607,53 @@ dd {
 .active-panel .featured-stock {
   flex-wrap: wrap;
 }
+
+.quiz-panel,
+.quiz-verdict,
+.quiz-result,
+.quiz-options {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.quiz-prompt {
+  font-size: 20px;
+  overflow-wrap: anywhere;
+}
+.quiz-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  width: 100%;
+  padding: 16px;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-2);
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.quiz-option > .number {
+  flex-shrink: 0;
+  color: var(--muted);
+}
+.quiz-option.quiz-correct {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+}
+.quiz-option.quiz-wrong {
+  border-color: var(--down);
+  background: var(--down-tint);
+}
+.quiz-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.quiz-progress > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}

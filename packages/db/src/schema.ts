@@ -62,6 +62,8 @@ export const quizQuestions = pgTable(
   "quiz_questions",
   {
     id: uuid("id").defaultRandom().primaryKey(),
+    slug: text("slug").unique(),
+    explanation: text("explanation").default("").notNull(),
     prompt: text("prompt").notNull(),
     options: jsonb("options").$type<[string, string, string, string]>().notNull(),
     answerIndex: integer("answer_index").notNull(),
@@ -92,6 +94,20 @@ export const quizAttempts = pgTable(
   },
   (table) => [primaryKey({ columns: [table.userId, table.day] })],
 );
+
+/** Private daily snapshot: seed edits cannot change an in-flight quiz or its key. */
+export type QuizQuestionSnapshot = {
+  id: string;
+  topic: string;
+  prompt: string;
+  options: [string, string, string, string];
+  answerIndex: number;
+  explanation: string;
+};
+export const quizDailySets = pgTable("quiz_daily_sets", {
+  day: date("day").primaryKey(),
+  questions: jsonb("questions").$type<QuizQuestionSnapshot[]>().notNull(),
+});
 
 export const hlRuns = pgTable(
   "hl_runs",
