@@ -1,0 +1,1 @@
+ALTER TABLE "ticker_status" ADD COLUMN "next_change_at" timestamp with time zone;

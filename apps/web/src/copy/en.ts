@@ -146,6 +146,8 @@ export const en = {
     limit: "You've played all your runs. Come back tomorrow (UTC).",
     paused:
       "Waiting for two live stocks with enough 24h history and different moves. Your run and points are safe.",
+    closed: "Back when the market reopens.",
+    closedWithTime: (time: string) => `Back when the market reopens. Next opening: ${time}.`,
     retry: "Check availability",
     loading: "Loading your run…",
     error: "We couldn't confirm your run. Reload before continuing.",
@@ -169,6 +171,7 @@ export const en = {
     seasonEnded: "Season ended",
   },
   prices: {
+    closed: "Market closed · showing last prices",
     live: "Live prices",
     reconnecting: "Reconnecting to prices… Last prices may be out of date.",
     session: "Reopen the app to reconnect to live prices.",

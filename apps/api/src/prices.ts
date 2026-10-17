@@ -15,7 +15,20 @@ export function createPricesStore(
   return async (): Promise<PricesView> =>
     connection.db.transaction(async (tx) => {
       const now = (options.now ?? (() => new Date()))();
-      return { catalog, serverTime: now.toISOString(), prices: await readMarket(tx, catalog, now) };
+      const prices = await readMarket(tx, catalog, now);
+      return {
+        catalog,
+        serverTime: now.toISOString(),
+        // Keep the existing public SSE shape; scheduling is exposed by HL only.
+        prices: prices.map(({ ticker, priceUsd, takenAt, change24hPct, state, reason }) => ({
+          ticker,
+          priceUsd,
+          takenAt,
+          change24hPct,
+          state,
+          reason,
+        })),
+      };
     });
 }
 export function registerPrices(

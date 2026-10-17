@@ -48,6 +48,16 @@ export function createPriceStore(
           ticker,
           state: result.status.state,
           reason: result.status.state === "paused" ? result.status.reason : null,
+          // Only a scheduled closed-period transition can advertise a reopening.
+          // A halt or missing metadata cannot promise an opening time.
+          nextChangeAt:
+            result.status.state === "paused" &&
+            result.status.reason === "closed" &&
+            poll.trading[ticker]?.currentPeriod === "closed" &&
+            !poll.trading[ticker]?.isTradingHalted &&
+            Date.parse(poll.trading[ticker]?.nextChangeAt ?? "") > poll.takenAt.getTime()
+              ? new Date(poll.trading[ticker]!.nextChangeAt!)
+              : null,
           updatedAt: poll.takenAt,
         };
         await tx

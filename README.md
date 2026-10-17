@@ -216,6 +216,13 @@ with independent five-minute caches capped at `nextChangeAt`. Failed assets
 retry after 30 seconds, without discarding healthy assets or treating expired
 metadata as open. Run `pnpm db:migrate` before serving the new game.
 
+Closed markets keep the last primary quote visible on the Stock of the Day and
+price panel, labeled `Last price` and `Market closed`. The worker stores the
+source's scheduled reopening in `ticker_status.next_change_at` (migration `0005`);
+Higher or Lower displays that future time in UTC while paused. Missing, expired
+or halted-market metadata never invents an opening time. A displayed schedule
+does not resume a ticker: fresh oracle checks must still mark it live.
+
 ### Environment variables
 
 | Name                                       | Used by               | What it is                                                 |

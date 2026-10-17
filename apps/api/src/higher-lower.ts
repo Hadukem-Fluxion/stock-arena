@@ -59,7 +59,11 @@ export function createHlStore(
       const market = await readMarket(tx, catalog, now);
       const paused = market
         .filter((price) => price.state === "paused")
-        .map((price) => ({ ticker: price.ticker, reason: price.reason ?? "stale" }));
+        .map((price) => ({
+          ticker: price.ticker,
+          reason: price.reason ?? "stale",
+          ...(price.nextChangeAt ? { nextChangeAt: price.nextChangeAt } : {}),
+        }));
       const eligible = market.flatMap((price): HlStockSnapshot[] =>
         price.state === "live" && price.priceUsd && price.change24hPct !== null
           ? [{ ticker: price.ticker, priceUsd: price.priceUsd, change24hPct: price.change24hPct }]

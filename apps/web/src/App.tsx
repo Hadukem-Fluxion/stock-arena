@@ -49,6 +49,10 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
   };
   const providers = [...new Set(tickers.map((ticker) => catalog[ticker]!.provider))];
   const discord = platform.host === "discord";
+  const marketClosed = Boolean(
+    prices.view?.prices.length &&
+    prices.view.prices.every((price) => price.state === "paused" && price.reason === "closed"),
+  );
   const awardTotal =
     checkin.view?.awardsToday.reduce((total, award) => total + award.amount, 0) ?? 0;
   const checkinAction = () => (
@@ -264,9 +268,11 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
                       <span className="game-name">{en.games[name].name}</span>
                       <span className="caption muted">{en.games[name].rule}</span>
                       <span className="caption accent">
-                        {name === "quiz" || name === "higherLower"
-                          ? en.quiz.available
-                          : en.status.comingSoon}
+                        {name === "higherLower" && marketClosed
+                          ? en.status.marketClosed
+                          : name === "quiz" || name === "higherLower"
+                            ? en.quiz.available
+                            : en.status.comingSoon}
                       </span>
                     </button>
                   ))}
@@ -348,6 +354,9 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
                           <span className="caption muted">{catalog[ticker]!.name}</span>
                         </div>
                         <div className="live-price-value">
+                          {quote?.reason === "closed" && quote.priceUsd !== null && (
+                            <span className="caption muted">{en.checkin.lastPrice}</span>
+                          )}
                           <span className="number">
                             {quote?.priceUsd
                               ? Number(quote.priceUsd).toLocaleString("en-US", {
@@ -382,7 +391,9 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
                     : prices.state === "reconnecting"
                       ? en.prices.reconnecting
                       : prices.view
-                        ? en.prices.live
+                        ? marketClosed
+                          ? en.prices.closed
+                          : en.prices.live
                         : en.status.pricesPending}
                 </p>
               </section>

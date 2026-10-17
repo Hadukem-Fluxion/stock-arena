@@ -88,6 +88,30 @@ async function setup(count = 3) {
   return { app, user, catalog, send, pick };
 }
 describe("Higher or Lower", () => {
+  it("returns a persisted reopening only for closed tickers, without consuming a run", async () => {
+    const { app, send, user } = await setup();
+    try {
+      const opening = new Date("2026-10-19T00:00:00Z");
+      await connection.db
+        .update(tickerStatus)
+        .set({ state: "paused", reason: "closed", nextChangeAt: opening });
+      const result = (await send("start")).json<HlView>();
+      expect(result.status).toBe("paused");
+      expect(result.runsUsed).toBe(0);
+      expect(result.paused.every((stock) => stock.nextChangeAt === opening.toISOString())).toBe(
+        true,
+      );
+      expect(
+        await connection.db.select().from(hlRuns).where(eq(hlRuns.userId, user.id)),
+      ).toHaveLength(0);
+      await connection.db.update(tickerStatus).set({ reason: "manual" });
+      expect(
+        (await send()).json<HlView>().paused.every((stock) => stock.nextChangeAt === undefined),
+      ).toBe(true);
+    } finally {
+      await app.close();
+    }
+  });
   it.each([3, 30])(
     "uses %s catalog assets, only primary prices, and hides the frozen key",
     async (count) => {

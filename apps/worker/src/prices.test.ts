@@ -118,6 +118,25 @@ describe("price worker storage", () => {
     ).rejects.toThrow();
     expect(await connection.db.select().from(priceSnapshots)).toEqual(before);
   });
+  it("persists only a future scheduled reopening and clears it on refresh, halt or expiry", async () => {
+    const opening = at(300).toISOString();
+    const closed = {
+      ...trading,
+      currentPeriod: "closed" as const,
+      openNow: false,
+      nextChangeAt: opening,
+    };
+    const readStatus = async () =>
+      (await connection.db.select().from(tickerStatus).where(eq(tickerStatus.ticker, "MSFT")))[0]!;
+    await store(poll(240, [], closed));
+    expect((await readStatus()).nextChangeAt?.toISOString()).toBe(opening);
+    await store({ ...poll(245, []), trading: {} });
+    expect((await readStatus()).nextChangeAt).toBeNull();
+    await store(poll(250, [], { ...closed, isTradingHalted: true }));
+    expect((await readStatus()).nextChangeAt).toBeNull();
+    await store(poll(305, [], closed));
+    expect((await readStatus()).nextChangeAt).toBeNull();
+  });
 });
 
 describe("poll scheduler", () => {
