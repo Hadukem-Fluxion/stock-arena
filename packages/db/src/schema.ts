@@ -178,6 +178,7 @@ export const tickerStatus = pgTable("ticker_status", {
   ticker: text("ticker").primaryKey(),
   state: tickerState("state").notNull(),
   reason: text("reason"),
+  nextChangeAt: instant("next_change_at"),
   updatedAt: instant("updated_at").defaultNow().notNull(),
 });
 

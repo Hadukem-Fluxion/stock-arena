@@ -17,5 +17,5 @@ export type HlView = {
     winner: string;
     stocks: [HlStock & { change24hPct: number }, HlStock & { change24hPct: number }];
   } | null;
-  paused: { ticker: string; reason: string }[];
+  paused: { ticker: string; reason: string; nextChangeAt?: string | null }[];
 };

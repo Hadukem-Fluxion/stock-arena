@@ -11,6 +11,7 @@ export type MarketPrice = {
   change24hPct: number | null;
   state: "live" | "paused";
   reason: string | null;
+  nextChangeAt: string | null;
 };
 type Transaction = Parameters<Parameters<DatabaseConnection["db"]["transaction"]>[0]>[0];
 
@@ -71,6 +72,13 @@ export async function readMarket(
       change24hPct: change !== null && Number.isFinite(change) ? change : null,
       state: paused ? "paused" : "live",
       reason: status?.state === "paused" ? (status.reason ?? "stale") : paused ? "stale" : null,
+      nextChangeAt:
+        status?.state === "paused" &&
+        status.reason === "closed" &&
+        status.nextChangeAt &&
+        status.nextChangeAt > now
+          ? status.nextChangeAt.toISOString()
+          : null,
     };
   });
 }

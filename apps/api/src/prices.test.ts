@@ -34,6 +34,28 @@ function catalogFor(count: number): AssetCatalog {
   );
 }
 describe("persisted live prices", () => {
+  it("keeps the last primary quote when the market is closed and snapshots are old", async () => {
+    const catalog = catalogFor(3);
+    const last = new Date(now.getTime() - 48 * 60 * 60_000);
+    await connection.db
+      .insert(priceSnapshots)
+      .values({ ticker: "REF_0", priceUsd: "344.50", takenAt: last, source: "xstocks" });
+    await connection.db.insert(tickerStatus).values({
+      ticker: "REF_0",
+      state: "paused",
+      reason: "closed",
+      nextChangeAt: new Date("2026-10-20T00:00:00Z"),
+    });
+    const result = await createPricesStore(connection, { catalog, now: () => now })();
+    expect(result.prices[0]).toMatchObject({
+      priceUsd: "344.50",
+      takenAt: last.toISOString(),
+      state: "paused",
+      reason: "closed",
+      change24hPct: null,
+    });
+    expect(result.prices[0]).not.toHaveProperty("nextChangeAt");
+  });
   it.each([3, 30])(
     "reads %s catalog assets using primary snapshots and includes pause reasons",
     async (count) => {

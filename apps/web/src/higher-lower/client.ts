@@ -40,7 +40,15 @@ export const hlViewSchema: z.ZodType<HlView, z.ZodTypeDef, unknown> = z
       })
       .strict()
       .nullable(),
-    paused: z.array(z.object({ ticker: z.string(), reason: z.string() }).strict()),
+    paused: z.array(
+      z
+        .object({
+          ticker: z.string(),
+          reason: z.string(),
+          nextChangeAt: z.string().datetime().nullable().optional(),
+        })
+        .strict(),
+    ),
   })
   .strict();
 export class HlClientError extends Error {

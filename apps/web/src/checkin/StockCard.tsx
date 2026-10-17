@@ -30,6 +30,9 @@ export function StockCard({
           <span className="caption muted">{en.providers[stock.asset.provider].name}</span>
         </div>
         <div className="stock-price">
+          {price.reason === "closed" && price.usd !== null && (
+            <span className="caption muted">{en.checkin.lastPrice}</span>
+          )}
           <strong className="number">{formatted}</strong>
           <span
             className={`number caption ${change === null ? "muted" : change < 0 ? "down" : "accent"}`}

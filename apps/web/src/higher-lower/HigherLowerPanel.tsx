@@ -5,6 +5,7 @@ import { en } from "../copy/en.js";
 import { AssetLogo } from "../components/AssetLogo.js";
 import { createHlClient, HlClientError } from "./client.js";
 import type { HlAction } from "./client.js";
+import { closedMarketNotice } from "./closed-market.js";
 
 export function HigherLowerPanel({
   platform,
@@ -81,6 +82,7 @@ export function HigherLowerPanel({
   }, [allowed, run]);
   if (!allowed) return <p className="muted">{en.hl.preview}</p>;
   const feedback = view?.feedback;
+  const closedNotice = closedMarketNotice(view);
   const stocks = feedback?.stocks ?? view?.round?.stocks;
   const canStart =
     view && view.runsUsed < view.runsLimit && ["ready", "completed"].includes(view.status);
@@ -159,16 +161,18 @@ export function HigherLowerPanel({
       )}
       {view?.status === "paused" && (
         <div className="hl-pause" role="status">
-          <h3>{en.checkin.paused}</h3>
-          <p>{en.hl.paused}</p>
-          <ul>
-            {view.paused.map((stock) => (
-              <li key={stock.ticker}>
-                {stock.ticker} ·{" "}
-                {stock.reason === "closed" ? en.status.marketClosed : en.checkin.paused}
-              </li>
-            ))}
-          </ul>
+          <h3>{closedNotice ? en.status.marketClosed : en.checkin.paused}</h3>
+          <p>{closedNotice ?? en.hl.paused}</p>
+          {!closedNotice && (
+            <ul>
+              {view.paused.map((stock) => (
+                <li key={stock.ticker}>
+                  {stock.ticker} ·{" "}
+                  {stock.reason === "closed" ? en.status.marketClosed : en.checkin.paused}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
       {feedback && (
