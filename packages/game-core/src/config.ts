@@ -14,6 +14,11 @@ export const COMPANY_NAMES = Object.fromEntries(
 ) as Record<Ticker, string>;
 
 export const GAME_CONFIG = {
+  season: {
+    id: "season-1",
+    startsAt: "2026-10-16T00:00:00Z",
+    endsAt: null as string | null,
+  },
   checkin: {
     pointsPerDay: 10,
     /** Bonus paid on the day the streak reaches this length. */

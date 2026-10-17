@@ -35,3 +35,4 @@ The MVP runs on Discord and Telegram by Nov 20, closed beta follows, and public 
 - One global leaderboard, or one per platform until accounts can be linked.
 - Final product name and art direction.
 - Confirmar com o admin da Mantle se a campanha é de mStocks (Bybit), xStocks ou ambos; brand kit, aviso legal e endereços dos mStocks na Mantle.
+- Datas oficiais da Season 1 (início/fim) — confirmar com a Mantle.

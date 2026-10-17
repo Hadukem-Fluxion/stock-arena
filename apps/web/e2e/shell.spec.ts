@@ -13,7 +13,7 @@ for (const width of [360, 768, 1024, 1440]) {
       if (new URL(request.url()).pathname.startsWith("/api/")) apiRequests.push(request.url());
     });
     await page.goto("/");
-    await expect(page.getByRole("status")).toHaveText(en.auth.preview);
+    await expect(page.locator(".connection")).toHaveText(en.auth.preview);
     await expect(page.locator(".host-label")).toHaveText(en.host.browserDevelopment);
     await expect(page.locator(".skip-link")).toHaveText(en.labels.skipToContent);
     await page.evaluate(() => document.fonts.ready);
@@ -49,7 +49,7 @@ for (const width of [360, 768, 1024, 1440]) {
 test("production disables the local user and game buttons", async ({ page }) => {
   await page.goto("http://127.0.0.1:5174/");
   await expect(page.locator(".host-label")).toHaveText("Running in a browser");
-  await expect(page.getByRole("status")).toHaveText(en.auth.errors.BROWSER_DISABLED);
+  await expect(page.locator(".connection")).toHaveText(en.auth.errors.BROWSER_DISABLED);
   await expect(page.getByRole("button", { name: en.games.quiz.name })).toBeDisabled();
   await expect(page.getByText(en.auth.preview)).toHaveCount(0);
   await expect(page.locator(".legal-notice")).toHaveAttribute(
@@ -123,7 +123,7 @@ test("Telegram production login uses the relative API and host links", async ({ 
     await route.fulfill({ json: { session: session("Telegram test player") } });
   });
   await page.goto("http://127.0.0.1:5174/#tgWebAppData=mock");
-  await expect(page.getByRole("status")).toContainText("Telegram test player");
+  await expect(page.locator(".connection")).toContainText("Telegram test player");
   const palette = {
     "--bg": "#0b0e11",
     "--surface": "#151a1f",
@@ -178,8 +178,8 @@ test("login errors show safe copy and a retry succeeds", async ({ page }) => {
     else await route.fulfill({ json: { session: session("Retry player") } });
   });
   await page.goto("/#tgWebAppData=mock");
-  await expect(page.getByRole("status")).toContainText(en.auth.errors.CONFIGURATION_REQUIRED);
+  await expect(page.locator(".connection")).toContainText(en.auth.errors.CONFIGURATION_REQUIRED);
   await page.getByRole("button", { name: en.auth.retry }).click();
-  await expect(page.getByRole("status")).toContainText("Retry player");
+  await expect(page.locator(".connection")).toContainText("Retry player");
   expect(attempts).toBe(2);
 });
