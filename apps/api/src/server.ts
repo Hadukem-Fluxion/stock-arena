@@ -1,3 +1,7 @@
+import { registerLeaderboard } from "./leaderboard.js";
+import type { LeaderboardOptions } from "./leaderboard.js";
+import { registerPrices } from "./prices.js";
+import type { PricesOptions } from "./prices.js";
 import Fastify, { type FastifyInstance } from "fastify";
 import { TICKERS } from "@stock-arena/game-core";
 import type { Writable } from "node:stream";
@@ -21,6 +25,8 @@ export function buildServer(
     higherLower?: HlOptions;
     discord?: { publicKey?: string };
     logger?: false | { stream: Writable };
+    leaderboard?: LeaderboardOptions;
+    prices?: PricesOptions;
   } = {},
 ): FastifyInstance {
   const app = Fastify({
@@ -50,6 +56,12 @@ export function buildServer(
   app.get("/api/health", async () => ({ ok: true, version: VERSION, tickers: TICKERS }));
   const auth = registerAuth(app, options.auth);
   registerCheckin(app, { ...options.checkin, database: auth.database, now: options.auth?.now });
+  registerLeaderboard(app, {
+    ...options.leaderboard,
+    database: auth.database,
+    now: options.auth?.now,
+  });
+  registerPrices(app, { ...options.prices, database: auth.database, now: options.auth?.now });
   registerQuiz(app, { database: auth.database, now: options.auth?.now });
   registerHl(app, { ...options.higherLower, database: auth.database, now: options.auth?.now });
   registerDiscordInteractions(

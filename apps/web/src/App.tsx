@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { MouseEvent, ReactNode } from "react";
-import { ASSETS, assetTickers, gameDay, stockOfTheDay } from "@stock-arena/game-core";
+import { ASSETS, GAME_CONFIG, assetTickers, gameDay, stockOfTheDay } from "@stock-arena/game-core";
 import type { AssetCatalog, CheckinView } from "@stock-arena/game-core";
 import { AssetLogo } from "./components/AssetLogo.js";
 import { StockCard } from "./checkin/StockCard.js";
@@ -8,6 +8,8 @@ import { useCheckin } from "./checkin/useCheckin.js";
 import { QuizPanel } from "./quiz/QuizPanel.js";
 import { HigherLowerPanel } from "./higher-lower/HigherLowerPanel.js";
 import { en } from "./copy/en.js";
+import { LeaderboardPanel, TodayTopFive } from "./leaderboard/LeaderboardPanel.js";
+import { usePrices } from "./prices/usePrices.js";
 import { getPlatform } from "./platform/index.js";
 import { PlatformError } from "./platform/types.js";
 import type { PlatformAdapter, PlatformErrorCode, PlatformUser } from "./platform/types.js";
@@ -32,7 +34,8 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
   const [attempt, setAttempt] = useState(0);
   const [linkError, setLinkError] = useState(false);
   const checkin = useCheckin(platform, login.state === "ready");
-  const catalog: AssetCatalog = checkin.view?.catalog ?? ASSETS;
+  const prices = usePrices(platform, login.state === "ready");
+  const catalog: AssetCatalog = checkin.view?.catalog ?? prices.view?.catalog ?? ASSETS;
   const tickers = assetTickers(catalog);
   const today = checkin.view?.day ?? gameDay(new Date());
   const featured = checkin.view?.stock.ticker ?? stockOfTheDay(today, tickers);
@@ -165,13 +168,6 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
     </nav>
   );
 
-  const ranking = (
-    <>
-      <p className="eyebrow">{en.labels.season}</p>
-      <h2>{en.labels.topFive}</h2>
-      <p className="muted empty-state">{en.leaderboard.empty}</p>
-    </>
-  );
   return (
     <div className="shell" data-host={platform.host}>
       <a className="skip-link" href="#main-content">
@@ -332,41 +328,74 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
                   <span className="caption muted">{en.labels.priceWindow}</span>
                 </div>
                 <ul className="price-list">
-                  {tickers.map((ticker) => (
-                    <li className="price-row" key={ticker}>
-                      <AssetLogo
-                        ticker={ticker}
-                        asset={catalog[ticker]!}
-                        size={32}
-                        discord={discord}
-                      />
-                      <div className="stock-name">
-                        <strong>{catalog[ticker]!.symbol}</strong>
-                        <span className="caption muted">{catalog[ticker]!.name}</span>
-                      </div>
-                      <span className="number muted" title={en.labels.unavailable}>
-                        {en.labels.unknown}
-                      </span>
-                    </li>
-                  ))}
+                  {tickers.map((ticker) => {
+                    const quote = prices.view?.prices.find((price) => price.ticker === ticker);
+                    const stale =
+                      !quote?.takenAt ||
+                      Date.parse(prices.view!.serverTime) - Date.parse(quote.takenAt) >
+                        GAME_CONFIG.prices.staleAfterSeconds * 1000;
+                    const paused = quote?.state === "paused" || stale || prices.state !== "live";
+                    return (
+                      <li className="price-row" key={ticker}>
+                        <AssetLogo
+                          ticker={ticker}
+                          asset={catalog[ticker]!}
+                          size={32}
+                          discord={discord}
+                        />
+                        <div className="stock-name">
+                          <strong>{catalog[ticker]!.symbol}</strong>
+                          <span className="caption muted">{catalog[ticker]!.name}</span>
+                        </div>
+                        <div className="live-price-value">
+                          <span className="number">
+                            {quote?.priceUsd
+                              ? Number(quote.priceUsd).toLocaleString("en-US", {
+                                  style: "currency",
+                                  currency: "USD",
+                                })
+                              : en.labels.unknown}
+                          </span>
+                          {quote?.change24hPct !== null && quote?.change24hPct !== undefined && (
+                            <span
+                              className={`number caption ${quote.change24hPct < 0 ? "down" : "accent"}`}
+                            >
+                              {quote.change24hPct < 0 ? "▼" : "▲"}{" "}
+                              {Math.abs(quote.change24hPct).toFixed(2)}%
+                            </span>
+                          )}
+                          {paused && (
+                            <span className="caption muted">
+                              {quote?.reason === "closed"
+                                ? en.status.marketClosed
+                                : en.checkin.paused}
+                            </span>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
-                <p className="caption muted">{en.status.pricesPending}</p>
+                <p className="caption muted" role="status">
+                  {prices.state === "session"
+                    ? en.prices.session
+                    : prices.state === "reconnecting"
+                      ? en.prices.reconnecting
+                      : prices.view
+                        ? en.prices.live
+                        : en.status.pricesPending}
+                </p>
               </section>
-              <section className="card ranking-card">{ranking}</section>
+              <section className="card ranking-card">
+                <TodayTopFive platform={platform} enabled={login.state === "ready"} />
+              </section>
             </aside>
           </div>
         ) : tab === "leaderboard" ? (
           <section className="card tab-panel">
             <p className="eyebrow">{en.labels.season}</p>
             <h2>{en.leaderboard.title}</h2>
-            <div className="period-labels">
-              {Object.values(en.leaderboard.periods).map((period) => (
-                <span className="pill" key={period}>
-                  {period}
-                </span>
-              ))}
-            </div>
-            <p className="empty-state muted">{en.leaderboard.empty}</p>
+            <LeaderboardPanel platform={platform} enabled={login.state === "ready"} />
           </section>
         ) : (
           <section className="card tab-panel profile-panel">

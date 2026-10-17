@@ -30,6 +30,12 @@ Missing a day resets your check-in streak to zero.
 
 ## Leaderboards
 
+- Season 1 dates are provisional and will be confirmed with Mantle. Staging starts
+  at `2026-10-16T00:00:00Z`; `endsAt: null` means the season is ongoing and its
+  leaderboard counts points from that start through the current time. A configured
+  end instant closes the season and excludes points at or after that instant.
+  Dates live in `GAME_CONFIG.season` and change only through a reviewed PR; the
+  points ledger is never rewritten when the season window changes.
 - Daily, weekly and season leaderboards, on Discord and Telegram. Weeks run Monday to Sunday (UTC).
 - Ties go to the player who reached the score first.
 - The season leaderboard decides Season 1 rewards. Mods review the top of the leaderboard before any reward is paid.

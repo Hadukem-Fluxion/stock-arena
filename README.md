@@ -60,7 +60,7 @@ docs/
 
 1. The web app boots, detects its host (Discord iframe or Telegram WebView) and runs the matching login.
 2. The API verifies the identity (Discord OAuth code exchange, or Telegram init data signature) and returns a session token.
-3. The worker polls xStocks every 15 s, stores primary snapshots with `source = xstocks`, and cross-checks five Fluxion pools with `source = fluxion_pool`. The API price stream arrives in T12; game prices and settlement use primary snapshots only.
+3. The worker polls xStocks every 15 s, stores primary snapshots with `source = xstocks`, and cross-checks five Fluxion pools with `source = fluxion_pool`. The authenticated API price stream reads persisted primary snapshots every 15 s; game prices and settlement use primary snapshots only.
 4. Every point award is one row in `points_ledger`; leaderboards are sums over that ledger.
 
 ## Tech stack
@@ -136,6 +136,29 @@ Keep each action and its award in one database transaction.
 Commit generated SQL and Drizzle metadata together. Custom SQL such as the ledger
 trigger lives in a separate committed migration; use migrations rather than
 `drizzle-kit push` so this protection is installed too.
+
+### Leaderboards and live prices (T12)
+
+`GET /api/leaderboard?period=day|week|season&platform=all|discord|telegram`
+returns the top 100 and the caller's position, including ranks outside that list.
+Totals come from the immutable ledger; linked identities never duplicate points.
+Ties use the first time the player reached their final score in the selected
+window, then a stable user ID order. Results are cached for 60 seconds per filter,
+with UTC day/week boundaries invalidating the cache. Caller data is selected from
+that snapshot separately for each response.
+
+Season dates live in `GAME_CONFIG.season`, provisionally from
+`2026-10-16T00:00:00Z` with no end. A non-null end instant closes the season and
+excludes later points; changes go through a reviewed PR, without ledger edits.
+See [Game Rules](docs/GAME_RULES.md) and the open Mantle confirmation in the roadmap.
+
+`GET /api/prices/stream` requires the same bearer session as game routes. It emits
+an immediate `prices` SSE event and updates every 15 seconds with the catalog,
+latest primary quotes, 24h changes and pause reasons. The browser uses streaming
+fetch so authentication stays in the header, never a URL. Streams reconnect
+after a drop, end after one minute to reauthenticate, and release server timers
+on disconnect. The UI retains last prices with a reconnect/pause notice while
+offline. Stalled streams are bounded; slow readers cannot accumulate snapshots.
 
 ### Authentication development (T07)
 
