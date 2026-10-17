@@ -5,3 +5,4 @@ export * from "./facts.js";
 export * from "./assets.js";
 export type { CheckinView } from "./checkin.js";
 export type { QuizView, QuizQuestion, QuizFeedback } from "./quiz.js";
+export type { HlView, HlStock } from "./higher-lower.js";

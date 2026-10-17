@@ -48,10 +48,10 @@ export function quizAnswerInTime(servedAt: Date, answeredAt: Date): boolean {
  * Higher or Lower: which of two tickers moved more over 24h (absolute % change).
  * Returns null when the gap is too small to be a fair round.
  */
-export function higherOrLowerWinner(
-  a: { ticker: Ticker; change24hPct: number },
-  b: { ticker: Ticker; change24hPct: number },
-): Ticker | null {
+export function higherOrLowerWinner<T extends string>(
+  a: { ticker: T; change24hPct: number },
+  b: { ticker: T; change24hPct: number },
+): T | null {
   const gap = Math.abs(Math.abs(a.change24hPct) - Math.abs(b.change24hPct));
   if (gap < GAME_CONFIG.higherOrLower.minChangeGapPct) return null;
   return Math.abs(a.change24hPct) > Math.abs(b.change24hPct) ? a.ticker : b.ticker;

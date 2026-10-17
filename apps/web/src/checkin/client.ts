@@ -7,7 +7,7 @@ const httpsUrl = z
   .string()
   .url()
   .refine((value) => new URL(value).protocol === "https:");
-const assetSchema = z.object({
+export const assetSchema = z.object({
   name: z.string().min(1),
   symbol: z.string().min(1),
   provider: z

@@ -46,6 +46,12 @@ describe("Fluxion slot0 conversion", () => {
 });
 
 describe("ticker status", () => {
+  it.each(["extended", "overnight"] as const)(
+    "keeps the %s session playable outside US regular hours",
+    (currentPeriod) => {
+      expect(evaluate({ trading: { ...open, currentPeriod } }).status).toEqual({ state: "live" });
+    },
+  );
   it("pauses above the divergence limit and permits its boundary", () => {
     expect(evaluate({ poolPrice: "103.01" }).status).toEqual({
       state: "paused",

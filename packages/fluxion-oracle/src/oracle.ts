@@ -81,9 +81,10 @@ export function createPriceOracle(
       const fresh = await client.getTrading();
       const fetchedAt = now().getTime();
       trading = fresh;
-      expiresAt = fetchedAt + 5 * 60_000;
+      // Partial failures retry without discarding valid per-asset client caches.
+      expiresAt = fetchedAt + (TICKERS.every((ticker) => fresh[ticker]) ? 5 * 60_000 : 30_000);
       for (const status of Object.values(fresh)) {
-        const changeAt = Date.parse(status.nextChangeAt ?? "");
+        const changeAt = Date.parse(status?.nextChangeAt ?? "");
         if (changeAt > fetchedAt) expiresAt = Math.min(expiresAt, changeAt);
       }
     } catch {

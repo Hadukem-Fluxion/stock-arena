@@ -172,6 +172,27 @@ with a fake bot token, mock both Discord HTTP calls, and use an isolated migrate
 PGlite database for identities and permissions. Real platform smoke tests remain
 pending account setup; the client adapters arrive in T08.
 
+### Higher or Lower (T11)
+
+`GET /api/hl` resumes today's latest run; `POST /api/hl/start` starts or resumes
+one. `POST /api/hl/pick` accepts only the run ID, round ID and chosen ticker;
+`POST /api/hl/next` serves the next pair after feedback. The server freezes each
+pair, its primary 24h changes and the winning ticker in the new `hl_rounds` table.
+Unanswered changes and the key stay private. Correct picks append one unique
+ledger award in the same transaction as the answer; retries cannot award twice.
+Run limits and points still come from game-core.
+
+Only live catalog assets with fresh primary snapshots and a usable 24h baseline
+can enter a pair. Fluxion pool rows never supply game prices. Extended and
+overnight trading remain playable; closed, stale, divergent or manually paused
+assets are excluded. A paused in-flight pair keeps its frozen result and can
+resume when its prices are live again. No unavailable pair consumes a new run.
+
+Trading metadata uses `/public/assets/{symbol}` only for the configured catalog,
+with independent five-minute caches capped at `nextChangeAt`. Failed assets
+retry after 30 seconds, without discarding healthy assets or treating expired
+metadata as open. Run `pnpm db:migrate` before serving the new game.
+
 ### Environment variables
 
 | Name                                       | Used by               | What it is                                                 |

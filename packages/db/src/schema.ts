@@ -127,6 +127,41 @@ export const hlRuns = pgTable(
   ],
 );
 
+export type HlStockSnapshot = { ticker: string; priceUsd: string; change24hPct: number };
+/** Private round key and frozen reference prices; never send unanswered changes. */
+export const hlRounds = pgTable(
+  "hl_rounds",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    runId: uuid("run_id")
+      .notNull()
+      .references(() => hlRuns.id),
+    position: integer("position").notNull(),
+    stocks: jsonb("stocks").$type<[HlStockSnapshot, HlStockSnapshot]>().notNull(),
+    winner: text("winner").notNull(),
+    choice: text("choice"),
+    servedAt: instant("served_at").notNull(),
+    answeredAt: instant("answered_at"),
+  },
+  (table) => [
+    unique("hl_rounds_run_position_unique").on(table.runId, table.position),
+    check("hl_rounds_position", sql`${table.position} BETWEEN 0 AND 9`),
+    check(
+      "hl_rounds_pair",
+      sql`jsonb_typeof(${table.stocks}) = 'array' AND jsonb_array_length(${table.stocks}) = 2 AND ${table.stocks}->0->>'ticker' <> ${table.stocks}->1->>'ticker'`,
+    ),
+    check(
+      "hl_rounds_winner",
+      sql`${table.winner} IN (${table.stocks}->0->>'ticker', ${table.stocks}->1->>'ticker')`,
+    ),
+    check(
+      "hl_rounds_choice",
+      sql`${table.choice} IS NULL OR ${table.choice} IN (${table.stocks}->0->>'ticker', ${table.stocks}->1->>'ticker')`,
+    ),
+    check("hl_rounds_answer", sql`(${table.choice} IS NULL) = (${table.answeredAt} IS NULL)`),
+  ],
+);
+
 export const priceSnapshots = pgTable(
   "price_snapshots",
   {
