@@ -1,5 +1,5 @@
-import { ASSETS, TICKERS } from "@stock-arena/game-core";
-import type { Ticker } from "@stock-arena/game-core";
+import { ASSETS } from "@stock-arena/game-core";
+import type { AssetCatalog, Ticker } from "@stock-arena/game-core";
 import { z } from "zod";
 import { OracleError, retry } from "./retry.js";
 import type { SpotPrice } from "./index.js";
@@ -13,10 +13,6 @@ export const tradingSchema = z.object({
   nextChangeAt: z.string().datetime({ offset: true }).nullable(),
 });
 export type TradingStatus = z.infer<typeof tradingSchema>;
-const pageSchema = z.object({
-  nodes: z.array(z.unknown()),
-  page: z.object({ hasNextPage: z.boolean() }),
-});
 
 export function parsePrice(value: unknown): string {
   const result = quoteSchema.safeParse(value);
@@ -30,10 +26,16 @@ export function createXStocksClient(
     fetch?: typeof fetch;
     now?: () => Date;
     sleep?: (ms: number) => Promise<unknown>;
+    catalog?: AssetCatalog;
   } = {},
 ) {
   const base = (options.apiBase ?? "https://api.backed.fi/api/v2").replace(/\/$/, "");
   const fetcher = options.fetch ?? fetch;
+  const catalog = options.catalog ?? ASSETS;
+  const now = options.now ?? (() => new Date());
+  const metadata = new Map<string, { status: TradingStatus; expiresAt: number }>();
+  const retryAt = new Map<string, number>();
+  const pending = new Map<string, Promise<void>>();
   async function request(path: string): Promise<unknown> {
     return retry(
       async () => {
@@ -77,29 +79,41 @@ export function createXStocksClient(
         takenAt: (options.now ?? (() => new Date()))(),
       };
     },
-    async getTrading(): Promise<Record<Ticker, TradingStatus>> {
-      const statuses: Partial<Record<Ticker, TradingStatus>> = {};
-      for (let page = 1; page <= 100; page++) {
-        const parsed = pageSchema.safeParse(
-          await request(`/public/assets?page=${page}&pageSize=100`),
-        );
-        if (!parsed.success) throw new OracleError("invalid_response");
-        for (const node of parsed.data.nodes) {
-          const symbol = z.object({ symbol: z.string() }).safeParse(node);
-          if (!symbol.success) continue;
-          const ticker = TICKERS.find((ticker) => ASSETS[ticker].symbol === symbol.data.symbol);
-          if (!ticker) continue;
-          const asset = z
-            .object({ logo: z.string().url(), trading: tradingSchema })
-            .safeParse(node);
-          if (!asset.success) throw new OracleError("invalid_response");
-          statuses[ticker] = asset.data.trading;
-        }
-        if (TICKERS.every((ticker) => statuses[ticker]))
-          return statuses as Record<Ticker, TradingStatus>;
-        if (!parsed.data.page.hasNextPage) break;
-      }
-      throw new OracleError("invalid_response");
+    async getTrading(): Promise<Partial<Record<string, TradingStatus>>> {
+      await Promise.all(
+        Object.entries(catalog).map(async ([ticker, asset]) => {
+          if ((metadata.get(ticker)?.expiresAt ?? 0) > now().getTime()) return;
+          if (pending.has(ticker)) return pending.get(ticker);
+          if ((retryAt.get(ticker) ?? 0) > now().getTime()) return;
+          const refresh = (async () => {
+            try {
+              const parsed = z
+                .object({ symbol: z.literal(asset.symbol), trading: tradingSchema })
+                .safeParse(await request(`/public/assets/${encodeURIComponent(asset.symbol)}`));
+              if (!parsed.success) throw new OracleError("invalid_response");
+              const expiry = now().getTime() + 5 * 60_000;
+              const transition = Date.parse(parsed.data.trading.nextChangeAt ?? "");
+              metadata.set(ticker, {
+                status: parsed.data.trading,
+                expiresAt: Number.isFinite(transition) ? Math.min(expiry, transition) : expiry,
+              });
+              retryAt.delete(ticker);
+            } catch {
+              // Keep other assets usable. Expired entries never imply an open market.
+              retryAt.set(ticker, now().getTime() + 30_000);
+            } finally {
+              pending.delete(ticker);
+            }
+          })();
+          pending.set(ticker, refresh);
+          await refresh;
+        }),
+      );
+      return Object.fromEntries(
+        [...metadata]
+          .filter(([, value]) => value.expiresAt > now().getTime())
+          .map(([ticker, value]) => [ticker, value.status]),
+      );
     },
   };
 }

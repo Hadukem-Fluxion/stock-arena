@@ -657,3 +657,53 @@ dd {
   height: 100%;
   background: var(--accent);
 }
+
+.hl-panel {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.hl-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.hl-stock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 8px;
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface-2);
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.hl-stock .display-ticker {
+  font-size: clamp(17px, 2vw, 28px);
+}
+.hl-stock:disabled {
+  opacity: 1;
+  cursor: default;
+}
+.hl-stock.hl-correct {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+}
+.hl-stock.hl-wrong {
+  border-color: var(--down);
+  background: var(--down-tint);
+}
+.hl-pause {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  color: var(--muted);
+}
+.hl-pause ul {
+  margin: 12px 0 0;
+  padding-left: 20px;
+}

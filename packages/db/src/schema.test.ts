@@ -97,6 +97,7 @@ describe("migrations and typed client", () => {
       "admin_actions",
       "checkins",
       "flags",
+      "hl_rounds",
       "hl_runs",
       "identities",
       "points_ledger",

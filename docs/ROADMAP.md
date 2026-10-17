@@ -29,6 +29,7 @@ The MVP runs on Discord and Telegram by Nov 20, closed beta follows, and public 
 
 ## Open questions
 
+- Telegram adiado: a conta principal do Hadukem está temporariamente impedida de criar bots no BotFather. Opção pendente: criar o bot de teste na conta do Clube Cupim, com 2FA, e transferir a posse depois. Web e API já suportam Telegram; faltam o bot, o token na Railway e o link do Mini App.
 - Final launch date with the Mantle admin (the original brief said around Sep 10).
 - Which Magnificent 7 xStocks are live on Fluxion, and their pool addresses.
 - Reward pool: prizes, who pays, how winners are paid.

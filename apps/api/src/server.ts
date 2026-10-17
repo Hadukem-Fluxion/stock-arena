@@ -8,6 +8,8 @@ import { GameError, registerCheckin } from "./checkin.js";
 import type { CheckinOptions } from "./checkin.js";
 import { QuizError, registerQuiz } from "./quiz.js";
 import { registerDiscordInteractions } from "./discord/interactions.js";
+import { HlError, registerHl } from "./higher-lower.js";
+import type { HlOptions } from "./higher-lower.js";
 
 export const VERSION = "0.1.0";
 
@@ -16,6 +18,7 @@ export function buildServer(
   options: {
     auth?: AuthOptions;
     checkin?: CheckinOptions;
+    higherLower?: HlOptions;
     discord?: { publicKey?: string };
     logger?: false | { stream: Writable };
   } = {},
@@ -48,12 +51,18 @@ export function buildServer(
   const auth = registerAuth(app, options.auth);
   registerCheckin(app, { ...options.checkin, database: auth.database, now: options.auth?.now });
   registerQuiz(app, { database: auth.database, now: options.auth?.now });
+  registerHl(app, { ...options.higherLower, database: auth.database, now: options.auth?.now });
   registerDiscordInteractions(
     app,
     options.discord ? options.discord.publicKey : process.env.DISCORD_PUBLIC_KEY,
   );
   app.setErrorHandler((error, _request, reply) => {
-    if (error instanceof AuthError || error instanceof GameError || error instanceof QuizError) {
+    if (
+      error instanceof AuthError ||
+      error instanceof GameError ||
+      error instanceof QuizError ||
+      error instanceof HlError
+    ) {
       return reply.code(error.statusCode).send({ error: { code: error.code } });
     }
     const statusCode =

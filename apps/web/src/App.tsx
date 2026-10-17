@@ -6,6 +6,7 @@ import { AssetLogo } from "./components/AssetLogo.js";
 import { StockCard } from "./checkin/StockCard.js";
 import { useCheckin } from "./checkin/useCheckin.js";
 import { QuizPanel } from "./quiz/QuizPanel.js";
+import { HigherLowerPanel } from "./higher-lower/HigherLowerPanel.js";
 import { en } from "./copy/en.js";
 import { getPlatform } from "./platform/index.js";
 import { PlatformError } from "./platform/types.js";
@@ -267,7 +268,9 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
                       <span className="game-name">{en.games[name].name}</span>
                       <span className="caption muted">{en.games[name].rule}</span>
                       <span className="caption accent">
-                        {name === "quiz" ? en.quiz.available : en.status.comingSoon}
+                        {name === "quiz" || name === "higherLower"
+                          ? en.quiz.available
+                          : en.status.comingSoon}
                       </span>
                     </button>
                   ))}
@@ -291,6 +294,14 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
                     {en.labels.viewOnFluxion}
                   </External>
                 </>
+              ) : game === "higherLower" ? (
+                <HigherLowerPanel
+                  platform={platform}
+                  enabled={login.state === "ready"}
+                  onAward={() => {
+                    void checkin.reload();
+                  }}
+                />
               ) : game === "quiz" ? (
                 <QuizPanel
                   platform={platform}

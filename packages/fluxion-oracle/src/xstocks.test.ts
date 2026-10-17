@@ -74,28 +74,72 @@ describe("xStocks public price API", () => {
     await expect(createXStocksClient({ fetch: fetcher }).getPrice("AAPL")).rejects.toThrow("http");
     expect(fetcher).toHaveBeenCalledTimes(1);
   });
-  it("paginates metadata until all seven symbols are found", async () => {
-    const fetcher = vi
-      .fn<typeof fetch>()
-      .mockResolvedValueOnce(
-        Response.json({ nodes: [{ symbol: "OTHERx" }, node("AAPL")], page: { hasNextPage: true } }),
-      )
-      .mockResolvedValueOnce(
-        Response.json({ nodes: TICKERS.slice(1).map(node), page: { hasNextPage: true } }),
-      );
-    const statuses = await createXStocksClient({ fetch: fetcher }).getTrading();
+  it("fetches only catalog symbols and caches individual metadata", async () => {
+    let time = Date.parse("2026-10-15T12:00:00Z");
+    const fetcher = vi.fn<typeof fetch>().mockImplementation(async (url) => {
+      const ticker = TICKERS.find((ticker) => String(url).endsWith(`/${ASSETS[ticker].symbol}`));
+      if (!ticker) throw new Error("Unexpected metadata URL");
+      return Response.json(node(ticker));
+    });
+    const client = createXStocksClient({ fetch: fetcher, now: () => new Date(time) });
+    const statuses = await client.getTrading();
     expect(Object.keys(statuses).sort()).toEqual([...TICKERS].sort());
-    expect(fetcher.mock.calls[1]?.[0]).toContain("page=2&pageSize=100");
-    expect(fetcher).toHaveBeenCalledTimes(2);
+    await client.getTrading();
+    expect(fetcher).toHaveBeenCalledTimes(TICKERS.length);
+    expect(fetcher.mock.calls.every(([url]) => !String(url).includes("?"))).toBe(true);
+    time += 300_000;
+    await client.getTrading();
+    expect(fetcher).toHaveBeenCalledTimes(TICKERS.length * 2);
   });
-  it("rejects incomplete or malformed metadata instead of assuming markets are open", async () => {
+  it("omits malformed metadata instead of assuming markets are open", async () => {
     const fetcher = vi
       .fn<typeof fetch>()
       .mockImplementation(async () =>
         Response.json({ nodes: [node("AAPL")], page: { hasNextPage: false } }),
       );
-    await expect(createXStocksClient({ fetch: fetcher }).getTrading()).rejects.toThrow(
-      "invalid_response",
+    expect(await createXStocksClient({ fetch: fetcher }).getTrading()).toEqual({});
+  });
+  it.each([3, 30])("reads a %s-asset catalog without a fixed launch count", async (count) => {
+    const catalog = Object.fromEntries(
+      Array.from({ length: count }, (_, i) => [
+        `TEST_${i}`,
+        { ...ASSETS.AAPL, symbol: `TEST_${i}x` },
+      ]),
     );
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockImplementation(async (url) =>
+        Response.json({ symbol: String(url).split("/").at(-1), trading }),
+      );
+    expect(
+      Object.keys(await createXStocksClient({ fetch: fetcher, catalog }).getTrading()),
+    ).toHaveLength(count);
+    expect(fetcher).toHaveBeenCalledTimes(count);
+  });
+  it("keeps healthy assets cached when one fails, expires before a market transition and throttles failed refreshes", async () => {
+    let time = Date.parse("2026-10-15T12:00:00Z");
+    let failing = false;
+    const fetcher = vi.fn<typeof fetch>().mockImplementation(async (url) => {
+      if (String(url).endsWith("/AAPLx") && failing) return new Response(null, { status: 404 });
+      return Response.json({
+        symbol: String(url).split("/").at(-1),
+        trading: { ...trading, nextChangeAt: "2026-10-15T12:01:00Z" },
+      });
+    });
+    const client = createXStocksClient({
+      fetch: fetcher,
+      now: () => new Date(time),
+      catalog: { AAPL: ASSETS.AAPL, MSFT: ASSETS.MSFT },
+    });
+    await Promise.all([client.getTrading(), client.getTrading()]);
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    time += 60_000;
+    failing = true;
+    const fresh = await client.getTrading();
+    expect(fresh.AAPL).toBeUndefined();
+    // A returned transition in the past is also unusable, even on HTTP 200.
+    expect(fresh.MSFT).toBeUndefined();
+    await client.getTrading();
+    expect(fetcher.mock.calls.filter(([url]) => String(url).endsWith("/AAPLx"))).toHaveLength(2);
   });
 });
