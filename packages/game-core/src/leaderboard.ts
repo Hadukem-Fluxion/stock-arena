@@ -27,5 +27,6 @@ export type LivePrice = {
   change24hPct: number | null;
   state: "live" | "paused";
   reason: string | null;
+  pool?: { priceUsd: string; takenAt: string } | null;
 };
 export type PricesView = { serverTime: string; catalog: AssetCatalog; prices: LivePrice[] };

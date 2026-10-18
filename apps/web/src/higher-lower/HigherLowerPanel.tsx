@@ -82,13 +82,18 @@ export function HigherLowerPanel({
   }, [allowed, run]);
   if (!allowed) return <p className="muted">{en.hl.preview}</p>;
   const feedback = view?.feedback;
+  const lastSession = view?.mode === "last_session";
   const closedNotice = closedMarketNotice(view);
   const stocks = feedback?.stocks ?? view?.round?.stocks;
   const canStart =
     view && view.runsUsed < view.runsLimit && ["ready", "completed"].includes(view.status);
   return (
     <div className="hl-panel" aria-busy={busy}>
-      <p className="caption muted">{en.hl.rule}</p>
+      <p className="body-copy">
+        {lastSession ? en.hl.lastSessionQuestion : en.games.higherLower.rule}
+      </p>
+      {lastSession && <span className="pill session-badge">{en.hl.lastSession}</span>}
+      <p className="caption muted">{lastSession ? en.hl.lastSessionRule : en.hl.rule}</p>
       {error && (
         <div role="alert">
           <p>{error === "session" ? en.quiz.sessionError : en.hl.error}</p>
@@ -149,7 +154,9 @@ export function HigherLowerPanel({
                     {Math.abs(revealed.change24hPct).toFixed(2)}%
                   </span>
                 ) : (
-                  <span className="caption muted">{en.hl.hiddenChange}</span>
+                  <span className="caption muted">
+                    {lastSession ? en.hl.sessionHiddenChange : en.hl.hiddenChange}
+                  </span>
                 )}
                 {feedback?.winner === stock.ticker && (
                   <span className="accent">✓ {en.hl.biggerMove}</span>

@@ -745,6 +745,17 @@ dd {
   gap: 16px;
   min-width: 0;
 }
+.session-badge {
+  justify-self: start;
+}
+.pool-quote {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  border-top: 1px solid var(--line);
+  margin-top: 4px;
+  padding-top: 4px;
+}
 .hl-pair {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

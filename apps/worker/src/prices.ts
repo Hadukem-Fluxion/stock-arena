@@ -5,6 +5,7 @@ import type { DatabaseConnection } from "@stock-arena/db";
 import { evaluateTicker } from "@stock-arena/fluxion-oracle";
 import type { OraclePoll, TickerState } from "@stock-arena/fluxion-oracle";
 import { and, desc, eq } from "drizzle-orm";
+import { captureLastSession } from "./last-session.js";
 
 export function createPriceStore(
   connection: DatabaseConnection,
@@ -44,8 +45,43 @@ export function createPriceStore(
           previousState,
           ...options,
         });
+        const trading = poll.trading[ticker];
+        // Confirm a scheduled open -> closed boundary, never infer a calendar
+        // from weekend quotes (which may continue arriving unchanged).
+        const closing =
+          trading?.currentPeriod === "closed" &&
+          !trading.isTradingHalted &&
+          previous?.tradingPeriod &&
+          previous.tradingPeriod !== "closed" &&
+          previous.tradingHalted === false &&
+          previous.periodChangeAt &&
+          previous.periodChangeAt <= poll.takenAt
+            ? previous.periodChangeAt
+            : null;
+        const clearSession =
+          (trading && trading.currentPeriod !== "closed") ||
+          (previous?.tradingPeriod === "closed" &&
+            previous.periodChangeAt &&
+            previous.periodChangeAt <= poll.takenAt);
+        const lastClosedAt = closing ?? (clearSession ? null : (previous?.lastClosedAt ?? null));
+        const lastSession = closing
+          ? await captureLastSession(tx, ticker, closing)
+          : clearSession
+            ? null
+            : (previous?.lastSession ?? null);
         const row = {
           ticker,
+          // Preserve the last known boundary through metadata failures. The
+          // stale state still blocks gameplay until valid metadata returns.
+          tradingPeriod: trading?.currentPeriod ?? previous?.tradingPeriod ?? null,
+          tradingHalted: trading?.isTradingHalted ?? previous?.tradingHalted ?? null,
+          periodChangeAt: trading
+            ? trading.nextChangeAt
+              ? new Date(trading.nextChangeAt)
+              : null
+            : (previous?.periodChangeAt ?? null),
+          lastClosedAt,
+          lastSession,
           state: result.status.state,
           reason: result.status.state === "paused" ? result.status.reason : null,
           // Only a scheduled closed-period transition can advertise a reopening.

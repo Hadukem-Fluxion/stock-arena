@@ -137,6 +137,9 @@ export const hlRounds = pgTable(
       .notNull()
       .references(() => hlRuns.id),
     position: integer("position").notNull(),
+    mode: text("mode", { enum: ["live", "last_session"] })
+      .default("live")
+      .notNull(),
     stocks: jsonb("stocks").$type<[HlStockSnapshot, HlStockSnapshot]>().notNull(),
     winner: text("winner").notNull(),
     choice: text("choice"),
@@ -146,6 +149,7 @@ export const hlRounds = pgTable(
   (table) => [
     unique("hl_rounds_run_position_unique").on(table.runId, table.position),
     check("hl_rounds_position", sql`${table.position} BETWEEN 0 AND 9`),
+    check("hl_rounds_mode", sql`${table.mode} IN ('live', 'last_session')`),
     check(
       "hl_rounds_pair",
       sql`jsonb_typeof(${table.stocks}) = 'array' AND jsonb_array_length(${table.stocks}) = 2 AND ${table.stocks}->0->>'ticker' <> ${table.stocks}->1->>'ticker'`,
@@ -174,11 +178,26 @@ export const priceSnapshots = pgTable(
   (table) => [index("price_snapshots_ticker_taken_at_idx").on(table.ticker, table.takenAt)],
 );
 
+/** Primary-only comparison frozen at closing, independent of snapshot retention. */
+export type LastSessionSnapshot = {
+  closedAt: string;
+  priceUsd: string;
+  change24hPct: number;
+  closeTakenAt: string;
+  baselinePriceUsd: string;
+  baselineTakenAt: string;
+};
+
 export const tickerStatus = pgTable("ticker_status", {
   ticker: text("ticker").primaryKey(),
   state: tickerState("state").notNull(),
   reason: text("reason"),
   nextChangeAt: instant("next_change_at"),
+  tradingPeriod: text("trading_period"),
+  tradingHalted: boolean("trading_halted"),
+  periodChangeAt: instant("period_change_at"),
+  lastClosedAt: instant("last_closed_at"),
+  lastSession: jsonb("last_session").$type<LastSessionSnapshot>(),
   updatedAt: instant("updated_at").defaultNow().notNull(),
 });
 

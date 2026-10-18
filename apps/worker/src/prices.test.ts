@@ -36,6 +36,78 @@ afterAll(async () => {
 });
 
 describe("price worker storage", () => {
+  it("records a confirmed closing boundary, retains it through the weekend and clears it on reopening", async () => {
+    await connection.db.delete(tickerStatus).where(eq(tickerStatus.ticker, "MSFT"));
+    const read = async () =>
+      (await connection.db.select().from(tickerStatus).where(eq(tickerStatus.ticker, "MSFT")))[0]!;
+    await store(
+      poll(400, [], {
+        ...trading,
+        currentPeriod: "overnight",
+        nextChangeAt: at(420).toISOString(),
+      }),
+    );
+    const closed = {
+      ...trading,
+      currentPeriod: "closed" as const,
+      openNow: false,
+      nextChangeAt: at(900).toISOString(),
+    };
+    await store(poll(425, [], closed));
+    expect((await read()).lastClosedAt).toEqual(at(420));
+    expect((await read()).tradingHalted).toBe(false);
+    await store(poll(450, [], closed));
+    expect((await read()).lastClosedAt).toEqual(at(420));
+    await store({ ...poll(460, []), trading: {} });
+    expect(await read()).toMatchObject({
+      tradingPeriod: "closed",
+      state: "paused",
+      reason: "stale",
+    });
+    await store(poll(470, [], closed));
+    expect((await read()).lastClosedAt).toEqual(at(420));
+    await store(poll(480, [], { ...closed, isTradingHalted: true }));
+    expect((await read()).tradingHalted).toBe(true);
+    await store(poll(900, [], trading));
+    expect((await read()).lastClosedAt).toBeNull();
+  });
+
+  it("cannot create a playable session at cold startup, without primary history or from a halt", async () => {
+    const read = async () =>
+      (await connection.db.select().from(tickerStatus).where(eq(tickerStatus.ticker, "MSFT")))[0]!;
+    const closed = {
+      ...trading,
+      currentPeriod: "closed" as const,
+      openNow: false,
+      nextChangeAt: at(1500).toISOString(),
+    };
+    await connection.db.delete(tickerStatus).where(eq(tickerStatus.ticker, "MSFT"));
+    await store(poll(1000, [], closed));
+    expect((await read()).lastClosedAt).toBeNull();
+    await store(poll(1100, [], { ...trading, nextChangeAt: at(1120).toISOString() }));
+    await store(poll(1250, [], closed));
+    expect((await read()).lastClosedAt).toEqual(at(1120));
+    expect((await read()).lastSession).toBeNull();
+    await store(poll(1300, [], { ...trading, nextChangeAt: at(1320).toISOString() }));
+    await store(poll(1325, [], { ...closed, isTradingHalted: true }));
+    expect((await read()).lastClosedAt).toBeNull();
+    await store(poll(1340, [], closed));
+    expect((await read()).lastClosedAt).toBeNull();
+  });
+
+  it("cannot reuse the prior session when the worker misses an entire reopen/close cycle", async () => {
+    const read = async () =>
+      (await connection.db.select().from(tickerStatus).where(eq(tickerStatus.ticker, "MSFT")))[0]!;
+    await store(poll(1600, [], { ...trading, nextChangeAt: at(1620).toISOString() }));
+    await store(
+      poll(1625, [], { ...trading, currentPeriod: "closed", nextChangeAt: at(2000).toISOString() }),
+    );
+    expect((await read()).lastClosedAt).toEqual(at(1620));
+    await store(
+      poll(2500, [], { ...trading, currentPeriod: "closed", nextChangeAt: at(3000).toISOString() }),
+    );
+    expect((await read()).lastClosedAt).toBeNull();
+  });
   it("stores both sources but checks jumps only against primary history", async () => {
     const warning = vi.fn();
     const relaxedStore = createPriceStore(

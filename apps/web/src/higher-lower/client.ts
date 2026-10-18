@@ -15,6 +15,7 @@ export const hlViewSchema: z.ZodType<HlView, z.ZodTypeDef, unknown> = z
   .object({
     day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     serverTime: z.string().datetime(),
+    mode: z.enum(["live", "last_session"]).optional(),
     status: z.enum(["ready", "round", "feedback", "completed", "paused"]),
     runsUsed: number,
     runsLimit: number,

@@ -56,6 +56,36 @@ describe("persisted live prices", () => {
     });
     expect(result.prices[0]).not.toHaveProperty("nextChangeAt");
   });
+  it("exposes the latest persisted pool quote only as separate closed-market information", async () => {
+    const catalog = catalogFor(3);
+    await connection.db.insert(priceSnapshots).values([
+      { ticker: "REF_0", priceUsd: "100", takenAt: now, source: "xstocks" },
+      {
+        ticker: "REF_0",
+        priceUsd: "200",
+        takenAt: new Date(now.getTime() - 15_000),
+        source: "fluxion_pool",
+      },
+      { ticker: "REF_0", priceUsd: "300", takenAt: now, source: "fluxion_pool" },
+      {
+        ticker: "REF_0",
+        priceUsd: "999",
+        takenAt: new Date(now.getTime() + 15_000),
+        source: "fluxion_pool",
+      },
+    ]);
+    await connection.db
+      .insert(tickerStatus)
+      .values({ ticker: "REF_0", state: "paused", reason: "closed", updatedAt: now });
+    const store = createPricesStore(connection, { catalog, now: () => now });
+    expect((await store()).prices[0]).toMatchObject({
+      priceUsd: "100",
+      pool: { priceUsd: "300", takenAt: now.toISOString() },
+    });
+    expect((await store()).prices[1]!.pool).toBeNull();
+    await connection.db.update(tickerStatus).set({ state: "live", reason: null });
+    expect((await store()).prices[0]!.pool).toBeNull();
+  });
   it.each([3, 30])(
     "reads %s catalog assets using primary snapshots and includes pause reasons",
     async (count) => {

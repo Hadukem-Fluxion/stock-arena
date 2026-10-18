@@ -14,6 +14,7 @@ import { ASSETS } from "@stock-arena/game-core";
 import type { AssetCatalog, HlView } from "@stock-arena/game-core";
 import { buildServer } from "./server.js";
 import { createSessions } from "./auth/session.js";
+import { captureLastSession } from "../../worker/src/last-session.js";
 
 const connection = createLocalDatabase();
 const secret = "synthetic-hl-secret-never-used-in-production-48-bytes";
@@ -46,7 +47,6 @@ async function setup(count = 3) {
   if (!user) throw new Error("Missing player");
   const identity = { platform: "discord" as const, platformUserId: user.id };
   await connection.db.insert(identities).values({ ...identity, userId: user.id });
-  const session = await createSessions(secret, () => now).issue({ ...user, identity });
   const app = buildServer({
     logger: false,
     auth: { database: connection, env: { SESSION_SECRET: secret }, now: () => now },
@@ -68,13 +68,15 @@ async function setup(count = 3) {
       .values({ ticker: `REF_${i}`, state: "live", updatedAt: now })
       .onConflictDoNothing();
   }
-  const send = (action = "read", payload: unknown = {}) =>
-    app.inject({
+  const send = async (action = "read", payload: unknown = {}) => {
+    const session = await createSessions(secret, () => now).issue({ ...user, identity });
+    return app.inject({
       method: action === "read" ? "GET" : "POST",
       url: action === "read" ? "/api/hl" : `/api/hl/${action}`,
       headers: { authorization: `Bearer ${session.token}` },
       ...(action === "read" ? {} : { payload: payload as Record<string, unknown> }),
     });
+  };
   const pick = async (view: HlView, correct: boolean) => {
     const [privateRound] = await connection.db
       .select()
@@ -87,6 +89,309 @@ async function setup(count = 3) {
   };
   return { app, user, catalog, send, pick };
 }
+
+async function freezeFixtureSessions() {
+  await connection.db.transaction(async (tx) => {
+    for (const status of await tx.select().from(tickerStatus)) {
+      const session = status.lastClosedAt
+        ? await captureLastSession(tx, status.ticker, status.lastClosedAt)
+        : null;
+      await tx
+        .update(tickerStatus)
+        .set({ lastSession: session })
+        .where(eq(tickerStatus.ticker, status.ticker));
+    }
+  });
+}
+
+async function closeMarket(count = 3) {
+  const close = new Date("2026-10-16T23:00:00Z");
+  await connection.db.update(tickerStatus).set({
+    state: "paused",
+    reason: "closed",
+    tradingPeriod: "closed",
+    tradingHalted: false,
+    lastClosedAt: close,
+    updatedAt: now,
+    periodChangeAt: new Date("2026-10-19T01:00:00Z"),
+    nextChangeAt: new Date("2026-10-19T01:00:00Z"),
+  });
+  await connection.db.insert(priceSnapshots).values(
+    Array.from({ length: count }, (_, i) => [
+      {
+        ticker: `REF_${i}`,
+        priceUsd: String(101 + i),
+        source: "xstocks" as const,
+        takenAt: new Date(close.getTime() - 15_000),
+      },
+      // This weekend quote must not replace the price immediately before closing.
+      { ticker: `REF_${i}`, priceUsd: "900", source: "xstocks" as const, takenAt: now },
+    ]).flat(),
+  );
+  await freezeFixtureSessions();
+}
+
+describe("last trading session (T25)", () => {
+  it("keeps live pairs preferred when only part of the catalog is closed", async () => {
+    const { app, send } = await setup(4);
+    try {
+      await closeMarket(4);
+      await connection.db
+        .delete(priceSnapshots)
+        .where(sql`source = 'xstocks' AND taken_at = ${now.toISOString()}::timestamptz`);
+      await connection.db
+        .update(tickerStatus)
+        .set({ state: "live", reason: null, tradingPeriod: "market" })
+        .where(sql`ticker IN ('REF_2', 'REF_3')`);
+      const result = (await send("start")).json<HlView>();
+      expect(result.mode).toBe("live");
+      expect(result.round!.stocks.map((stock) => stock.ticker)).toEqual(["TEST_2", "TEST_3"]);
+    } finally {
+      await app.close();
+    }
+  });
+  it("requires two eligible assets and never mixes a live move with a session move", async () => {
+    const { app, send } = await setup();
+    try {
+      now = new Date("2026-10-17T12:00:00Z");
+      await closeMarket();
+      await connection.db
+        .update(tickerStatus)
+        .set({ lastClosedAt: null })
+        .where(sql`ticker IN ('REF_1', 'REF_2')`);
+      expect((await send("start")).json<HlView>().runsUsed).toBe(0);
+      await connection.db
+        .update(tickerStatus)
+        .set({ state: "live", reason: null, tradingPeriod: "market" })
+        .where(eq(tickerStatus.ticker, "REF_1"));
+      await connection.db.insert(priceSnapshots).values({
+        ticker: "REF_1",
+        source: "xstocks",
+        priceUsd: "100",
+        takenAt: new Date(now.getTime() - 86_400_000),
+      });
+      const result = (await send("start")).json<HlView>();
+      expect(result.status).toBe("paused");
+      expect(result.runsUsed).toBe(0);
+    } finally {
+      await app.close();
+    }
+  });
+
+  it("anchors each asset to its own confirmed closing time", async () => {
+    const { app, send, pick } = await setup();
+    try {
+      now = new Date("2026-10-17T12:00:00Z");
+      await closeMarket();
+      await connection.db
+        .update(tickerStatus)
+        .set({ lastClosedAt: new Date("2026-10-16T22:00:00Z") })
+        .where(eq(tickerStatus.ticker, "REF_1"));
+      await connection.db.insert(priceSnapshots).values([
+        {
+          ticker: "REF_1",
+          source: "xstocks",
+          priceUsd: "100",
+          takenAt: new Date("2026-10-15T21:59:45Z"),
+        },
+        {
+          ticker: "REF_1",
+          source: "xstocks",
+          priceUsd: "108",
+          takenAt: new Date("2026-10-16T21:59:45Z"),
+        },
+      ]);
+      await freezeFixtureSessions();
+      const view = (await send("start")).json<HlView>();
+      expect(view.round!.stocks[1].priceUsd).toBe("108");
+      expect((await pick(view, true)).json<HlView>().feedback!.stocks[1].change24hPct).toBeCloseTo(
+        8,
+      );
+    } finally {
+      await app.close();
+    }
+  });
+  it.each([3, 30])(
+    "plays on a weekend with %s assets using pre-close primary history only",
+    async (count) => {
+      const { app, send, pick, user } = await setup(count);
+      try {
+        now = new Date("2026-10-18T12:00:00Z");
+        await closeMarket(count);
+        const response = await send("start");
+        const view = response.json<HlView>();
+        expect(view.status).toBe("round");
+        expect(view.mode).toBe("last_session");
+        expect(view.round!.stocks.map((stock) => stock.priceUsd)).toEqual(["101", "102"]);
+        expect(response.body).not.toContain("change24hPct");
+        const result = (await pick(view, true)).json<HlView>();
+        expect(result.mode).toBe("last_session");
+        expect(result.feedback!.stocks[1].change24hPct).toBeCloseTo(2);
+        expect(result.run!.score).toBe(5);
+        await pick(view, true);
+        expect(
+          await connection.db.select().from(pointsLedger).where(eq(pointsLedger.userId, user.id)),
+        ).toHaveLength(1);
+      } finally {
+        await app.close();
+      }
+    },
+    15_000,
+  );
+
+  it.each(["baseline", "close", "anchor", "halt", "unknown", "stale", "manual", "gap"])(
+    "pauses without consuming a run for %s",
+    async (failure) => {
+      const { app, send } = await setup();
+      try {
+        now = new Date("2026-10-17T12:00:00Z");
+        await closeMarket();
+        if (failure === "baseline")
+          await connection.db
+            .delete(priceSnapshots)
+            .where(sql`taken_at <= '2026-10-15T23:00:00Z'::timestamptz`);
+        if (failure === "close")
+          await connection.db
+            .delete(priceSnapshots)
+            .where(sql`taken_at = '2026-10-16T22:59:45Z'::timestamptz`);
+        if (failure === "anchor")
+          await connection.db.update(tickerStatus).set({ lastClosedAt: null });
+        if (failure === "halt")
+          await connection.db.update(tickerStatus).set({ tradingHalted: true });
+        if (failure === "unknown")
+          await connection.db.update(tickerStatus).set({ tradingHalted: null });
+        if (failure === "stale")
+          await connection.db
+            .update(tickerStatus)
+            .set({ updatedAt: new Date(now.getTime() - 121_000) });
+        if (failure === "manual")
+          await connection.db.update(tickerStatus).set({ reason: "manual" });
+        if (failure === "gap")
+          await connection.db
+            .update(priceSnapshots)
+            .set({ priceUsd: "101" })
+            .where(sql`taken_at = '2026-10-16T22:59:45Z'::timestamptz`);
+        await freezeFixtureSessions();
+        const result = (await send("start")).json<HlView>();
+        expect(result.status).toBe("paused");
+        expect(result.runsUsed).toBe(0);
+      } finally {
+        await app.close();
+      }
+    },
+  );
+
+  it("keeps the 120-second baseline tolerance instead of using a distant or future sample", async () => {
+    const { app, send } = await setup();
+    try {
+      now = new Date("2026-10-17T12:00:00Z");
+      await closeMarket();
+      await connection.db
+        .update(priceSnapshots)
+        .set({ takenAt: new Date("2026-10-15T22:57:59Z") })
+        .where(sql`taken_at = '2026-10-15T23:00:00Z'::timestamptz`);
+      await freezeFixtureSessions();
+      expect((await send("start")).json<HlView>().status).toBe("paused");
+      await connection.db
+        .update(priceSnapshots)
+        .set({ takenAt: new Date("2026-10-15T23:00:01Z") })
+        .where(sql`taken_at = '2026-10-15T22:57:59Z'::timestamptz`);
+      await freezeFixtureSessions();
+      expect((await send("start")).json<HlView>().status).toBe("paused");
+      await connection.db
+        .update(priceSnapshots)
+        .set({ takenAt: new Date("2026-10-15T22:58:00Z") })
+        .where(sql`taken_at = '2026-10-15T23:00:01Z'::timestamptz`);
+      await freezeFixtureSessions();
+      expect((await send("start")).json<HlView>().status).toBe("round");
+    } finally {
+      await app.close();
+    }
+  });
+
+  it("switches Friday live -> weekend last session -> Monday live with unchanged limits", async () => {
+    const { app, send } = await setup();
+    try {
+      expect((await send("start")).json<HlView>().mode).toBe("live");
+      now = new Date("2026-10-17T12:00:00Z");
+      await closeMarket();
+      expect((await send("start")).json<HlView>().mode).toBe("last_session");
+      now = new Date("2026-10-19T01:00:00Z");
+      await connection.db.update(tickerStatus).set({
+        state: "live",
+        reason: null,
+        tradingPeriod: "market",
+        tradingHalted: false,
+        updatedAt: now,
+      });
+      await connection.db.insert(priceSnapshots).values(
+        [0, 1, 2].flatMap((i) => [
+          {
+            ticker: `REF_${i}`,
+            priceUsd: "100",
+            source: "xstocks" as const,
+            takenAt: new Date(now.getTime() - 86_400_000),
+          },
+          {
+            ticker: `REF_${i}`,
+            priceUsd: String(104 + i),
+            source: "xstocks" as const,
+            takenAt: now,
+          },
+        ]),
+      );
+      const result = (await send("start")).json<HlView>();
+      expect(result.mode).toBe("live");
+      expect(result.status).toBe("round");
+      expect(result.runsUsed).toBe(1);
+      expect(result.runsLimit).toBe(3);
+      expect(result.pointsPerCorrect).toBe(5);
+    } finally {
+      await app.close();
+    }
+  });
+
+  it("freezes a session round across reopening but blocks it during a halt", async () => {
+    const { app, send, pick } = await setup();
+    try {
+      now = new Date("2026-10-19T00:30:00Z");
+      await closeMarket();
+      const view = (await send("start")).json<HlView>();
+      await connection.db.update(tickerStatus).set({ tradingHalted: true });
+      expect((await pick(view, true)).json<HlView>().status).toBe("paused");
+      now = new Date("2026-10-19T01:00:00Z");
+      await connection.db.update(tickerStatus).set({
+        state: "live",
+        reason: null,
+        tradingHalted: false,
+        tradingPeriod: "market",
+        updatedAt: now,
+      });
+      await connection.db.insert(priceSnapshots).values(
+        [0, 1, 2].flatMap((i) => [
+          {
+            ticker: `REF_${i}`,
+            priceUsd: "100",
+            source: "xstocks" as const,
+            takenAt: new Date(now.getTime() - 86_400_000),
+          },
+          {
+            ticker: `REF_${i}`,
+            priceUsd: String(110 - i),
+            source: "xstocks" as const,
+            takenAt: now,
+          },
+        ]),
+      );
+      const result = (await pick(view, true)).json<HlView>();
+      expect(result.mode).toBe("last_session");
+      expect(result.feedback!.stocks[1].change24hPct).toBeCloseTo(2);
+      expect((await send("next")).json<HlView>().mode).toBe("live");
+    } finally {
+      await app.close();
+    }
+  });
+});
 describe("Higher or Lower", () => {
   it("returns a persisted reopening only for closed tickers, without consuming a run", async () => {
     const { app, send, user } = await setup();

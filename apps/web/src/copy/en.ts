@@ -132,6 +132,11 @@ export const en = {
     unavailable: "Today's quiz is being prepared. Please try again later.",
   },
   hl: {
+    lastSession: "Last session",
+    lastSessionQuestion: "Which stock moved more in the last trading session?",
+    lastSessionRule:
+      "Pick the bigger absolute move in the last session. A fall counts as a move, too.",
+    sessionHiddenChange: "Session move revealed after your pick",
     preview: "Open in Discord or Telegram to play Higher or Lower.",
     rule: "Pick the bigger absolute 24h move. A fall counts as a move, too.",
     runs: "Runs used today",
@@ -171,6 +176,7 @@ export const en = {
     seasonEnded: "Season ended",
   },
   prices: {
+    pool: "On-chain · Fluxion pool",
     closed: "Market closed · showing last prices",
     live: "Live prices",
     reconnecting: "Reconnecting to prices… Last prices may be out of date.",

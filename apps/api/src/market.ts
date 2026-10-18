@@ -12,6 +12,8 @@ export type MarketPrice = {
   state: "live" | "paused";
   reason: string | null;
   nextChangeAt: string | null;
+  closedForSession: boolean;
+  lastSession: { priceUsd: string; change24hPct: number } | null;
 };
 type Transaction = Parameters<Parameters<DatabaseConnection["db"]["transaction"]>[0]>[0];
 
@@ -20,6 +22,7 @@ export async function readMarket(
   tx: Transaction,
   catalog: AssetCatalog,
   now: Date,
+  options: { lastSession?: boolean } = {},
 ): Promise<MarketPrice[]> {
   const references = [...new Set(Object.values(catalog).map((asset) => asset.referenceTicker))];
   if (!references.length) return [];
@@ -52,6 +55,16 @@ export async function readMarket(
     .select()
     .from(tickerStatus)
     .where(inArray(tickerStatus.ticker, references));
+  const closed = statuses.filter(
+    (status) =>
+      status.state === "paused" &&
+      status.reason === "closed" &&
+      status.tradingPeriod === "closed" &&
+      status.tradingHalted === false &&
+      status.updatedAt <= now &&
+      now.getTime() - status.updatedAt.getTime() <= tolerance &&
+      (!status.periodChangeAt || status.periodChangeAt > now),
+  );
   return Object.entries(catalog).map(([ticker, asset]) => {
     const last = latest.find((row) => row.ticker === asset.referenceTicker);
     const baseline = baselines.find((row) => row.ticker === asset.referenceTicker);
@@ -65,6 +78,16 @@ export async function readMarket(
         ? (Number(last!.priceUsd) / Number(baseline.priceUsd) - 1) * 100
         : null;
     const paused = status?.state === "paused" || !fresh || !status;
+    const closedForSession = closed.some((row) => row.ticker === asset.referenceTicker);
+    const session = options.lastSession && closedForSession ? status?.lastSession : null;
+    const validSession =
+      session &&
+      status?.lastClosedAt &&
+      status.lastClosedAt <= now &&
+      session.closedAt === status.lastClosedAt.toISOString() &&
+      Number.isFinite(Number(session.priceUsd)) &&
+      Number(session.priceUsd) > 0 &&
+      Number.isFinite(session.change24hPct);
     return {
       ticker,
       priceUsd: valid ? last!.priceUsd : null,
@@ -72,6 +95,10 @@ export async function readMarket(
       change24hPct: change !== null && Number.isFinite(change) ? change : null,
       state: paused ? "paused" : "live",
       reason: status?.state === "paused" ? (status.reason ?? "stale") : paused ? "stale" : null,
+      closedForSession,
+      lastSession: validSession
+        ? { priceUsd: session.priceUsd, change24hPct: session.change24hPct }
+        : null,
       nextChangeAt:
         status?.state === "paused" &&
         status.reason === "closed" &&
