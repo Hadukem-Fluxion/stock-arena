@@ -29,6 +29,9 @@ describe("T25 last-session migration", () => {
       await client.exec(
         await readFile(new URL("../drizzle/0006_last-session.sql", import.meta.url), "utf8"),
       );
+      await client.exec(
+        await readFile(new URL("../drizzle/0007_frozen-last-session.sql", import.meta.url), "utf8"),
+      );
       expect((await connection.db.select().from(hlRounds))[0]).toMatchObject({
         mode: "live",
         winner: "TEST_B",
@@ -39,6 +42,7 @@ describe("T25 last-session migration", () => {
         tradingPeriod: null,
         tradingHalted: null,
         lastClosedAt: null,
+        lastSession: null,
       });
       await expect(client.query("UPDATE hl_rounds SET mode='pool'")).rejects.toMatchObject({
         code: "23514",

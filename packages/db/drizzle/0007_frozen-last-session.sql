@@ -1,0 +1,1 @@
+ALTER TABLE "ticker_status" ADD COLUMN "last_session" jsonb;

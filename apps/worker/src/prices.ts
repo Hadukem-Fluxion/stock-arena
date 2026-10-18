@@ -1,10 +1,11 @@
-import { GAME_CONFIG, TICKERS } from "@stock-arena/game-core";
+import { TICKERS } from "@stock-arena/game-core";
 import type { Ticker } from "@stock-arena/game-core";
 import { priceSnapshots, tickerStatus } from "@stock-arena/db";
 import type { DatabaseConnection } from "@stock-arena/db";
 import { evaluateTicker } from "@stock-arena/fluxion-oracle";
 import type { OraclePoll, TickerState } from "@stock-arena/fluxion-oracle";
 import { and, desc, eq } from "drizzle-orm";
+import { captureLastSession } from "./last-session.js";
 
 export function createPriceStore(
   connection: DatabaseConnection,
@@ -45,7 +46,6 @@ export function createPriceStore(
           ...options,
         });
         const trading = poll.trading[ticker];
-        const tolerance = GAME_CONFIG.prices.staleAfterSeconds * 1000;
         // Confirm a scheduled open -> closed boundary, never infer a calendar
         // from weekend quotes (which may continue arriving unchanged).
         const closing =
@@ -55,26 +55,33 @@ export function createPriceStore(
           previous.tradingPeriod !== "closed" &&
           previous.tradingHalted === false &&
           previous.periodChangeAt &&
-          previous.periodChangeAt >= previous.updatedAt &&
-          previous.periodChangeAt <= poll.takenAt &&
-          poll.takenAt.getTime() - previous.periodChangeAt.getTime() <= tolerance
+          previous.periodChangeAt <= poll.takenAt
             ? previous.periodChangeAt
             : null;
+        const clearSession =
+          (trading && trading.currentPeriod !== "closed") ||
+          (previous?.tradingPeriod === "closed" &&
+            previous.periodChangeAt &&
+            previous.periodChangeAt <= poll.takenAt);
+        const lastClosedAt = closing ?? (clearSession ? null : (previous?.lastClosedAt ?? null));
+        const lastSession = closing
+          ? await captureLastSession(tx, ticker, closing)
+          : clearSession
+            ? null
+            : (previous?.lastSession ?? null);
         const row = {
           ticker,
-          tradingPeriod: trading?.currentPeriod ?? null,
-          tradingHalted: trading?.isTradingHalted ?? null,
+          // Preserve the last known boundary through metadata failures. The
+          // stale state still blocks gameplay until valid metadata returns.
+          tradingPeriod: trading?.currentPeriod ?? previous?.tradingPeriod ?? null,
+          tradingHalted: trading?.isTradingHalted ?? previous?.tradingHalted ?? null,
           periodChangeAt: trading
             ? trading.nextChangeAt
               ? new Date(trading.nextChangeAt)
               : null
             : (previous?.periodChangeAt ?? null),
-          lastClosedAt:
-            closing ??
-            ((trading && trading.currentPeriod !== "closed") ||
-            (previous?.periodChangeAt && previous.periodChangeAt <= poll.takenAt)
-              ? null
-              : (previous?.lastClosedAt ?? null)),
+          lastClosedAt,
+          lastSession,
           state: result.status.state,
           reason: result.status.state === "paused" ? result.status.reason : null,
           // Only a scheduled closed-period transition can advertise a reopening.

@@ -14,6 +14,7 @@ import { ASSETS } from "@stock-arena/game-core";
 import type { AssetCatalog, HlView } from "@stock-arena/game-core";
 import { buildServer } from "./server.js";
 import { createSessions } from "./auth/session.js";
+import { captureLastSession } from "../../worker/src/last-session.js";
 
 const connection = createLocalDatabase();
 const secret = "synthetic-hl-secret-never-used-in-production-48-bytes";
@@ -89,6 +90,20 @@ async function setup(count = 3) {
   return { app, user, catalog, send, pick };
 }
 
+async function freezeFixtureSessions() {
+  await connection.db.transaction(async (tx) => {
+    for (const status of await tx.select().from(tickerStatus)) {
+      const session = status.lastClosedAt
+        ? await captureLastSession(tx, status.ticker, status.lastClosedAt)
+        : null;
+      await tx
+        .update(tickerStatus)
+        .set({ lastSession: session })
+        .where(eq(tickerStatus.ticker, status.ticker));
+    }
+  });
+}
+
 async function closeMarket(count = 3) {
   const close = new Date("2026-10-16T23:00:00Z");
   await connection.db.update(tickerStatus).set({
@@ -113,6 +128,7 @@ async function closeMarket(count = 3) {
       { ticker: `REF_${i}`, priceUsd: "900", source: "xstocks" as const, takenAt: now },
     ]).flat(),
   );
+  await freezeFixtureSessions();
 }
 
 describe("last trading session (T25)", () => {
@@ -185,6 +201,7 @@ describe("last trading session (T25)", () => {
           takenAt: new Date("2026-10-16T21:59:45Z"),
         },
       ]);
+      await freezeFixtureSessions();
       const view = (await send("start")).json<HlView>();
       expect(view.round!.stocks[1].priceUsd).toBe("108");
       expect((await pick(view, true)).json<HlView>().feedback!.stocks[1].change24hPct).toBeCloseTo(
@@ -254,6 +271,7 @@ describe("last trading session (T25)", () => {
             .update(priceSnapshots)
             .set({ priceUsd: "101" })
             .where(sql`taken_at = '2026-10-16T22:59:45Z'::timestamptz`);
+        await freezeFixtureSessions();
         const result = (await send("start")).json<HlView>();
         expect(result.status).toBe("paused");
         expect(result.runsUsed).toBe(0);
@@ -272,16 +290,19 @@ describe("last trading session (T25)", () => {
         .update(priceSnapshots)
         .set({ takenAt: new Date("2026-10-15T22:57:59Z") })
         .where(sql`taken_at = '2026-10-15T23:00:00Z'::timestamptz`);
+      await freezeFixtureSessions();
       expect((await send("start")).json<HlView>().status).toBe("paused");
       await connection.db
         .update(priceSnapshots)
         .set({ takenAt: new Date("2026-10-15T23:00:01Z") })
         .where(sql`taken_at = '2026-10-15T22:57:59Z'::timestamptz`);
+      await freezeFixtureSessions();
       expect((await send("start")).json<HlView>().status).toBe("paused");
       await connection.db
         .update(priceSnapshots)
         .set({ takenAt: new Date("2026-10-15T22:58:00Z") })
         .where(sql`taken_at = '2026-10-15T23:00:01Z'::timestamptz`);
+      await freezeFixtureSessions();
       expect((await send("start")).json<HlView>().status).toBe("round");
     } finally {
       await app.close();

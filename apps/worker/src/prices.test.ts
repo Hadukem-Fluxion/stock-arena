@@ -59,7 +59,11 @@ describe("price worker storage", () => {
     await store(poll(450, [], closed));
     expect((await read()).lastClosedAt).toEqual(at(420));
     await store({ ...poll(460, []), trading: {} });
-    expect((await read()).tradingPeriod).toBeNull();
+    expect(await read()).toMatchObject({
+      tradingPeriod: "closed",
+      state: "paused",
+      reason: "stale",
+    });
     await store(poll(470, [], closed));
     expect((await read()).lastClosedAt).toEqual(at(420));
     await store(poll(480, [], { ...closed, isTradingHalted: true }));
@@ -68,7 +72,7 @@ describe("price worker storage", () => {
     expect((await read()).lastClosedAt).toBeNull();
   });
 
-  it("does not invent a close at cold startup, after a missed transition or from a halt", async () => {
+  it("cannot create a playable session at cold startup, without primary history or from a halt", async () => {
     const read = async () =>
       (await connection.db.select().from(tickerStatus).where(eq(tickerStatus.ticker, "MSFT")))[0]!;
     const closed = {
@@ -82,7 +86,8 @@ describe("price worker storage", () => {
     expect((await read()).lastClosedAt).toBeNull();
     await store(poll(1100, [], { ...trading, nextChangeAt: at(1120).toISOString() }));
     await store(poll(1250, [], closed));
-    expect((await read()).lastClosedAt).toBeNull();
+    expect((await read()).lastClosedAt).toEqual(at(1120));
+    expect((await read()).lastSession).toBeNull();
     await store(poll(1300, [], { ...trading, nextChangeAt: at(1320).toISOString() }));
     await store(poll(1325, [], { ...closed, isTradingHalted: true }));
     expect((await read()).lastClosedAt).toBeNull();

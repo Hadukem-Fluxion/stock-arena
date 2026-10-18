@@ -31,6 +31,10 @@ The comparison uses each stock's last primary price before the confirmed closing
 boundary versus its price approximately 24 hours before that boundary, with the
 same two-minute sampling tolerance. A fall counts as a move. Pairs still require
 the configured minimum difference between their absolute moves.
+The closing price and comparison are saved when the close is confirmed and stay
+available throughout the closure even after raw price history is compacted.
+An interrupted worker may confirm the close later, provided those original
+primary samples meet the same tolerance; it never uses a later weekend quote.
 
 Stocks with missing closing/history data or a trading halt cannot enter a new
 round. Fewer than two eligible stocks pauses the game without consuming a run.

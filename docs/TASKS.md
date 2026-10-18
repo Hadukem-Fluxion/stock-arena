@@ -372,8 +372,10 @@ Acceptance:
 
 - When xStocks reports `currentPeriod: closed` without a trading halt, compare each asset's last primary snapshot before the closing boundary with its primary snapshot at or immediately before 24 hours before that boundary. Keep the existing 120-second tolerance for both samples and `minChangeGapPct`.
 - Use persisted `xstocks` snapshots only. Exclude assets without verifiable closing/history data; fewer than two eligible assets keeps the game paused without consuming a run. Trading halts remain paused. Do not mix live and last-session comparisons in a pair.
+- At confirmed closing, freeze the closing price, session change, closing boundary and source sample prices/times in `ticker_status` outside snapshot retention. HL reads the frozen session even after raw samples disappear. Confirm an open-to-closed transition on the first valid poll after the scheduled boundary without a detection deadline, including restart/API failures; the 120-second tolerance still applies to the primary samples.
 - Keep scoring, daily limits, UTC resets and open-market behavior unchanged. Freeze the comparison mode with each round, including feedback after reopening.
 - English copy in `en.ts`: `Which stock moved more in the last trading session?` and `Last session` on rounds and feedback.
 - When closed, the price panel also displays the persisted Fluxion pool price if available, labeled `On-chain · Fluxion pool`. It is informational only.
 - Document in README and GAME_RULES. Tests: weekend with history, missing history, halt, Friday-to-Monday transition and unchanged weekday behavior; catalog layouts with 3 and 30 assets at mobile/desktop widths.
+- Review regressions: simulate 60 hours with real retention deleting the original samples and play on Sunday night; simulate a worker restart or metadata failure spanning ten minutes after closing, including missing/out-of-tolerance samples.
 - Branch `t25-closed-market-mode`, one PR with screenshots, no merge by Codex.

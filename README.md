@@ -221,9 +221,20 @@ scores and daily limits are unchanged. Fluxion pool rows never supply game price
 
 Migration `0006_last-session` persists trading period, halt status, scheduled
 transition and the confirmed closing boundary in `ticker_status`, plus round mode.
-The worker confirms a close from an observed open-to-closed transition using the
-source's previously scheduled boundary (observed within 120 seconds), not a fixed
-exchange calendar or unchanged weekend quotes. A cold deployment during closure
+Migration `0007_frozen-last-session` adds `ticker_status.last_session`, storing the
+closing price, session change, closing boundary and both primary sample timestamps
+and prices. The worker freezes these values in the same transaction as confirming
+the close; HL reads this record without depending on retained raw snapshots.
+The 48-hour/hourly snapshot retention policy is unchanged and never deletes this
+session record. Later weekend quotes cannot recalculate it.
+
+The worker confirms a close from an open-to-closed transition using the source's
+previously scheduled boundary, even if the first valid poll arrives more than
+120 seconds later. The 120-second tolerance applies to the primary price samples,
+not the worker's detection delay. Missing metadata pauses play but preserves the
+last known transition so a subsequent successful poll can recover it. Missing
+pre-close or baseline history leaves the asset ineligible; no fixed exchange
+calendar or unchanged weekend quotes are used to infer a close. A cold deployment during closure
 without that recorded boundary remains paused until a verifiable close is observed.
 Missing/stale trading metadata cannot enable session play; reopening clears the
 old boundary, and missed reopening/closing cycles cannot reuse an older session.

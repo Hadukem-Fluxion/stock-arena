@@ -178,6 +178,16 @@ export const priceSnapshots = pgTable(
   (table) => [index("price_snapshots_ticker_taken_at_idx").on(table.ticker, table.takenAt)],
 );
 
+/** Primary-only comparison frozen at closing, independent of snapshot retention. */
+export type LastSessionSnapshot = {
+  closedAt: string;
+  priceUsd: string;
+  change24hPct: number;
+  closeTakenAt: string;
+  baselinePriceUsd: string;
+  baselineTakenAt: string;
+};
+
 export const tickerStatus = pgTable("ticker_status", {
   ticker: text("ticker").primaryKey(),
   state: tickerState("state").notNull(),
@@ -187,6 +197,7 @@ export const tickerStatus = pgTable("ticker_status", {
   tradingHalted: boolean("trading_halted"),
   periodChangeAt: instant("period_change_at"),
   lastClosedAt: instant("last_closed_at"),
+  lastSession: jsonb("last_session").$type<LastSessionSnapshot>(),
   updatedAt: instant("updated_at").defaultNow().notNull(),
 });
 
