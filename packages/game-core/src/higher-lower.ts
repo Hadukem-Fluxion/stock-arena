@@ -4,6 +4,7 @@ export type HlStock = { ticker: string; asset: Asset; priceUsd: string };
 export type HlView = {
   day: string;
   serverTime: string;
+  mode?: "live" | "last_session";
   status: "ready" | "round" | "feedback" | "completed" | "paused";
   runsUsed: number;
   runsLimit: number;

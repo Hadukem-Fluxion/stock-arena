@@ -363,3 +363,17 @@ Acceptance:
 
 - Tests: valid/invalid/missing signatures, signed PING, `/arena` and `/start` returning type 12, unknown command with ephemeral English copy, raw bytes (whitespace/Unicode/re-serialization), JSON-parser/session isolation and sanitized registration failures.
 - One PR on `t24-discord-arena`, no merge by Codex. Real registration and Discord smoke tests remain post-merge actions.
+
+---
+
+## T25 — Closed-market last-session mode
+
+**Goal**: Higher or Lower works seven days a week when primary history is available. Fluxion pools must never supply gameplay prices.
+
+- When xStocks reports `currentPeriod: closed` without a trading halt, compare each asset's last primary snapshot before the closing boundary with its primary snapshot at or immediately before 24 hours before that boundary. Keep the existing 120-second tolerance for both samples and `minChangeGapPct`.
+- Use persisted `xstocks` snapshots only. Exclude assets without verifiable closing/history data; fewer than two eligible assets keeps the game paused without consuming a run. Trading halts remain paused. Do not mix live and last-session comparisons in a pair.
+- Keep scoring, daily limits, UTC resets and open-market behavior unchanged. Freeze the comparison mode with each round, including feedback after reopening.
+- English copy in `en.ts`: `Which stock moved more in the last trading session?` and `Last session` on rounds and feedback.
+- When closed, the price panel also displays the persisted Fluxion pool price if available, labeled `On-chain · Fluxion pool`. It is informational only.
+- Document in README and GAME_RULES. Tests: weekend with history, missing history, halt, Friday-to-Monday transition and unchanged weekday behavior; catalog layouts with 3 and 30 assets at mobile/desktop widths.
+- Branch `t25-closed-market-mode`, one PR with screenshots, no merge by Codex.

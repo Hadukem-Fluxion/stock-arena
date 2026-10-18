@@ -19,6 +19,16 @@ export const pricesSchema: z.ZodType<PricesView, z.ZodTypeDef, unknown> = z
           change24hPct: z.number().finite().nullable(),
           state: z.enum(["live", "paused"]),
           reason: z.string().nullable(),
+          pool: z
+            .object({
+              priceUsd: z
+                .string()
+                .refine((value) => Number.isFinite(Number(value)) && Number(value) > 0),
+              takenAt: z.string().datetime(),
+            })
+            .strict()
+            .nullable()
+            .optional(),
         })
         .strict(),
     ),

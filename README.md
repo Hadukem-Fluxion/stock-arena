@@ -205,11 +205,28 @@ Unanswered changes and the key stay private. Correct picks append one unique
 ledger award in the same transaction as the answer; retries cannot award twice.
 Run limits and points still come from game-core.
 
-Only live catalog assets with fresh primary snapshots and a usable 24h baseline
-can enter a pair. Fluxion pool rows never supply game prices. Extended and
-overnight trading remain playable; closed, stale, divergent or manually paused
-assets are excluded. A paused in-flight pair keeps its frozen result and can
-resume when its prices are live again. No unavailable pair consumes a new run.
+Open-market pairs use fresh primary snapshots and a usable 24h baseline. Extended
+and overnight trading remain playable. Stale, divergent, manually paused and
+halted assets remain unavailable. No unavailable pair consumes a new run.
+
+T25 adds seven-day play through **Last session** mode when xStocks reports a
+closed, non-halted market. Each asset uses the last `xstocks` snapshot strictly
+before the confirmed closing boundary against the sample at or immediately before
+`close - 24h`; both must be within the existing 120-second tolerance. The absolute
+move and minimum gap use the existing scoring helper. Missing history excludes
+the asset; fewer than two eligible stocks leaves the game paused. A pair never
+mixes live and session comparisons. Its mode, prices and answer are frozen in
+`hl_rounds`, so feedback keeps the correct label after reopening. UTC resets,
+scores and daily limits are unchanged. Fluxion pool rows never supply game prices.
+
+Migration `0006_last-session` persists trading period, halt status, scheduled
+transition and the confirmed closing boundary in `ticker_status`, plus round mode.
+The worker confirms a close from an observed open-to-closed transition using the
+source's previously scheduled boundary (observed within 120 seconds), not a fixed
+exchange calendar or unchanged weekend quotes. A cold deployment during closure
+without that recorded boundary remains paused until a verifiable close is observed.
+Missing/stale trading metadata cannot enable session play; reopening clears the
+old boundary, and missed reopening/closing cycles cannot reuse an older session.
 
 Trading metadata uses `/public/assets/{symbol}` only for the configured catalog,
 with independent five-minute caches capped at `nextChangeAt`. Failed assets
@@ -219,9 +236,12 @@ metadata as open. Run `pnpm db:migrate` before serving the new game.
 Closed markets keep the last primary quote visible on the Stock of the Day and
 price panel, labeled `Last price` and `Market closed`. The worker stores the
 source's scheduled reopening in `ticker_status.next_change_at` (migration `0005`);
-Higher or Lower displays that future time in UTC while paused. Missing, expired
+Higher or Lower displays that future time in UTC if paused for missing session history. Missing, expired
 or halted-market metadata never invents an opening time. A displayed schedule
 does not resume a ticker: fresh oracle checks must still mark it live.
+The closed-market price panel additionally shows the latest persisted pool quote
+when available, labeled `On-chain · Fluxion pool` with its UTC sample time.
+It remains separate from the primary quote and every gameplay calculation.
 
 ### Environment variables
 

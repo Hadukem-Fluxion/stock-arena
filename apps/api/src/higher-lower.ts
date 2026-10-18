@@ -56,7 +56,7 @@ export function createHlStore(
             .orderBy(desc(hlRounds.position))
             .limit(1)
         : [];
-      const market = await readMarket(tx, catalog, now);
+      const market = await readMarket(tx, catalog, now, { lastSession: true });
       const paused = market
         .filter((price) => price.state === "paused")
         .map((price) => ({
@@ -64,20 +64,39 @@ export function createHlStore(
           reason: price.reason ?? "stale",
           ...(price.nextChangeAt ? { nextChangeAt: price.nextChangeAt } : {}),
         }));
-      const eligible = market.flatMap((price): HlStockSnapshot[] =>
-        price.state === "live" && price.priceUsd && price.change24hPct !== null
-          ? [{ ticker: price.ticker, priceUsd: price.priceUsd, change24hPct: price.change24hPct }]
-          : [],
+      const eligible = market.flatMap(
+        (price): (HlStockSnapshot & { mode: "live" | "last_session" })[] =>
+          price.state === "live" && price.priceUsd && price.change24hPct !== null
+            ? [
+                {
+                  ticker: price.ticker,
+                  priceUsd: price.priceUsd,
+                  change24hPct: price.change24hPct,
+                  mode: "live",
+                },
+              ]
+            : price.lastSession
+              ? [{ ticker: price.ticker, ...price.lastSession, mode: "last_session" }]
+              : [],
       );
-      const pairs: { stocks: [HlStockSnapshot, HlStockSnapshot]; winner: string }[] = [];
+      const pairs: {
+        stocks: [HlStockSnapshot, HlStockSnapshot];
+        winner: string;
+        mode: "live" | "last_session";
+      }[] = [];
       for (let i = 0; i < eligible.length; i++)
         for (let j = i + 1; j < eligible.length; j++) {
           const a = eligible[i]!,
             b = eligible[j]!;
+          if (a.mode !== b.mode) continue;
           if (catalog[a.ticker]!.referenceTicker === catalog[b.ticker]!.referenceTicker) continue;
           const winner = higherOrLowerWinner(a, b);
-          if (winner) pairs.push({ stocks: [a, b], winner });
+          if (winner) pairs.push({ stocks: [a, b], winner, mode: a.mode });
         }
+      // Preserve the open-market selection whenever a live pair is available.
+      const availablePairs = pairs.some((pair) => pair.mode === "live")
+        ? pairs.filter((pair) => pair.mode === "live")
+        : pairs;
       const needsNew =
         (action.type === "start" && (!run || run.endedAt)) ||
         (action.type === "next" && run && !run.endedAt && round?.choice);
@@ -85,9 +104,9 @@ export function createHlStore(
       if (needsNew) {
         if (action.type === "start" && runs.length >= config.runsPerDay)
           throw new HlError("HL_DAILY_LIMIT");
-        if (!pairs.length) unavailable = true;
+        if (!availablePairs.length) unavailable = true;
         else {
-          const pair = pairs[(options.choose ?? randomInt)(pairs.length)];
+          const pair = availablePairs[(options.choose ?? randomInt)(availablePairs.length)];
           if (!pair) throw new Error("Invalid round selection.");
           if (action.type === "start") {
             [run] = await tx
@@ -109,7 +128,12 @@ export function createHlStore(
         !round.choice &&
         round.stocks.some(
           (stock) =>
-            !market.some((price) => price.ticker === stock.ticker && price.state === "live"),
+            !market.some(
+              (price) =>
+                price.ticker === stock.ticker &&
+                (price.state === "live" ||
+                  (round?.mode === "last_session" && price.closedForSession)),
+            ),
         );
       if (action.type === "pick") {
         if (!run || !round || round.id !== action.pick.roundId)
@@ -161,6 +185,7 @@ export function createHlStore(
       return {
         day,
         serverTime: now.toISOString(),
+        mode: round?.mode ?? availablePairs[0]?.mode ?? "live",
         runsUsed: runs.length,
         runsLimit: config.runsPerDay,
         maxCorrect: config.maxCorrectPerRun,

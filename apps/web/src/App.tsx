@@ -266,10 +266,14 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
                       disabled={login.state !== "ready"}
                     >
                       <span className="game-name">{en.games[name].name}</span>
-                      <span className="caption muted">{en.games[name].rule}</span>
+                      <span className="caption muted">
+                        {name === "higherLower" && marketClosed
+                          ? en.hl.lastSessionQuestion
+                          : en.games[name].rule}
+                      </span>
                       <span className="caption accent">
                         {name === "higherLower" && marketClosed
-                          ? en.status.marketClosed
+                          ? en.hl.lastSession
                           : name === "quiz" || name === "higherLower"
                             ? en.quiz.available
                             : en.status.comingSoon}
@@ -287,7 +291,7 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
             <section className="card active-panel" id="active-panel" aria-labelledby="active-title">
               <p className="eyebrow">{en.labels.games}</p>
               <h2 id="active-title">{en.games[game].name}</h2>
-              <p className="body-copy">{en.games[game].detail}</p>
+              {game !== "higherLower" && <p className="body-copy">{en.games[game].detail}</p>}
               {game === "checkin" ? (
                 <>
                   <StockCard stock={stock} discord={discord} />
@@ -379,6 +383,24 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
                                 ? en.status.marketClosed
                                 : en.checkin.paused}
                             </span>
+                          )}
+                          {quote?.reason === "closed" && quote.pool && (
+                            <div className="pool-quote">
+                              <span className="caption muted">{en.prices.pool}</span>
+                              <span className="number caption">
+                                {Number(quote.pool.priceUsd).toLocaleString("en-US", {
+                                  style: "currency",
+                                  currency: "USD",
+                                })}
+                              </span>
+                              <time className="caption muted" dateTime={quote.pool.takenAt}>
+                                {new Date(quote.pool.takenAt)
+                                  .toISOString()
+                                  .slice(0, 16)
+                                  .replace("T", " ")}{" "}
+                                {en.labels.utc}
+                              </time>
+                            </div>
                           )}
                         </div>
                       </li>

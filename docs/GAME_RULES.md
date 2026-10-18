@@ -1,6 +1,6 @@
 # Game Rules
 
-Play a few minutes a day, earn points, climb the leaderboard. Every game uses live prices of tokenized Magnificent 7 stocks (xStocks) from Fluxion on Mantle. No wallet, no deposit, no purchase needed.
+Play a few minutes a day, earn points, climb the leaderboard. Stock price references come from the xStocks public API; Fluxion pools on Mantle provide cross-checks. No wallet, no deposit, no purchase needed.
 
 > For entertainment and education only. Not financial advice. Points have no cash value and cannot be bought, sold or transferred.
 
@@ -20,6 +20,27 @@ A game day runs from 00:00 to 23:59 UTC. Daily games reset at 00:00 UTC. The sto
 | Invite friends  | Share your invite link. Your friend counts once they check in on 3 different days.                                                                 | 50 per friend, up to 10 friends per season                 |
 
 Missing a day resets your check-in streak to zero.
+
+### Higher or Lower when the market is closed
+
+Higher or Lower is available seven days a week when enough price history exists.
+During trading, compare the bigger absolute 24h move as usual. When the market
+is closed without a trading halt, the question becomes "Which stock moved more
+in the last trading session?" and the round and feedback show "Last session".
+The comparison uses each stock's last primary price before the confirmed closing
+boundary versus its price approximately 24 hours before that boundary, with the
+same two-minute sampling tolerance. A fall counts as a move. Pairs still require
+the configured minimum difference between their absolute moves.
+
+Stocks with missing closing/history data or a trading halt cannot enter a new
+round. Fewer than two eligible stocks pauses the game without consuming a run.
+The server freezes each pair's comparison and result, including across reopening;
+live and last-session comparisons never mix in a pair. Points, daily limits and
+UTC resets are unchanged.
+
+The closed-market price panel keeps the last primary price and may also show
+"On-chain · Fluxion pool" with its sample time. This pool quote is informational;
+it never supplies a game price, change or answer.
 
 ## Coming later in Season 1
 
