@@ -99,8 +99,12 @@ export function createHlStore(
           );
         });
       };
-      const offer = async (runId: string, position: number) => {
-        const eligible = await candidates();
+      const offer = async (
+        runId: string,
+        position: number,
+        available?: Awaited<ReturnType<typeof candidates>>,
+      ) => {
+        const eligible = available ?? (await candidates());
         if (!eligible.length) throw new HlError("HL_UNAVAILABLE");
         const stock = eligible[(options.choose ?? randomInt)(eligible.length)];
         if (!stock) throw new HlError("HL_UNAVAILABLE");
@@ -113,6 +117,22 @@ export function createHlStore(
           asset,
           offeredAt: now,
         });
+      };
+      const replaceUnavailableOffer = async (
+        run: typeof hlRuns.$inferSelect,
+        round: typeof hlPredictions.$inferSelect,
+      ) => {
+        if (run.endedAt || expiry(run) <= now || round.lockedAt || round.settledAt) return false;
+        const eligible = await candidates();
+        if (eligible.some((stock) => stock.ticker === round.ticker)) return false;
+        if (!eligible.length) throw new HlError("HL_UNAVAILABLE");
+        // Replace atomically without changing the run's score, limits or idle clock.
+        await tx
+          .update(hlPredictions)
+          .set({ state: "void", settledAt: now })
+          .where(eq(hlPredictions.id, round.id));
+        await offer(run.id, round.position + 1, eligible);
+        return true;
       };
       if (action.type === "start") {
         const duplicate = (
@@ -160,7 +180,9 @@ export function createHlStore(
           /* Idempotent: preserve the committed choice. */
         } else if (run.endedAt || ((!round.lockedAt || round.settledAt) && expiry(run) <= now))
           throw new HlError("HL_DAY_EXPIRED");
-        else if (action.type === "next") {
+        else if (await replaceUnavailableOffer(run, round)) {
+          // Return the new offer; never transfer a pick intended for the old ticker.
+        } else if (action.type === "next") {
           if (round.settledAt) await offer(run.id, round.position + 1);
         } else {
           const stock = (await candidates()).find((row) => row.ticker === round.ticker);
@@ -184,6 +206,10 @@ export function createHlStore(
       runs = await loadRuns();
       const visible: PredictionView["runs"] = [];
       for (const run of runs) {
+        if (action.type === "read") {
+          const offered = await roundFor(run.id);
+          if (offered) await replaceUnavailableOffer(run, offered);
+        }
         const round = await roundFor(run.id);
         const expired = !run.endedAt && (!round?.lockedAt || round.settledAt) && expiry(run) <= now;
         visible.push({

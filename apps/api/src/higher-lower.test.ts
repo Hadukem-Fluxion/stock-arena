@@ -111,6 +111,134 @@ async function result(view: PredictionView, startPrice = "100", endPrice = "101"
   await settlePredictions(connection, now);
 }
 describe("T26 prediction API and worker", () => {
+  describe.each(["read", "next", "pick"] as const)("%s offer recovery", (action) => {
+    it.each(["manual", "divergence", "halt", "stale"])(
+      "replaces an unlocked %s stock without transferring the pick or consuming the run",
+      async (reason) => {
+        const { app, start, send, user } = await setup();
+        try {
+          const original = await start();
+          const run = original.runs[0]!;
+          const offered = run.round!;
+          if (reason === "stale") {
+            await connection.db
+              .update(priceSnapshots)
+              .set({ takenAt: new Date(now.getTime() - 121_000) })
+              .where(eq(priceSnapshots.ticker, "REF_0"));
+          } else {
+            await connection.db
+              .update(tickerStatus)
+              .set({
+                state: "paused",
+                reason: reason === "halt" ? "closed" : reason,
+                tradingHalted: reason === "halt",
+              })
+              .where(eq(tickerStatus.ticker, "REF_0"));
+          }
+          const payload =
+            action === "read"
+              ? {}
+              : action === "next"
+                ? { runId: run.id }
+                : { runId: run.id, roundId: offered.id, direction: "up" };
+          const response = await send(action, payload);
+          expect(response.statusCode).toBe(200);
+          const view = response.json<PredictionView>();
+          expect(view.runsUsed).toBe(1);
+          expect(view.runs).toHaveLength(1);
+          expect(view.runs[0]).toMatchObject({
+            id: run.id,
+            correctCount: 0,
+            score: 0,
+            endedAt: null,
+            expiresAt: run.expiresAt,
+            round: { ticker: "TEST_1", state: "offered", direction: null, lockedAt: null },
+          });
+          const rounds = await connection.db
+            .select()
+            .from(hlPredictions)
+            .where(eq(hlPredictions.runId, run.id));
+          expect(rounds).toHaveLength(2);
+          expect(rounds.find((round) => round.id === offered.id)).toMatchObject({
+            position: 0,
+            state: "void",
+            lockedAt: null,
+            settledAt: now,
+          });
+          expect(rounds.find((round) => round.id !== offered.id)).toMatchObject({
+            position: 1,
+            state: "offered",
+            lockedAt: null,
+          });
+          const [storedRun] = await connection.db
+            .select()
+            .from(hlRuns)
+            .where(eq(hlRuns.id, run.id));
+          expect(storedRun!.lastSettledAt).toBeNull();
+          expect(
+            await connection.db.select().from(pointsLedger).where(eq(pointsLedger.userId, user.id)),
+          ).toHaveLength(0);
+          const again = (await send()).json<PredictionView>();
+          expect(again.runs[0]!.round!.id).toBe(view.runs[0]!.round!.id);
+          expect(
+            (await send("pick", { runId: run.id, roundId: offered.id, direction: "up" }))
+              .statusCode,
+          ).toBe(409);
+          const picked = (
+            await send("pick", {
+              runId: run.id,
+              roundId: view.runs[0]!.round!.id,
+              direction: "down",
+            })
+          ).json<PredictionView>();
+          expect(picked.runs[0]!.round).toMatchObject({
+            state: "waiting_start",
+            ticker: "TEST_1",
+            direction: "down",
+          });
+        } finally {
+          await app.close();
+        }
+      },
+    );
+    it("returns HL_UNAVAILABLE without changing anything when no replacement exists, then recovers", async () => {
+      const { app, start, send, user } = await setup(1);
+      try {
+        const initial = await start();
+        const run = initial.runs[0]!;
+        const beforeRun = await connection.db.select().from(hlRuns).where(eq(hlRuns.id, run.id));
+        const beforeRounds = await connection.db
+          .select()
+          .from(hlPredictions)
+          .where(eq(hlPredictions.runId, run.id));
+        await connection.db.update(tickerStatus).set({ state: "paused", reason: "divergence" });
+        const payload =
+          action === "read"
+            ? {}
+            : action === "next"
+              ? { runId: run.id }
+              : { runId: run.id, roundId: run.round!.id, direction: "up" };
+        const response = await send(action, payload);
+        expect(response.statusCode).toBe(409);
+        expect(response.json()).toEqual({ error: { code: "HL_UNAVAILABLE" } });
+        expect(await connection.db.select().from(hlRuns).where(eq(hlRuns.id, run.id))).toEqual(
+          beforeRun,
+        );
+        expect(
+          await connection.db.select().from(hlPredictions).where(eq(hlPredictions.runId, run.id)),
+        ).toEqual(beforeRounds);
+        expect(
+          await connection.db.select().from(pointsLedger).where(eq(pointsLedger.userId, user.id)),
+        ).toHaveLength(0);
+        await connection.db.update(tickerStatus).set({ state: "live", reason: null });
+        const recovered = (await send()).json<PredictionView>();
+        expect(recovered.runs[0]!.round!.id).toBe(run.round!.id);
+        expect(recovered.runsUsed).toBe(1);
+      } finally {
+        await app.close();
+      }
+    });
+  });
   it.each([3, 30])(
     "serves one random catalog stock with %s assets and no precomputed answer",
     async (count) => {
@@ -130,6 +258,25 @@ describe("T26 prediction API and worker", () => {
       }
     },
   );
+  it("never replaces or unlocks an already locked prediction when its ticker becomes unavailable", async () => {
+    const { app, start, pick, send } = await setup();
+    try {
+      const locked = (await pick(await start())).json<PredictionView>();
+      const run = locked.runs[0]!;
+      await connection.db
+        .update(tickerStatus)
+        .set({ state: "paused", reason: "closed", tradingHalted: true });
+      await send("next", { runId: run.id });
+      await send("pick", { runId: run.id, roundId: run.round!.id, direction: "down" });
+      const view = (await send()).json<PredictionView>();
+      expect(view.runs[0]!.round).toEqual(run.round);
+      expect(
+        await connection.db.select().from(hlPredictions).where(eq(hlPredictions.runId, run.id)),
+      ).toHaveLength(1);
+    } finally {
+      await app.close();
+    }
+  });
   it.each([
     ["up", "101", "won", 5],
     ["down", "99", "won", 5],

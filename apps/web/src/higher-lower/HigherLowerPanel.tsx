@@ -235,7 +235,13 @@ export function HigherLowerPanel({
                               <p>
                                 {en.hl.move}:{" "}
                                 <span className="number">
-                                  {Number(round.changePct).toPrecision(6)}%
+                                  {Number(round.changePct).toLocaleString("en-US", {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                    signDisplay: "exceptZero",
+                                    useGrouping: false,
+                                  })}
+                                  %
                                 </span>
                               </p>
                             )}

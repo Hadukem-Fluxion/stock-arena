@@ -202,6 +202,13 @@ the result is unknown at that point. `GET /api/hl` resumes all visible runs.
 `runId`, `roundId` and `direction`; `/next` takes `runId`. All actions require
 a player session. Unavailable assets do not consume a new run.
 
+If an offered stock becomes ineligible before the pick is locked, read/next/pick
+voids that offer and replaces it at the next position in the same transaction.
+The run's score, daily-start count and idle deadline stay unchanged. A pick for
+the old stock never locks the replacement; the player must choose again. With
+no eligible replacement, `HL_UNAVAILABLE` leaves the stored offer and run intact.
+Result percentages use a sign and two decimal places for display only.
+
 Up to three runs can be active in parallel, with one pending prediction each.
 Only three runs may start per UTC day; pending rounds survive midnight. Each
 correct pick awards +5 points, an incorrect pick ends the run, and ten correct

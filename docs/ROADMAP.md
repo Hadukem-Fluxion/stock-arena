@@ -19,6 +19,12 @@ cancelled and merged into T26's 15-minute Up/Down prediction. T27's complete Fly
 brief is recorded in TASKS.md for after admin controls and rewards registration;
 its implementation has not started. These dependencies do not confirm launch dates.
 
+The official Task Board is `docs/TASKS.md` and this file; there is no external
+board. T26's PR #20 includes the requested offer-recovery and percentage-format
+review fixes, pending final review/merge. **T32 — settlement query optimization**
+is a separate follow-up required before T19's load test: select only due work in
+SQL, including start boundaries, end targets, void deadlines and idle run expiry.
+
 | Who                    | Owns                                                                                                                                                              |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Hadukem (project lead) | Scope and approvals, Mantle admin sign-off, Discord app and Telegram bot registration, hosting and database accounts, secrets, merging pull requests, launch call |
@@ -37,7 +43,6 @@ its implementation has not started. These dependencies do not confirm launch dat
 ## Open questions
 
 - Confirm with Mantle which reward identifiers are accepted (Bybit UID, Mantle address or both) and how rewards are delivered. T31 keeps both optional until confirmed.
-- Location/link of the external Task Board, so Claude can synchronize the local task status changes.
 
 - Telegram adiado: a conta principal do Hadukem está temporariamente impedida de criar bots no BotFather. Opção pendente: criar o bot de teste na conta do Clube Cupim, com 2FA, e transferir a posse depois. Web e API já suportam Telegram; faltam o bot, o token na Railway e o link do Mini App.
 - Final launch date with the Mantle admin (the original brief said around Sep 10).

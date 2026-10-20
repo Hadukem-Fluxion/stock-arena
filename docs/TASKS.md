@@ -1,21 +1,21 @@
 # Codex task briefs
 
-One brief = one pull request. Paste the whole brief into Codex together with AGENTS.md. IDs match the Task Board in the project doc. Non-code tasks (T00, T01, T05, T06, T17, T20) are done by people or Claude and are not listed here.
+One brief = one pull request. Paste the whole brief into Codex together with AGENTS.md. This file and `docs/ROADMAP.md` are the official Task Board; there is no external board. Keep them updated with implementation/review status and dependencies. Non-code tasks (T00, T01, T05, T06, T17, T20) are done by people or Claude and are not listed here.
 
 ## Task Board updates — 2026-10-20
 
-| Task                  | State / dependency                                                         |
-| --------------------- | -------------------------------------------------------------------------- |
-| T14                   | Superseded by T28–T30                                                      |
-| T21 Daily Call        | CANCELLED — merged into T26                                                |
-| T26                   | Implemented in this PR; awaiting review and Hadukem's merge                |
-| T28 → T29 → T30 → T31 | Planned, one branch/PR per task; do not implement before T26 is integrated |
-| T27 mStocks Flyer     | Planned after T26, T28, T29, T30 and T31; do not implement in T26          |
+| Task                  | State / dependency                                                            |
+| --------------------- | ----------------------------------------------------------------------------- |
+| T14                   | Superseded by T28–T30                                                         |
+| T21 Daily Call        | CANCELLED — merged into T26                                                   |
+| T26                   | Review fixes implemented in PR #20; awaiting final review and Hadukem's merge |
+| T28 → T29 → T30 → T31 | Planned, one branch/PR per task; do not implement before T26 is integrated    |
+| T27 mStocks Flyer     | Planned after T26, T28, T29, T30 and T31; do not implement in T26             |
+| T32                   | Settlement query optimization; required before T19 load test; not part of T26 |
 
 Campaign decision for Mantle (not code): accepted reward identifiers (Bybit UID,
 Mantle address or both) and manual delivery process. Keep both fields optional
-until confirmed. The external project Task Board location is awaiting confirmation;
-this table records the repository's board changes.
+until confirmed. This table records the official task status changes.
 
 ---
 
@@ -300,6 +300,8 @@ list, and cache the rarely changing metadata. Do not change the oracle during T0
 
 ## T19 — Load test
 
+**Dependency**: complete T32 (settlement query optimization) before running this task.
+
 **Do**
 
 - k6 or Artillery script: logins, check-ins, quiz answers, HL picks and SSE connections.
@@ -424,6 +426,7 @@ Acceptance:
 
 **Edge cases**
 
+- If an unlocked offered stock becomes ineligible, read/next/pick atomically voids that offer and serves a replacement at the next position, without affecting points, correct count, daily starts or run expiry. A pick intended for the old offer is never applied to the new stock. With no replacement, return `HL_UNAVAILABLE` and leave all state unchanged.
 - Ticker paused, halted, stale or missing data at the start or end moment: keep retrying until valid data appears, up to `settlementRetryHours` (6). Otherwise void: no points, the run continues. A halt between start and end voids the round.
 - Opening delayed or metadata missing: the prediction stays pending; same 6 h void rule, counted from the scheduled boundary.
 - UTC day change: pending predictions settle normally. The daily limit counts runs started per UTC day. A run expires (keeping its points) 24 h after its last settlement without a new pick.
@@ -432,6 +435,8 @@ Acceptance:
 - Migration: preserve the ledger and old hl rounds. If displayed in history they are "Classic". End runs still active on the retrospective model at deploy without awarding or removing points. T25 no longer feeds gameplay; keep its frozen-session data only for the closed-market price panel.
 
 **UI (English, en.ts)**: "Will {TICKER} go up or down in the next 15 minutes?", buttons "Up" / "Down", pending card with countdown, "Waiting for market open" for closed-market picks, result card with start price, end price and % move, "No change — pick again", "Void — no data", 3 run slots.
+
+Display price moves with two decimal places and a sign for nonzero moves (e.g. `+1.00%`, `-0.37%`). This formatting is UI-only; settlement still compares persisted prices exactly.
 
 **Acceptance (tests)**: up/down/equal outcomes; start sample strictly after lock; 15-minute end sample; parallel runs and one pending per run; daily start limit; 10-correct cap; closed-market pick settled after reopening; delayed reopening; halt mid-window → void; 6 h void; worker restart mid-window; double settlement attempt pays once; UTC rollover; run expiry; old rounds/ledger preserved. Catalog layouts with 3 and 30 assets at mobile and desktop. Update README and GAME_RULES. One PR with screenshots.
 
@@ -513,3 +518,23 @@ Acceptance:
 **Copy (en.ts)**: "mStocks Flyer", "Tap to fly", "Fly through real price charts", "New best!", "Daily points cap reached — keep playing for the leaderboard".
 
 **Acceptance (tests)**: deterministic replay (same log → same score on client and server); tampered log rejected; time-inconsistent log rejected; session expiry/reuse; daily cap and delta awards; course built from primary snapshots only, with missing data → that stock skipped; catalogs with 3 and 30 assets; mobile and desktop screenshots; performance check on a mid-range phone viewport. Update README and GAME_RULES.
+
+---
+
+## T32 — Prediction settlement query optimization (before T19)
+
+**Status**: follow-up from T26 review; does not block PR #20. Implement in a separate branch/PR before T19's load test, with no merge by Codex.
+
+**Goal**: avoid scanning every unsettled prediction and open run on every worker poll, especially with thousands of queued weekend predictions.
+
+**Do**
+
+- Select due prediction work in SQL: start capture only after its lock/reopening boundary, `target_at <= now` for end capture, or a reached void deadline. Do not open a transaction for future work that cannot progress yet.
+- Select expiring idle runs in SQL with `coalesce(last_settled_at, created_at) < now - 24 hours`, excluding runs with a pending prediction. Avoid scanning every open run.
+- Preserve captured samples, original price windows, observed-halt voids, six-hour retries, pending predictions across UTC/weekend boundaries, row-lock order and exactly-once ledger awards. Review indexes/query plans as needed, using new migrations only.
+
+**Acceptance**
+
+- Due work is processed and future-boundary/target work is skipped without changing gameplay.
+- Thousands of weekend predictions and idle/active runs demonstrate bounded candidate selection; pending runs do not expire as idle.
+- Regression tests preserve halt handling, delayed reopening, void deadlines and double-settlement protection. Document query plans and how the changes prepare T19.

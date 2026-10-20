@@ -22,7 +22,7 @@ The scaffold exists but has never been installed. Start with brief **T02** in `d
 - Push the task branch to `origin` and give Hadukem the link to open the pull request (`https://github.com/<owner>/<repo>/compare/main...<branch>`). The PR description follows the format below, in Portuguese.
 - Never merge your own PR. Claude reviews, Hadukem approves and merges.
 - Never commit `.env`, secrets or `node_modules`. Never force-push `main`.
-- When a task is done, say so in the PR summary; Claude updates the Task Board.
+- The official Task Board is `docs/TASKS.md` and `docs/ROADMAP.md`; there is no external board. Keep both updated and report completed tasks in the PR summary for Claude's review.
 
 ## Accounts and secrets
 

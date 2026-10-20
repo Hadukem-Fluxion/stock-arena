@@ -201,21 +201,26 @@ export async function setupPrediction(page: Page, count: number, closed = false)
         round: null,
       });
     },
-    resolve() {
+    resolve(changePct = "1") {
       view.serverTime = "2026-10-20T12:15:15.000Z";
       view.runs = view.runs.filter((run) => !run.endedAt);
       const entry = view.runs[0]!;
-      Object.assign(entry, { correctCount: 1, score: 5 });
+      const movement = Number(changePct);
+      Object.assign(entry, {
+        correctCount: movement > 0 ? 1 : 0,
+        score: movement > 0 ? 5 : 0,
+        endedAt: movement < 0 ? view.serverTime : null,
+      });
       Object.assign(entry.round!, {
-        state: "won",
+        state: movement > 0 ? "won" : movement < 0 ? "lost" : "equal",
         startPrice: "100",
         startTakenAt: "2026-10-20T12:00:15.000Z",
-        endPrice: "101",
+        endPrice: String(100 + movement),
         endTakenAt: "2026-10-20T12:15:15.000Z",
         settledAt: "2026-10-20T12:15:15.000Z",
-        changePct: "1",
+        changePct,
       });
-      checkin.balance = 100;
+      checkin.balance = movement > 0 ? 100 : 95;
     },
     close: async () => {
       stream.closeAllConnections();
