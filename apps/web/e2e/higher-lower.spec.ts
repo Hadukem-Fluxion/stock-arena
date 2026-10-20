@@ -1,6 +1,29 @@
 import { expect, test } from "@playwright/test";
 import { en } from "../src/copy/en.js";
 import { setupPrediction } from "./prediction-fixture.js";
+
+test("refreshes the balance on worker settlement even when older scored history expires", async ({
+  page,
+}) => {
+  const fixture = await setupPrediction(page, 3);
+  fixture.includeExpiringHistory();
+  try {
+    await page.goto("http://127.0.0.1:5174/#tgWebAppData=mock");
+    await page.getByRole("button", { name: en.games.higherLower.name }).click();
+    const panel = page.locator(".hl-panel");
+    await panel.getByRole("button", { name: en.hl.start }).click();
+    await panel.getByRole("button", { name: en.hl.up, exact: true }).click();
+    await expect(panel.getByText(en.hl.pending, { exact: true })).toBeVisible();
+    await expect(page.locator(".player-stats .points .number")).toHaveText("95");
+    fixture.resolve();
+    await expect(panel.getByText(en.hl.results.won, { exact: true })).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator(".player-stats .points .number")).toHaveText("100");
+  } finally {
+    await fixture.close();
+  }
+});
 for (const count of [3, 30])
   for (const width of [360, 1440])
     test(`Up/Down ${count} assets at ${width}px`, async ({ page }, testInfo) => {

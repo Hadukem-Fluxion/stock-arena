@@ -29,7 +29,7 @@ export function HigherLowerPanel({
   const [clock, setClock] = useState(0);
   const pending = useRef(false),
     generation = useRef(0),
-    lastScore = useRef<number | null>(null),
+    lastScores = useRef(new Map<string, number>()),
     receivedAt = useRef(0);
   const notify = useRef(onAward);
   notify.current = onAward;
@@ -46,9 +46,9 @@ export function HigherLowerPanel({
       try {
         const result = await client.call(action, payload);
         if (id !== generation.current) return;
-        const total = result.runs.reduce((sum, entry) => sum + entry.score, 0);
-        if (total > (lastScore.current ?? 0)) notify.current();
-        lastScore.current = total;
+        if (result.runs.some((entry) => entry.score > (lastScores.current.get(entry.id) ?? 0)))
+          notify.current();
+        lastScores.current = new Map(result.runs.map((entry) => [entry.id, entry.score]));
         receivedAt.current = Date.now();
         setClock(0);
         setView(result);
@@ -67,7 +67,7 @@ export function HigherLowerPanel({
   useEffect(() => {
     const id = ++generation.current;
     pending.current = false;
-    lastScore.current = null;
+    lastScores.current = new Map();
     setView(null);
     void run("read");
     return () => {

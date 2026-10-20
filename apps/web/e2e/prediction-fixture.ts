@@ -167,6 +167,7 @@ export async function setupPrediction(page: Page, count: number, closed = false)
               changePct: null,
             },
           },
+          ...view.runs,
         ],
       };
     if (path.endsWith("/pick")) {
@@ -188,8 +189,21 @@ export async function setupPrediction(page: Page, count: number, closed = false)
   return {
     catalog,
     picks: () => picks,
+    includeExpiringHistory() {
+      view.runs.push({
+        id: "90000000-0000-4000-8000-000000000001",
+        day: "2026-10-19",
+        number: 3,
+        correctCount: 10,
+        score: 50,
+        endedAt: "2026-10-19T12:10:00.000Z",
+        expiresAt: "2026-10-20T12:10:00.000Z",
+        round: null,
+      });
+    },
     resolve() {
       view.serverTime = "2026-10-20T12:15:15.000Z";
+      view.runs = view.runs.filter((run) => !run.endedAt);
       const entry = view.runs[0]!;
       Object.assign(entry, { correctCount: 1, score: 5 });
       Object.assign(entry.round!, {
