@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { createHlClient, hlViewSchema } from "./client.js";
-import type { HlView } from "@stock-arena/game-core";
+import type { PredictionView } from "@stock-arena/game-core";
 import type { Session } from "../platform/types.js";
 
 const session: Session = {
@@ -13,23 +13,20 @@ const session: Session = {
     identity: { platform: "discord", platformUserId: "123" },
   },
 };
-const view: HlView = {
+const view: PredictionView = {
   day: "2026-10-17",
   serverTime: "2026-10-17T12:00:00.000Z",
-  status: "ready",
   runsUsed: 0,
   runsLimit: 3,
   maxCorrect: 10,
   pointsPerCorrect: 5,
-  run: null,
-  round: null,
-  feedback: null,
-  paused: [],
+  canStart: true,
+  runs: [],
 };
 describe("HL API client", () => {
   it("uses authenticated relative paths and sends only the player's selection", async () => {
     const request = vi.fn<typeof fetch>().mockResolvedValue(Response.json(view));
-    const pick = { runId: session.user.id, roundId: session.user.id, ticker: "SYNTHETIC" };
+    const pick = { runId: session.user.id, roundId: session.user.id, direction: "up" as const };
     expect(await createHlClient(() => session, request).call("pick", pick)).toEqual(view);
     expect(request).toHaveBeenCalledWith(
       "/api/hl/pick",

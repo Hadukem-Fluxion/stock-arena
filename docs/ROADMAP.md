@@ -7,10 +7,17 @@ The MVP runs on Discord and Telegram by Nov 20, closed beta follows, and public 
 | 0 · Setup               | Oct 19 – Oct 30 | Repo, CI and staging live; Discord app and Telegram bot registered; xStocks API prices for all Magnificent 7 stocks with five Fluxion pool cross-checks; clickable UI prototype; quiz bank v1 | Live prices on staging for all 7 stocks                      |
 | 1 · MVP build           | Nov 2 – Nov 20  | Daily Check-in, Daily Quiz, Higher or Lower, leaderboards, referrals; same app as Discord Activity and Telegram Mini App; admin panel                                                         | Feature complete; demo to the Mantle admin and Fluxion leads |
 | 2 · Closed beta         | Nov 23 – Dec 4  | Mods and invited players test; anti-abuse tuned; guides and FAQ published; load test                                                                                                          | Go / no-go: no open critical bugs, rewards approved          |
-| 3 · Launch and Season 1 | From Dec 8      | Public launch on both platforms; Season 1 leaderboard and rewards; Daily Call; Weekly Fantasy Portfolio; account linking                                                                      | —                                                            |
+| 3 · Launch and Season 1 | From Dec 8      | Public launch on both platforms; Season 1 leaderboard and rewards; Weekly Fantasy Portfolio; account linking                                                                                  | —                                                            |
 | 4 · Season 2            | January 2027    | Stock Card collection, Dividend Farm, more xStocks as they list on Fluxion                                                                                                                    | —                                                            |
 
 ## Who does what
+
+Current implementation order: **T26 → T28 → T29 → T30 → T31 → T27**. Each task
+has its own branch/PR, reviewed by Claude and merged by Hadukem. T28–T31 cannot
+start until T26 is integrated. T14 is superseded by T28–T30; T21 Daily Call is
+cancelled and merged into T26's 15-minute Up/Down prediction. T27's complete Flyer
+brief is recorded in TASKS.md for after admin controls and rewards registration;
+its implementation has not started. These dependencies do not confirm launch dates.
 
 | Who                    | Owns                                                                                                                                                              |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -28,6 +35,9 @@ The MVP runs on Discord and Telegram by Nov 20, closed beta follows, and public 
 4. Hadukem merges. Production deploys only from tagged releases.
 
 ## Open questions
+
+- Confirm with Mantle which reward identifiers are accepted (Bybit UID, Mantle address or both) and how rewards are delivered. T31 keeps both optional until confirmed.
+- Location/link of the external Task Board, so Claude can synchronize the local task status changes.
 
 - Telegram adiado: a conta principal do Hadukem está temporariamente impedida de criar bots no BotFather. Opção pendente: criar o bot de teste na conta do Clube Cupim, com 2FA, e transferir a posse depois. Web e API já suportam Telegram; faltam o bot, o token na Railway e o link do Mini App.
 - Final launch date with the Mantle admin (the original brief said around Sep 10).

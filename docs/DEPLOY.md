@@ -23,6 +23,22 @@ as migrations no pre-deploy); depois iniciar o worker; por último configurar a
 Vercel com o domínio da API. O deploy público e a aceitação dependem dessas ações
 nos painéis, não são executados por este PR.
 
+### Atualização Higher or Lower (T26)
+
+Após o merge, o pre-deploy da API deve aplicar `0008_hl-predictions`. A migration
+encerra sequências Classic ainda ativas, preservando rodadas e ledger; não há
+reembolso ou prêmio extra nessa troca. Implantar API, worker e web da mesma revisão.
+O worker novo precisa estar online: ele marca a validade de cada amostra primária,
+confirma reaberturas, registra halts e liquida as previsões. Amostras antigas com
+validade desconhecida não são usadas. Não há variável nova nem seed nesta tarefa.
+
+O cronômetro do cliente não liquida: se o worker estiver atrasado, mostra a espera
+pela confirmação. Checar nos logs do worker ciclos sem falhas; testar um palpite
+real, fechar/reabrir a Activity, aguardar os 15 minutos e verificar um único prêmio.
+Os testes locais usam PGlite e dados fictícios; o PR não aplica migrations no Supabase.
+No rollback, encerrar novas previsões até restabelecer API/worker compatíveis;
+rollback de código não desfaz a migration nem reativa sequências Classic.
+
 ## Railway: configurações dos dois serviços
 
 Em um projeto de staging, criar dois serviços a partir do repositório público
@@ -293,7 +309,7 @@ configurados, testes locais e CI confirmam a preparação, não um staging publi
    saudável, quando disponível, ou redeploy do commit aprovado correspondente.
    Começar pela API, verificar health e depois restaurar o worker compatível.
 3. Rollback de código não desfaz migrations nem recupera snapshots já reduzidos pela
-   retenção. As 3 migrations atuais são aplicadas por histórico; não editar migrations
+   retenção. As migrations são aplicadas por histórico; não editar migrations
    antigas ou reverter o ledger. Mudança futura incompatível exige plano de banco
    separado e backup pelo Hadukem antes de implantar.
 4. Validar health/rewrite e os ciclos de preço novamente e registrar os commits.

@@ -10,9 +10,8 @@ Free-to-play mini games about tokenized US stocks, running as a **Discord Activi
 | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | Daily Check-in                   | Once per UTC day. Reveals the Stock of the Day (live price, 24h change, one fact). Streak bonuses on day 7 and day 30. |
 | Daily Quiz                       | 3 multiple-choice questions, 30 s each, one attempt per day.                                                           |
-| Higher or Lower                  | Pick which of two stocks moved more in 24h. Run ends at the first miss or 10 correct. 3 runs per day.                  |
+| Higher or Lower                  | Predict one stock Up or Down over 15 minutes. Three parallel runs, up to 10 correct per run; +5 per correct pick.      |
 | Invite friends                   | Referral counts after the friend checks in on 3 different days.                                                        |
-| Daily Call (later)               | Up or Down on 3 stocks, settled 24h later on Fluxion TWAP.                                                             |
 | Weekly Fantasy Portfolio (later) | Pick 3 stocks plus a captain; scored on weekly % change.                                                               |
 
 Launch asset set: AAPL, MSFT, GOOGL, AMZN, META, NVDA, TSLA (their xStocks on Fluxion).
@@ -36,7 +35,7 @@ Full rules and point values: `docs/GAME_RULES.md`, implemented in `packages/game
 ## Project status
 
 - Done: scaffold, game rules and scoring in `packages/game-core` (tested), TWAP and price health checks in `packages/fluxion-oracle` (tested).
-- Next: T02 (install and verify the scaffold), then T03 and T04. Track progress in `docs/TASKS.md`.
+- T26 replaces retrospective Higher or Lower with server-settled predictions. Next, after its integration: T28–T31 (admin hub and rewards registration), then T27 (Flyer). Track review and dependencies in `docs/TASKS.md`.
 
 ## Architecture
 
@@ -195,64 +194,56 @@ with a fake bot token, mock both Discord HTTP calls, and use an isolated migrate
 PGlite database for identities and permissions. Real platform smoke tests remain
 pending account setup; the client adapters arrive in T08.
 
-### Higher or Lower (T11)
+### Higher or Lower predictions (T26)
 
-`GET /api/hl` resumes today's latest run; `POST /api/hl/start` starts or resumes
-one. `POST /api/hl/pick` accepts only the run ID, round ID and chosen ticker;
-`POST /api/hl/next` serves the next pair after feedback. The server freezes each
-pair, its primary 24h changes and the winning ticker in the new `hl_rounds` table.
-Unanswered changes and the key stay private. Correct picks append one unique
-ledger award in the same transaction as the answer; retries cannot award twice.
-Run limits and points still come from game-core.
+The server assigns one eligible catalog stock. The player locks Up or Down;
+the result is unknown at that point. `GET /api/hl` resumes all visible runs.
+`POST /api/hl/start` takes an idempotency `requestId` UUID; `/pick` takes only
+`runId`, `roundId` and `direction`; `/next` takes `runId`. All actions require
+a player session. Unavailable assets do not consume a new run.
 
-Open-market pairs use fresh primary snapshots and a usable 24h baseline. Extended
-and overnight trading remain playable. Stale, divergent, manually paused and
-halted assets remain unavailable. No unavailable pair consumes a new run.
+Up to three runs can be active in parallel, with one pending prediction each.
+Only three runs may start per UTC day; pending rounds survive midnight. Each
+correct pick awards +5 points, an incorrect pick ends the run, and ten correct
+picks complete it. Exactly equal decimal prices give no result or points and
+allow another pick. Any nonzero rise/fall counts; there is no neutral band.
+An idle run expires 24 hours after its last settlement (or creation before its
+first settlement), keeping earned points. A pending prediction is not idle.
 
-T25 adds seven-day play through **Last session** mode when xStocks reports a
-closed, non-halted market. Each asset uses the last `xstocks` snapshot strictly
-before the confirmed closing boundary against the sample at or immediately before
-`close - 24h`; both must be within the existing 120-second tolerance. The absolute
-move and minimum gap use the existing scoring helper. Missing history excludes
-the asset; fewer than two eligible stocks leaves the game paused. A pair never
-mixes live and session comparisons. Its mode, prices and answer are frozen in
-`hl_rounds`, so feedback keeps the correct label after reopening. UTC resets,
-scores and daily limits are unchanged. Fluxion pool rows never supply game prices.
+The worker captures the first valid primary snapshot strictly after the server
+receives the pick, then the first valid primary snapshot at/after that sample
 
-Migration `0006_last-session` persists trading period, halt status, scheduled
-transition and the confirmed closing boundary in `ticker_status`, plus round mode.
-Migration `0007_frozen-last-session` adds `ticker_status.last_session`, storing the
-closing price, session change, closing boundary and both primary sample timestamps
-and prices. The worker freezes these values in the same transaction as confirming
-the close; HL reads this record without depending on retained raw snapshots.
-The 48-hour/hourly snapshot retention policy is unchanged and never deletes this
-session record. Later weekend quotes cannot recalculate it.
+- 15 minutes, within a fixed 120-second end window. This is the explicit T26
+  exception to TWAP settlement. Decimal comparison is exact, using persisted
+  numeric precision; displayed percentages never determine points. Start/end prices
+  and times are copied into `hl_predictions`, independent of snapshot retention.
 
-The worker confirms a close from an open-to-closed transition using the source's
-previously scheduled boundary, even if the first valid poll arrives more than
-120 seconds later. The 120-second tolerance applies to the primary price samples,
-not the worker's detection delay. Missing metadata pauses play but preserves the
-last known transition so a subsequent successful poll can recover it. Missing
-pre-close or baseline history leaves the asset ineligible; no fixed exchange
-calendar or unchanged weekend quotes are used to infer a close. A cold deployment during closure
-without that recorded boundary remains paused until a verifiable close is observed.
-Missing/stale trading metadata cannot enable session play; reopening clears the
-old boundary, and missed reopening/closing cycles cannot reuse an older session.
+A non-halted closed market accepts a queued pick for its scheduled next session:
+"Waiting for market open" shows that time in UTC. Once reopening is confirmed,
+the first valid primary sample at/after that boundary starts the 15-minute window.
+Opening delays or missing metadata retry for six hours from the original scheduled
+boundary. Missing/paused start data retry for six hours from lock; missing end data
+retry for six hours from the target. End retries look for valid observations in
+the original 120-second window, never move the target. Otherwise the round is
+void, awards nothing and leaves the run open. A recorded halt during the prediction
+window voids it. Stale, jump, divergence and manual-pause samples cannot settle.
 
-Trading metadata uses `/public/assets/{symbol}` only for the configured catalog,
-with independent five-minute caches capped at `nextChangeAt`. Failed assets
-retry after 30 seconds, without discarding healthy assets or treating expired
-metadata as open. Run `pnpm db:migrate` before serving the new game.
+Migration `0008_hl-predictions` adds predictions, observed halt onsets, confirmed
+opening state and per-sample `tradable` validity. Legacy samples have unknown
+validity and cannot decide a new prediction. Each worker settlement locks the
+user, run and round in one transaction; a unique ledger reference `hl:<roundId>`
+prevents double awards. API requests only lock picks and display persisted state.
+Apply migrations before deploying the matching API and worker; see DEPLOY.md.
+Existing Classic rounds and ledger rows remain intact; the migration ends active
+Classic runs without changing points. No Classic history screen is added here.
+Daily Call (T21) is cancelled and merged into this mechanic.
 
-Closed markets keep the last primary quote visible on the Stock of the Day and
-price panel, labeled `Last price` and `Market closed`. The worker stores the
-source's scheduled reopening in `ticker_status.next_change_at` (migration `0005`);
-Higher or Lower displays that future time in UTC if paused for missing session history. Missing, expired
-or halted-market metadata never invents an opening time. A displayed schedule
-does not resume a ticker: fresh oracle checks must still mark it live.
-The closed-market price panel additionally shows the latest persisted pool quote
-when available, labeled `On-chain · Fluxion pool` with its UTC sample time.
-It remains separate from the primary quote and every gameplay calculation.
+Trading metadata uses `/public/assets/{symbol}` only for catalog assets, with
+independent five-minute caches capped at `nextChangeAt`. Failed assets retry after
+30 seconds. Missing or expired metadata never implies an opening. The old T25
+frozen-session data stays stored for closed-market display, not gameplay.
+Closed prices keep `Last price` and `Market closed`; the price panel may also show
+`On-chain · Fluxion pool` with its UTC time. Pool prices remain informational.
 
 ### Environment variables
 

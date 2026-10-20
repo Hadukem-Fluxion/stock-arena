@@ -76,8 +76,8 @@ The scaffold exists but has never been installed. Start with brief **T02** in `d
 
 - The xStocks public API is the primary price source for all seven tickers. Fluxion V3 pools on Mantle are cross-checks for the five configured tickers.
 - Only `packages/fluxion-oracle` talks to external price sources or the chain. Everything else reads `price_snapshots`, using `source = xstocks` for game prices; `fluxion_pool` rows are for cross-checking.
-- Settlement uses the 15-minute TWAP from snapshots, never one spot read.
-- If the newest snapshot for a ticker is older than 2 minutes, or two consecutive snapshots differ by more than the configured jump limit, mark that ticker `paused`. Paused tickers are excluded from settlement and live Higher or Lower. T25 permits confirmed closed, non-halted tickers in Higher or Lower's last-session mode using primary pre-close history only; pool quotes never enter the game.
+- Settlement normally uses the 15-minute TWAP. Explicit T26 exception: Higher or Lower compares two stored primary samples exactly: the first strictly after server lock (or at/after confirmed reopening), then the first at/after start + 15 minutes within 120 seconds. No float rounding decides equality. The worker persists both samples and awards points idempotently.
+- If the newest snapshot for a ticker is older than 2 minutes, or two consecutive snapshots differ by more than the configured jump limit, mark that ticker `paused`. Paused or halted observations cannot supply a T26 start/end. A non-halted closed ticker may accept a queued prediction for the next confirmed opening. T25 frozen-session comparisons remain display data only and never determine T26 gameplay.
 - Pause a ticker with reason `divergence` when its pool price differs from the primary quote by more than `PRICE_DIVERGENCE_PCT` (default 3). Pause with reason `closed` when trading is halted or the market period is closed; keep the last price and display "Market closed".
 
 ## Definition of done

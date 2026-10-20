@@ -133,6 +133,9 @@ importers:
       '@electric-sql/pglite':
         specifier: 0.5.10
         version: 0.5.10
+      '@stock-arena/game-core':
+        specifier: workspace:*
+        version: link:../game-core
       drizzle-orm:
         specifier: 0.45.4
         version: 0.45.4(@electric-sql/pglite@0.5.10)(@types/pg@8.23.1)(pg@8.23.1)

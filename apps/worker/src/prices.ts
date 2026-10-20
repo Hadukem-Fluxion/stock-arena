@@ -1,10 +1,10 @@
 import { TICKERS } from "@stock-arena/game-core";
 import type { Ticker } from "@stock-arena/game-core";
-import { priceSnapshots, tickerStatus } from "@stock-arena/db";
+import { priceSnapshots, tickerStatus, tickerHalts } from "@stock-arena/db";
 import type { DatabaseConnection } from "@stock-arena/db";
 import { evaluateTicker } from "@stock-arena/fluxion-oracle";
 import type { OraclePoll, TickerState } from "@stock-arena/fluxion-oracle";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { captureLastSession } from "./last-session.js";
 
 export function createPriceStore(
@@ -46,6 +46,41 @@ export function createPriceStore(
           ...options,
         });
         const trading = poll.trading[ticker];
+        if (trading?.isTradingHalted && previous?.tradingHalted !== true) {
+          await tx
+            .insert(tickerHalts)
+            .values({ ticker, takenAt: poll.takenAt })
+            .onConflictDoNothing();
+        }
+        const primaryTimes = poll.snapshots
+          .filter((row) => row.ticker === ticker && row.source === "xstocks")
+          .map((row) => row.takenAt);
+        if (primaryTimes.length)
+          await tx
+            .update(priceSnapshots)
+            .set({
+              tradable:
+                result.status.state === "live" &&
+                !!trading &&
+                !trading.isTradingHalted &&
+                trading.currentPeriod !== "closed",
+            })
+            .where(
+              and(
+                eq(priceSnapshots.ticker, ticker),
+                eq(priceSnapshots.source, "xstocks"),
+                inArray(priceSnapshots.takenAt, primaryTimes),
+              ),
+            );
+        const opening =
+          trading &&
+          trading.currentPeriod !== "closed" &&
+          !trading.isTradingHalted &&
+          previous?.tradingPeriod === "closed" &&
+          previous.periodChangeAt &&
+          previous.periodChangeAt <= poll.takenAt
+            ? previous.periodChangeAt
+            : null;
         // Confirm a scheduled open -> closed boundary, never infer a calendar
         // from weekend quotes (which may continue arriving unchanged).
         const closing =
@@ -82,6 +117,7 @@ export function createPriceStore(
             : (previous?.periodChangeAt ?? null),
           lastClosedAt,
           lastSession,
+          lastOpenedAt: opening ?? previous?.lastOpenedAt ?? null,
           state: result.status.state,
           reason: result.status.state === "paused" ? result.status.reason : null,
           // Only a scheduled closed-period transition can advertise a reopening.

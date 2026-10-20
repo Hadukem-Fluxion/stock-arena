@@ -266,25 +266,16 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
                       disabled={login.state !== "ready"}
                     >
                       <span className="game-name">{en.games[name].name}</span>
-                      <span className="caption muted">
-                        {name === "higherLower" && marketClosed
-                          ? en.hl.lastSessionQuestion
-                          : en.games[name].rule}
-                      </span>
+                      <span className="caption muted">{en.games[name].rule}</span>
                       <span className="caption accent">
                         {name === "higherLower" && marketClosed
-                          ? en.hl.lastSession
+                          ? en.hl.waitingOpen
                           : name === "quiz" || name === "higherLower"
                             ? en.quiz.available
                             : en.status.comingSoon}
                       </span>
                     </button>
                   ))}
-                <div className="game-tile upcoming">
-                  <span className="game-name">{en.games.dailyCall.name}</span>
-                  <span className="caption muted">{en.games.dailyCall.rule}</span>
-                  <span className="caption muted">{en.status.comingSoon}</span>
-                </div>
               </div>
             </section>
 

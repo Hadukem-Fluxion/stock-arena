@@ -2,6 +2,21 @@
 
 One brief = one pull request. Paste the whole brief into Codex together with AGENTS.md. IDs match the Task Board in the project doc. Non-code tasks (T00, T01, T05, T06, T17, T20) are done by people or Claude and are not listed here.
 
+## Task Board updates — 2026-10-20
+
+| Task                  | State / dependency                                                         |
+| --------------------- | -------------------------------------------------------------------------- |
+| T14                   | Superseded by T28–T30                                                      |
+| T21 Daily Call        | CANCELLED — merged into T26                                                |
+| T26                   | Implemented in this PR; awaiting review and Hadukem's merge                |
+| T28 → T29 → T30 → T31 | Planned, one branch/PR per task; do not implement before T26 is integrated |
+| T27 mStocks Flyer     | Planned after T26, T28, T29, T30 and T31; do not implement in T26          |
+
+Campaign decision for Mantle (not code): accepted reward identifiers (Bybit UID,
+Mantle address or both) and manual delivery process. Keep both fields optional
+until confirmed. The external project Task Board location is awaiting confirmation;
+this table records the repository's board changes.
+
 ---
 
 ## T02 — Bootstrap and verify the scaffold
@@ -221,6 +236,8 @@ list, and cache the rarely changing metadata. Do not change the oracle during T0
 
 ## T14 — Admin panel
 
+**Superseded by T28–T30.** Historical brief below; do not implement as one task.
+
 **Do** (route `/admin` inside the web app, `requireAdmin` on every API call)
 
 - Quiz questions: list, add, edit, deactivate, schedule for a day.
@@ -291,6 +308,8 @@ list, and cache the rarely changing metadata. Do not change the oracle during T0
 ---
 
 ## T21 — Daily Call
+
+**CANCELLED — merged into T26.** Historical brief below, not a separate game.
 
 **Do**
 
@@ -379,3 +398,118 @@ Acceptance:
 - Document in README and GAME_RULES. Tests: weekend with history, missing history, halt, Friday-to-Monday transition and unchanged weekday behavior; catalog layouts with 3 and 30 assets at mobile/desktop widths.
 - Review regressions: simulate 60 hours with real retention deleting the original samples and play on Sunday night; simulate a worker restart or metadata failure spanning ten minutes after closing, including missing/out-of-tolerance samples.
 - Branch `t25-closed-market-mode`, one PR with screenshots, no merge by Codex.
+
+---
+
+## T26 — Higher or Lower becomes a 15-minute Up/Down prediction
+
+**Why**: the retrospective comparison can be looked up on any broker. The result must be unknown when the player picks.
+
+**Rules (confirmed by Hadukem)**
+
+- One stock per round, chosen at random by the server among eligible (live, not halted) catalog assets. The player picks Up or Down.
+- Result 15 minutes after the start price. Any rise = Up wins, any fall = Down wins. No neutral band. An exactly equal price = no result: no points, the run continues and the player may pick again.
+- +5 points per correct pick, up to 10 correct per run. First wrong pick ends the run. Max 3 runs started per UTC day; up to 3 runs may be active at the same time, each with at most one pending prediction.
+- Market closed (not halted): the player may lock a prediction for the next session. It shows "Waiting for market open" and settles 15 minutes into that session.
+- Points only. No money, no real trading, no wallet. xStocks API is the only price reference; Fluxion pools stay informational.
+
+**Price windows**
+
+- Lock time = server receipt of the pick (never client time).
+- Start price = first primary (`xstocks`) snapshot taken strictly after lock (prevents latency sniping). For closed-market picks: first primary snapshot at or after the confirmed reopening boundary.
+- End price = first primary snapshot taken at or after start.takenAt + 15 min, within the 120 s staleness tolerance.
+- AGENTS.md exception: T26 settles on these two primary samples instead of a 15-minute TWAP. Jump-limit/divergence pauses still apply.
+- Equality: compare the stored decimal prices exactly, at the precision persisted in `price_snapshots`; no float rounding.
+- Store start/end price and takenAt on the round row at the moment they are captured, so settlement never depends on snapshots surviving retention.
+
+**Edge cases**
+
+- Ticker paused, halted, stale or missing data at the start or end moment: keep retrying until valid data appears, up to `settlementRetryHours` (6). Otherwise void: no points, the run continues. A halt between start and end voids the round.
+- Opening delayed or metadata missing: the prediction stays pending; same 6 h void rule, counted from the scheduled boundary.
+- UTC day change: pending predictions settle normally. The daily limit counts runs started per UTC day. A run expires (keeping its points) 24 h after its last settlement without a new pick.
+- Persistence: everything is server-side. Leaving the app or restarting the worker/API must not lose or duplicate anything.
+- Settlement runs in the worker, idempotent: one transaction per round with row lock; ledger ref_id `hl:<roundId>` with a unique constraint, so no double award. The API only displays the state.
+- Migration: preserve the ledger and old hl rounds. If displayed in history they are "Classic". End runs still active on the retrospective model at deploy without awarding or removing points. T25 no longer feeds gameplay; keep its frozen-session data only for the closed-market price panel.
+
+**UI (English, en.ts)**: "Will {TICKER} go up or down in the next 15 minutes?", buttons "Up" / "Down", pending card with countdown, "Waiting for market open" for closed-market picks, result card with start price, end price and % move, "No change — pick again", "Void — no data", 3 run slots.
+
+**Acceptance (tests)**: up/down/equal outcomes; start sample strictly after lock; 15-minute end sample; parallel runs and one pending per run; daily start limit; 10-correct cap; closed-market pick settled after reopening; delayed reopening; halt mid-window → void; 6 h void; worker restart mid-window; double settlement attempt pays once; UTC rollover; run expiry; old rounds/ledger preserved. Catalog layouts with 3 and 30 assets at mobile and desktop. Update README and GAME_RULES. One PR with screenshots.
+
+**Implementation contract**: valid end samples stay in the fixed `[start + 15min, start + 17min]` window. Retries wait up to 6h for those observations; they never silently move the prediction window. Unlocked offers expire after 24h from run creation; settled runs after 24h from last settlement. Locked predictions are not expired mid-window. Historical Classic runs are preserved but not included in the new prediction slots.
+
+---
+
+## T28 — Admin hub foundation: login, team and audit
+
+**Goal**: Hadukem runs the product alone and can grant/revoke team access without code changes or AI. Implement only after T26 is integrated.
+
+- Standalone admin at `/admin` on the web app (desktop browser, outside the Activity). Login with Discord OAuth web redirect flow (scope `identify`), separate admin session cookie (HttpOnly, Secure, SameSite=Strict, 12 h), logout and server-side revocation.
+- Table `staff` (user_id, role, granted_by, granted_at, revoked_at). Roles: owner, admin, moderator, support. Permission map in code:
+  - owner: everything, incl. team management and ownership transfer (requires confirming by typing the target's display name).
+  - admin: all operations except team management.
+  - moderator: read players, raise flags.
+  - support: read-only.
+- Bootstrap: `OWNER_DISCORD_ID` env creates the first owner on first login if no owner exists. `ADMIN_DISCORD_IDS`/`ADMIN_TELEGRAM_IDS` are deprecated (keep working until T29 merges, then remove).
+- Team screen: add a member by Discord user id, change role, revoke (takes effect on the next request; revoked sessions are rejected). There must always be at least one owner.
+- Audit: extend `admin_actions` → nullable target_user_id, target_type, target_id, details jsonb, ip hash. Every admin write and every export creates a row. Audit log screen with filters (actor, action, date). Audit rows are append-only.
+- `requirePermission(perm)` on every `/api/admin/*` route; deny by default.
+- Write an operator guide `docs/ADMIN_GUIDE.md` (English) and keep it updated in T29–T31.
+- Tests: each role × each route permission, revocation, last-owner protection, ownership transfer, audit row per write.
+
+## T29 — Admin operations: quiz, players, points, flags
+
+- Quiz bank: list, search, add, edit, deactivate, schedule for a day, import JSON (same format as seed-quiz). Answer key visible only in admin. Questions in use by today's frozen set cannot be edited, only deactivated for future days.
+- Players: search by name or platform id; profile with identities, account age, eligibility, ledger history, runs/attempts; suspend and ban with reason (suspended users cannot earn points; banned cannot log in).
+- Points: adjustment with required reason → new ledger row `admin_adjustment` (positive or negative); never update/delete ledger rows.
+- Flags: list open flags, add note, clear, or action (suspend/ban/adjust).
+- Tests for each write path and the audit rows.
+
+## T30 — Admin game controls and seasons
+
+- Per-game switch: pause/resume Check-in, Quiz, Higher or Lower (paused game shows an English "Paused for maintenance" message; no runs consumed).
+- Prices: ticker status table; manual pause/resume per ticker with reason.
+- Seasons table in the database (id, name, starts_at, ends_at) replacing `GAME_CONFIG.season`; owner/admin can create the next season and set/change end dates. Leaderboards read it. The ledger is never rewritten. Changing a past start date requires owner role and is audited.
+- Tests: paused game blocks actions without consuming limits; season boundaries on leaderboards.
+
+## T31 — Reward destination registration and export
+
+- Player Profile: optional fields "Bybit UID" (digits only, 5–12) and "Mantle address" (0x + 40 hex, EIP-55 checksum validated when mixed case). At least one may be empty. No wallet connection, no signatures.
+- Confirmation: the player reviews and confirms ("I confirm these details are mine and correct"). Changes append to `reward_destination_history` (old/new masked values, changed_at, actor = player or staff). Players see only their own data.
+- Lock: owner/admin can lock destinations for a season (before payout); locked players see "Locked for payout review" and cannot edit until unlocked.
+- Staff view: masked (last 4) for moderator/support; full values only for owner/admin.
+- Export CSV (owner/admin only): season rank, points, display name, platform ids, eligibility (T18), Bybit UID, Mantle address, last change time. Each export audited with row count.
+- English copy: no promise of automatic payment or verification; add "Rewards are reviewed by mods and paid manually according to the campaign terms."
+- Tests: validation, history, lock, permissions, masking, export content and audit.
+
+---
+
+## T27 — mStocks Flyer (one-tap arcade)
+
+**Order**: implement only after T26, T28, T29, T30 and T31. One branch/PR, no merge by Codex.
+
+**Goal**: a quick skill game that keeps the stock theme: the pipes follow real price charts.
+
+**Gameplay**
+
+- Tap to flap, gravity pulls down; pass through gaps between pipes. Canvas, 60 fps target, works inside the Discord Activity and the Telegram Mini App (touch + click + Space), portrait and landscape.
+- Course: segments of 10 pipes, one stock per segment, in a server-chosen random order from the catalog (never assume 7 assets). The gap center of each pipe follows that stock's primary (`xstocks`) price over the last 24 h, downsampled to 10 points and normalized to the playfield (min→bottom margin, max→top margin). Segment label shows ticker and logo.
+- Difficulty ramps per segment: scroll speed up, gap size down, to config limits.
+- Game over card: the chart(s) flown with ticker and 24 h % move, a company fact (reuse facts), score, daily best, "Play again".
+- Branding: bird uses the Fluxion mark, pipes show provider logos via the asset/provider configuration. No Bybit/mStocks assets until the brand kit is approved; swapping must be config/asset-only.
+
+**Server-validated scores (required)**
+
+- `POST /api/flyer/start` → session id, seed, course data (price points per segment), config version. One active session per user; expires after 10 min.
+- Deterministic simulation in `packages/game-core` (fixed 60 Hz timestep, fixed-point or integer math, no Math.random/Date in the sim), shared by client and server.
+- `POST /api/flyer/finish` with the input log (tick numbers of each flap). The server replays it with the session's seed/course, computes the score, and rejects: mismatched or impossible logs, tick count inconsistent with wall-clock time between start and finish (±15%), expired or reused sessions. The client score is never trusted.
+- Limits from config/env (not committed values for anti-abuse thresholds): max finishes per user per UTC day, max session length.
+
+**Points and leaderboard**
+
+- 1 point per pipe of the player's daily best, capped at 50 points per UTC day. Award only the increase when a new daily best is set (ledger reason `flyer_best`, ref_id `flyer:<day>:<sessionId>`, unique; never above the cap).
+- Own leaderboard (best score: today / week / season), ties to whoever reached it first. Points also count in the main leaderboards.
+- Admin (T29/T30): per-game pause switch includes Flyer; admin can view a player's sessions and void a session (ledger correction row).
+
+**Copy (en.ts)**: "mStocks Flyer", "Tap to fly", "Fly through real price charts", "New best!", "Daily points cap reached — keep playing for the leaderboard".
+
+**Acceptance (tests)**: deterministic replay (same log → same score on client and server); tampered log rejected; time-inconsistent log rejected; session expiry/reuse; daily cap and delta awards; course built from primary snapshots only, with missing data → that stock skipped; catalogs with 3 and 30 assets; mobile and desktop screenshots; performance check on a mid-range phone viewport. Update README and GAME_RULES.

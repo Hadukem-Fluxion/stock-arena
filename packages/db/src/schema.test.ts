@@ -97,6 +97,7 @@ describe("migrations and typed client", () => {
       "admin_actions",
       "checkins",
       "flags",
+      "hl_predictions",
       "hl_rounds",
       "hl_runs",
       "identities",
@@ -106,6 +107,7 @@ describe("migrations and typed client", () => {
       "quiz_daily_sets",
       "quiz_questions",
       "referrals",
+      "ticker_halts",
       "ticker_status",
       "users",
     ]);
@@ -156,7 +158,7 @@ describe("migrations and typed client", () => {
       takenAt,
     };
     const [stored] = await connection.db.insert(priceSnapshots).values(snapshot).returning();
-    expect(stored).toEqual({ ...snapshot, source: "fluxion_pool" });
+    expect(stored).toEqual({ ...snapshot, source: "fluxion_pool", tradable: null });
     await connection.db
       .insert(tickerStatus)
       .values({ ticker: "AAPL", state: "paused", reason: "stale" });

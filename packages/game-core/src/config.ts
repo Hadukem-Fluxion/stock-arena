@@ -40,6 +40,9 @@ export const GAME_CONFIG = {
     runsPerDay: 3,
     maxCorrectPerRun: 10,
     pointsPerCorrect: 5,
+    predictionMinutes: 15,
+    settlementRetryHours: 6,
+    runExpiryHours: 24,
     /** Pairs whose absolute 24h changes differ by less than this (percentage points) are skipped. */
     minChangeGapPct: 0.1,
   },
@@ -48,16 +51,6 @@ export const GAME_CONFIG = {
     maxPerSeason: 10,
     /** The invited friend must check in on this many distinct days. */
     qualifyingCheckinDays: 3,
-  },
-  dailyCall: {
-    tickersPerDay: 3,
-    closeHourUtc: 20,
-    pointsPerCorrect: 30,
-    /** Moves smaller than this (percent) settle as no result. */
-    noResultBandPct: 0.1,
-    settlementHours: 24,
-    /** If a ticker is paused at settlement, retry for this long, then void. */
-    settlementRetryHours: 6,
   },
   prices: {
     pollSeconds: 15,
