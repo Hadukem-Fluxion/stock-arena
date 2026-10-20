@@ -121,11 +121,15 @@ export function createHlStore(
       const replaceUnavailableOffer = async (
         run: typeof hlRuns.$inferSelect,
         round: typeof hlPredictions.$inferSelect,
+        available?: Awaited<ReturnType<typeof candidates>>,
       ) => {
         if (run.endedAt || expiry(run) <= now || round.lockedAt || round.settledAt) return false;
-        const eligible = await candidates();
+        const eligible = available ?? (await candidates());
         if (eligible.some((stock) => stock.ticker === round.ticker)) return false;
-        if (!eligible.length) throw new HlError("HL_UNAVAILABLE");
+        if (!eligible.length) {
+          if (action.type === "read") return false;
+          throw new HlError("HL_UNAVAILABLE");
+        }
         // Replace atomically without changing the run's score, limits or idle clock.
         await tx
           .update(hlPredictions)
@@ -204,11 +208,12 @@ export function createHlStore(
         }
       }
       runs = await loadRuns();
+      const available = await candidates();
       const visible: PredictionView["runs"] = [];
       for (const run of runs) {
         if (action.type === "read") {
           const offered = await roundFor(run.id);
-          if (offered) await replaceUnavailableOffer(run, offered);
+          if (offered) await replaceUnavailableOffer(run, offered, available);
         }
         const round = await roundFor(run.id);
         const expired = !run.endedAt && (!round?.lockedAt || round.settledAt) && expiry(run) <= now;
@@ -218,6 +223,14 @@ export function createHlStore(
           number: run.runNumber,
           correctCount: run.correctCount,
           score: run.correctCount * config.pointsPerCorrect,
+          canPick: Boolean(
+            round &&
+            !round.lockedAt &&
+            !round.settledAt &&
+            !run.endedAt &&
+            !expired &&
+            available.some((stock) => stock.ticker === round.ticker),
+          ),
           endedAt: run.endedAt?.toISOString() ?? (expired ? expiry(run).toISOString() : null),
           expiresAt: expiry(run).toISOString(),
           round: round
@@ -253,7 +266,7 @@ export function createHlStore(
         canStart:
           today.length < config.runsPerDay &&
           (await active()) < config.runsPerDay &&
-          (await candidates()).length > 0,
+          available.length > 0,
         runs: visible,
       };
     });

@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import {
   createLocalDatabase,
   users,
@@ -201,7 +201,7 @@ describe("T26 prediction API and worker", () => {
         }
       },
     );
-    it("returns HL_UNAVAILABLE without changing anything when no replacement exists, then recovers", async () => {
+    it("preserves state when no replacement exists, then recovers", async () => {
       const { app, start, send, user } = await setup(1);
       try {
         const initial = await start();
@@ -219,8 +219,18 @@ describe("T26 prediction API and worker", () => {
               ? { runId: run.id }
               : { runId: run.id, roundId: run.round!.id, direction: "up" };
         const response = await send(action, payload);
-        expect(response.statusCode).toBe(409);
-        expect(response.json()).toEqual({ error: { code: "HL_UNAVAILABLE" } });
+        if (action === "read") {
+          expect(response.statusCode).toBe(200);
+          const view = response.json<PredictionView>();
+          expect(view.canStart).toBe(false);
+          expect(view.runs[0]).toMatchObject({
+            canPick: false,
+            round: { id: run.round!.id, state: "offered" },
+          });
+        } else {
+          expect(response.statusCode).toBe(409);
+          expect(response.json()).toEqual({ error: { code: "HL_UNAVAILABLE" } });
+        }
         expect(await connection.db.select().from(hlRuns).where(eq(hlRuns.id, run.id))).toEqual(
           beforeRun,
         );
@@ -234,10 +244,68 @@ describe("T26 prediction API and worker", () => {
         const recovered = (await send()).json<PredictionView>();
         expect(recovered.runs[0]!.round!.id).toBe(run.round!.id);
         expect(recovered.runsUsed).toBe(1);
+        expect(recovered.runs[0]!.canPick).toBe(true);
       } finally {
         await app.close();
       }
     });
+  });
+  it("reads an unavailable offer alongside a pending prediction after a worker outage without changing either", async () => {
+    const { app, start, pick, send, user } = await setup();
+    try {
+      const locked = (await pick(await start())).json<PredictionView>().runs[0]!;
+      now = new Date(now.getTime() + 15_000);
+      await quote(now, "100");
+      await settlePredictions(connection, now);
+      const initial = await start();
+      const pending = initial.runs.find((run) => run.id === locked.id)!;
+      expect(pending.round!.state).toBe("pending");
+      const offered = initial.runs.find((run) => run.round!.state === "offered")!;
+      expect(offered.canPick).toBe(true);
+      const runIds = initial.runs.map((run) => run.id);
+      const beforeRuns = await connection.db
+        .select()
+        .from(hlRuns)
+        .where(eq(hlRuns.userId, user.id));
+      const beforeRounds = await connection.db
+        .select()
+        .from(hlPredictions)
+        .where(inArray(hlPredictions.runId, runIds));
+      now = new Date(now.getTime() + 121_000);
+      const response = await send();
+      expect(response.statusCode).toBe(200);
+      const view = response.json<PredictionView>();
+      expect(view.canStart).toBe(false);
+      expect(view.runsUsed).toBe(2);
+      expect(view.runs).toHaveLength(2);
+      expect(view.runs.find((run) => run.id === pending.id)).toEqual({
+        ...pending,
+        canPick: false,
+      });
+      expect(view.runs.find((run) => run.id === offered.id)).toEqual({
+        ...offered,
+        canPick: false,
+      });
+      expect(await connection.db.select().from(hlRuns).where(eq(hlRuns.userId, user.id))).toEqual(
+        beforeRuns,
+      );
+      expect(
+        await connection.db
+          .select()
+          .from(hlPredictions)
+          .where(inArray(hlPredictions.runId, runIds)),
+      ).toEqual(beforeRounds);
+      expect(
+        await connection.db.select().from(pointsLedger).where(eq(pointsLedger.userId, user.id)),
+      ).toHaveLength(0);
+      expect((await send("next", { runId: offered.id })).statusCode).toBe(409);
+      expect(
+        (await send("pick", { runId: offered.id, roundId: offered.round!.id, direction: "up" }))
+          .statusCode,
+      ).toBe(409);
+    } finally {
+      await app.close();
+    }
   });
   it.each([3, 30])(
     "serves one random catalog stock with %s assets and no precomputed answer",

@@ -21,7 +21,8 @@ its implementation has not started. These dependencies do not confirm launch dat
 
 The official Task Board is `docs/TASKS.md` and this file; there is no external
 board. T26's PR #20 includes the requested offer-recovery and percentage-format
-review fixes, pending final review/merge. **T32 — settlement query optimization**
+review fixes, including successful reads with an unavailable offer alongside
+pending predictions, pending final review/merge. **T32 — settlement query optimization**
 is a separate follow-up required before T19's load test: select only due work in
 SQL, including start boundaries, end targets, void deadlines and idle run expiry.
 

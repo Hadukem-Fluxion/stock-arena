@@ -20,8 +20,11 @@ Os testes de resultado verificam duas casas decimais (`+1.00%`, `-0.37%` e
 O ajuste de revisão também cobre leitura, Next e Pick com oferta que ficou
 inelegível (pausa manual, divergência, halt ou preço desatualizado): a API troca
 a ação sem transferir o palpite antigo nem alterar pontos, limites ou expiração.
-Sem alternativa, `HL_UNAVAILABLE` preserva todo o estado. Previsões já bloqueadas
-não são trocadas pela API.
+Sem alternativa, a leitura retorna 200 com a oferta indisponível (`canPick: false`),
+sem void ou nova oferta; as demais previsões pendentes continuam visíveis.
+Next/Pick mantêm `HL_UNAVAILABLE` sem mudar o estado. A interface desabilita
+Up/Down apenas para a oferta indisponível. Previsões já bloqueadas não são
+trocadas pela API.
 
 Os testes com PGlite cobrem preços exatos, janelas, pausas, halt, reabertura
 atrasada, anulação em 6h, três sequências, meia-noite UTC, limite de dez acertos,

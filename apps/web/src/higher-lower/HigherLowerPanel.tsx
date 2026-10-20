@@ -152,6 +152,11 @@ export function HigherLowerPanel({
                           </div>
                         </div>
                         <h3>{en.hl.question(round.asset.symbol)}</h3>
+                        {round.state === "offered" && !entry.endedAt && !entry.canPick && (
+                          <p className="caption muted" role="status">
+                            {en.hl.offerUnavailable}
+                          </p>
+                        )}
                         {round.state === "offered" && !entry.endedAt && (
                           <div className="prediction-choices">
                             {(["up", "down"] as const).map((direction) => (
@@ -159,7 +164,7 @@ export function HigherLowerPanel({
                                 key={direction}
                                 type="button"
                                 className="primary-button"
-                                disabled={busy || !!error}
+                                disabled={busy || !!error || !entry.canPick}
                                 onClick={() =>
                                   void run("pick", {
                                     runId: entry.id,

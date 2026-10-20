@@ -426,7 +426,7 @@ Acceptance:
 
 **Edge cases**
 
-- If an unlocked offered stock becomes ineligible, read/next/pick atomically voids that offer and serves a replacement at the next position, without affecting points, correct count, daily starts or run expiry. A pick intended for the old offer is never applied to the new stock. With no replacement, return `HL_UNAVAILABLE` and leave all state unchanged.
+- If an unlocked offered stock becomes ineligible, read/next/pick atomically voids that offer and serves a replacement at the next position, without affecting points, correct count, daily starts or run expiry. A pick intended for the old offer is never applied to the new stock. With no replacement, read returns the complete view (200), keeping the offer untouched with `canPick: false` and `canStart: false`; other runs, including pending predictions, remain visible. Next/pick return `HL_UNAVAILABLE`, leaving all state unchanged.
 - Ticker paused, halted, stale or missing data at the start or end moment: keep retrying until valid data appears, up to `settlementRetryHours` (6). Otherwise void: no points, the run continues. A halt between start and end voids the round.
 - Opening delayed or metadata missing: the prediction stays pending; same 6 h void rule, counted from the scheduled boundary.
 - UTC day change: pending predictions settle normally. The daily limit counts runs started per UTC day. A run expires (keeping its points) 24 h after its last settlement without a new pick.

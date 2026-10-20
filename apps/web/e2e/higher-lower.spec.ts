@@ -2,6 +2,31 @@ import { expect, test } from "@playwright/test";
 import { en } from "../src/copy/en.js";
 import { setupPrediction } from "./prediction-fixture.js";
 
+test("keeps a pending prediction visible when another offer cannot be picked", async ({ page }) => {
+  const fixture = await setupPrediction(page, 3);
+  try {
+    await page.goto("http://127.0.0.1:5174/#tgWebAppData=mock");
+    await page.getByRole("button", { name: en.games.higherLower.name }).click();
+    const panel = page.locator(".hl-panel");
+    await panel.getByRole("button", { name: en.hl.start }).click();
+    await panel.getByRole("button", { name: en.hl.up, exact: true }).click();
+    await expect(panel.getByText(en.hl.pending, { exact: true })).toBeVisible();
+    fixture.includeUnavailableOffer();
+    await page.reload();
+    await page.getByRole("button", { name: en.games.higherLower.name }).click();
+    await expect(panel.getByText(en.hl.offerUnavailable, { exact: true })).toBeVisible();
+    await expect(panel.getByRole("button", { name: en.hl.up, exact: true })).toBeDisabled();
+    await expect(panel.getByRole("button", { name: en.hl.down, exact: true })).toBeDisabled();
+    await expect(panel.getByRole("button", { name: en.hl.start })).toHaveCount(0);
+    await expect(panel.getByText(en.hl.pending, { exact: true })).toBeVisible();
+    await expect(panel.getByLabel(en.hl.countdown)).toBeVisible();
+    await expect(panel.getByRole("alert")).toHaveCount(0);
+    expect(fixture.picks()).toBe(1);
+  } finally {
+    await fixture.close();
+  }
+});
+
 for (const [change, displayed] of [
   ["-0.37", "-0.37%"],
   ["0", "0.00%"],

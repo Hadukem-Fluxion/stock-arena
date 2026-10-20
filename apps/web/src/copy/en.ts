@@ -158,6 +158,7 @@ export const en = {
     nextPrediction: "Next prediction",
     emptySlot: "Available run slot",
     unavailable: "Waiting for an eligible stock. No run has been consumed.",
+    offerUnavailable: "This stock is temporarily unavailable. Your run is safe.",
     slot: (number: number, day: string) => `Run ${number} · ${day}`,
     runNumber: (number: number) => `Run ${number}`,
     lastSession: "Last session",

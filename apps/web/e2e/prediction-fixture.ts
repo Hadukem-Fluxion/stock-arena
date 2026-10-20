@@ -148,6 +148,7 @@ export async function setupPrediction(page: Page, count: number, closed = false)
             number: 1,
             correctCount: 0,
             score: 0,
+            canPick: true,
             endedAt: null,
             expiresAt: "2026-10-21T12:00:00.000Z",
             round: {
@@ -172,6 +173,7 @@ export async function setupPrediction(page: Page, count: number, closed = false)
       };
     if (path.endsWith("/pick")) {
       picks++;
+      view.runs[0]!.canPick = false;
       const round = view.runs[0]!.round!;
       Object.assign(round, {
         state: closed ? "waiting_open" : "pending",
@@ -189,6 +191,34 @@ export async function setupPrediction(page: Page, count: number, closed = false)
   return {
     catalog,
     picks: () => picks,
+    includeUnavailableOffer() {
+      const pending = view.runs[0]!;
+      view.canStart = false;
+      view.runsUsed = 2;
+      view.runs.unshift({
+        ...pending,
+        id: "90000000-0000-4000-8000-000000000002",
+        number: 2,
+        canPick: false,
+        round: {
+          ...pending.round!,
+          id: "90000000-0000-4000-8000-000000000003",
+          ticker: "STOCK_1",
+          asset: catalog.STOCK_1!,
+          state: "offered",
+          direction: null,
+          lockedAt: null,
+          scheduledOpenAt: null,
+          startPrice: null,
+          startTakenAt: null,
+          targetAt: null,
+          endPrice: null,
+          endTakenAt: null,
+          settledAt: null,
+          changePct: null,
+        },
+      });
+    },
     includeExpiringHistory() {
       view.runs.push({
         id: "90000000-0000-4000-8000-000000000001",
@@ -196,6 +226,7 @@ export async function setupPrediction(page: Page, count: number, closed = false)
         number: 3,
         correctCount: 10,
         score: 50,
+        canPick: false,
         endedAt: "2026-10-19T12:10:00.000Z",
         expiresAt: "2026-10-20T12:10:00.000Z",
         round: null,

@@ -25,6 +25,7 @@ export const hlViewSchema: z.ZodType<PredictionView, z.ZodTypeDef, unknown> = z
           number: count,
           correctCount: count,
           score: count,
+          canPick: z.boolean(),
           endedAt: instant.nullable(),
           expiresAt: instant,
           round: z

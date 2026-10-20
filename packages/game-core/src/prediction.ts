@@ -61,6 +61,7 @@ export type PredictionView = {
     number: number;
     correctCount: number;
     score: number;
+    canPick: boolean;
     endedAt: string | null;
     expiresAt: string;
     round: PredictionRound | null;

@@ -206,7 +206,9 @@ If an offered stock becomes ineligible before the pick is locked, read/next/pick
 voids that offer and replaces it at the next position in the same transaction.
 The run's score, daily-start count and idle deadline stay unchanged. A pick for
 the old stock never locks the replacement; the player must choose again. With
-no eligible replacement, `HL_UNAVAILABLE` leaves the stored offer and run intact.
+no eligible replacement, reads return the complete view with `canPick: false`
+for that offer and `canStart: false`, preserving other pending predictions.
+Next/pick return `HL_UNAVAILABLE`, leaving the stored offer and run intact.
 Result percentages use a sign and two decimal places for display only.
 
 Up to three runs can be active in parallel, with one pending prediction each.
@@ -218,12 +220,11 @@ An idle run expires 24 hours after its last settlement (or creation before its
 first settlement), keeping earned points. A pending prediction is not idle.
 
 The worker captures the first valid primary snapshot strictly after the server
-receives the pick, then the first valid primary snapshot at/after that sample
-
-- 15 minutes, within a fixed 120-second end window. This is the explicit T26
-  exception to TWAP settlement. Decimal comparison is exact, using persisted
-  numeric precision; displayed percentages never determine points. Start/end prices
-  and times are copied into `hl_predictions`, independent of snapshot retention.
+receives the pick, then the first valid primary snapshot at least 15 minutes
+after that sample, within a fixed 120-second end window. This is the explicit T26
+exception to TWAP settlement. Decimal comparison is exact, using persisted
+numeric precision; displayed percentages never determine points. Start/end prices
+and times are copied into `hl_predictions`, independent of snapshot retention.
 
 A non-halted closed market accepts a queued pick for its scheduled next session:
 "Waiting for market open" shows that time in UTC. Once reopening is confirmed,
