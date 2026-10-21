@@ -1,52 +1,61 @@
 import { z } from "zod";
-import type { HlView } from "@stock-arena/game-core";
+import type { PredictionView } from "@stock-arena/game-core";
 import type { Session } from "../platform/types.js";
 import { assetSchema } from "../checkin/client.js";
-
-const stock = z
-  .object({
-    ticker: z.string().min(1),
-    asset: assetSchema,
-    priceUsd: z.string().refine((value) => Number.isFinite(Number(value)) && Number(value) > 0),
-  })
-  .strict();
-const number = z.number().int().nonnegative();
-export const hlViewSchema: z.ZodType<HlView, z.ZodTypeDef, unknown> = z
+const instant = z.string().datetime();
+const price = z
+  .string()
+  .regex(/^\d+(\.\d+)?$/)
+  .nullable();
+const count = z.number().int().nonnegative();
+export const hlViewSchema: z.ZodType<PredictionView, z.ZodTypeDef, unknown> = z
   .object({
     day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-    serverTime: z.string().datetime(),
-    mode: z.enum(["live", "last_session"]).optional(),
-    status: z.enum(["ready", "round", "feedback", "completed", "paused"]),
-    runsUsed: number,
-    runsLimit: number,
-    maxCorrect: number,
-    pointsPerCorrect: number,
-    run: z
-      .object({ id: z.string().uuid(), number, correctCount: number, score: number })
-      .strict()
-      .nullable(),
-    round: z
-      .object({ id: z.string().uuid(), position: number, stocks: z.tuple([stock, stock]) })
-      .strict()
-      .nullable(),
-    feedback: z
-      .object({
-        correct: z.boolean(),
-        choice: z.string(),
-        winner: z.string(),
-        stocks: z.tuple([
-          stock.extend({ change24hPct: z.number().finite() }).strict(),
-          stock.extend({ change24hPct: z.number().finite() }).strict(),
-        ]),
-      })
-      .strict()
-      .nullable(),
-    paused: z.array(
+    serverTime: instant,
+    runsUsed: count,
+    runsLimit: count,
+    maxCorrect: count,
+    pointsPerCorrect: count,
+    canStart: z.boolean(),
+    runs: z.array(
       z
         .object({
-          ticker: z.string(),
-          reason: z.string(),
-          nextChangeAt: z.string().datetime().nullable().optional(),
+          id: z.string().uuid(),
+          day: z.string(),
+          number: count,
+          correctCount: count,
+          score: count,
+          canPick: z.boolean(),
+          endedAt: instant.nullable(),
+          expiresAt: instant,
+          round: z
+            .object({
+              id: z.string().uuid(),
+              ticker: z.string().min(1),
+              asset: assetSchema,
+              state: z.enum([
+                "offered",
+                "waiting_open",
+                "waiting_start",
+                "pending",
+                "won",
+                "lost",
+                "equal",
+                "void",
+              ]),
+              direction: z.enum(["up", "down"]).nullable(),
+              lockedAt: instant.nullable(),
+              scheduledOpenAt: instant.nullable(),
+              startPrice: price,
+              startTakenAt: instant.nullable(),
+              targetAt: instant.nullable(),
+              endPrice: price,
+              endTakenAt: instant.nullable(),
+              settledAt: instant.nullable(),
+              changePct: z.string().nullable(),
+            })
+            .strict()
+            .nullable(),
         })
         .strict(),
     ),
@@ -59,12 +68,15 @@ export class HlClientError extends Error {
 }
 export type HlAction = "read" | "start" | "next" | "pick";
 export function createHlClient(session: () => Session | null, request: typeof fetch = fetch) {
+  let requestId: string | null = null;
   async function call(
     action: HlAction,
-    pick?: { runId: string; roundId: string; ticker: string },
-  ): Promise<HlView> {
+    payload?: { runId: string; roundId?: string; direction?: "up" | "down" },
+  ): Promise<PredictionView> {
     const current = session();
     if (!current || Date.parse(current.expiresAt) <= Date.now()) throw new HlClientError("session");
+    const body =
+      action === "start" ? { requestId: (requestId ??= crypto.randomUUID()) } : (payload ?? {});
     try {
       const response = await request(action === "read" ? "/api/hl" : `/api/hl/${action}`, {
         method: action === "read" ? "GET" : "POST",
@@ -74,14 +86,16 @@ export function createHlClient(session: () => Session | null, request: typeof fe
           Authorization: `Bearer ${current.token}`,
           ...(action === "read" ? {} : { "Content-Type": "application/json" }),
         },
-        ...(action === "read" ? {} : { body: JSON.stringify(pick ?? {}) }),
+        ...(action === "read" ? {} : { body: JSON.stringify(body) }),
       });
       if (response.status === 401 || response.status === 403) throw new HlClientError("session");
       if (response.status === 409 && action !== "read") return call("read");
       if (!response.ok) throw new HlClientError("network");
-      return hlViewSchema.parse(await response.json());
-    } catch (error) {
-      throw error instanceof HlClientError ? error : new HlClientError("network");
+      const result = hlViewSchema.parse(await response.json());
+      if (action === "start") requestId = null;
+      return result;
+    } catch (cause) {
+      throw cause instanceof HlClientError ? cause : new HlClientError("network");
     }
   }
   return { call };

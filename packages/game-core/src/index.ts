@@ -3,6 +3,7 @@ export * from "./time.js";
 export * from "./scoring.js";
 export * from "./facts.js";
 export * from "./assets.js";
+export * from "./prediction.js";
 export type {
   Season,
   LeaderboardPeriod,

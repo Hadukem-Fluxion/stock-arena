@@ -80,7 +80,7 @@ export const en = {
     },
     higherLower: {
       name: "Higher or Lower",
-      rule: "Which stock moved more in 24h?",
+      rule: "Predict Up or Down in 15 minutes",
       detail: "Compare two stocks and keep your run going.",
     },
     invite: {
@@ -88,7 +88,6 @@ export const en = {
       rule: "Bring your friends to the arena.",
       detail: "Play together and climb the leaderboard.",
     },
-    dailyCall: { name: "Daily Call", rule: "Up or Down, settled in 24h" },
     pending: "This game is getting ready. Check back soon.",
   },
   checkin: {
@@ -132,6 +131,36 @@ export const en = {
     unavailable: "Today's quiz is being prepared. Please try again later.",
   },
   hl: {
+    predictionIntro: "Predict a stock's next move. Your result arrives after 15 minutes.",
+    predictionRules:
+      "Up to 3 parallel runs per UTC day. +5 points per correct pick; the first miss ends a run. Complete 10 correct picks to finish.",
+    parallel: "3 run slots",
+    question: (ticker: string) => `Will ${ticker} go up or down in the next 15 minutes?`,
+    up: "Up",
+    down: "Down",
+    waitingOpen: "Waiting for market open",
+    waitingStart: "Waiting for the next live price",
+    pending: "Prediction locked",
+    choice: "Your pick",
+    scheduledOpen: "Scheduled opening",
+    countdown: "Time until settlement",
+    settling: "Confirming result…",
+    canLeave: "You can leave the app. Your prediction is saved on the server.",
+    results: {
+      won: "Correct! +5 points",
+      lost: "Incorrect — run ended",
+      equal: "No change — pick again",
+      void: "Void — no data",
+    },
+    startPrice: "Start price",
+    endPrice: "End price",
+    move: "Price move",
+    nextPrediction: "Next prediction",
+    emptySlot: "Available run slot",
+    unavailable: "Waiting for an eligible stock. No run has been consumed.",
+    offerUnavailable: "This stock is temporarily unavailable. Your run is safe.",
+    slot: (number: number, day: string) => `Run ${number} · ${day}`,
+    runNumber: (number: number) => `Run ${number}`,
     lastSession: "Last session",
     lastSessionQuestion: "Which stock moved more in the last trading session?",
     lastSessionRule:

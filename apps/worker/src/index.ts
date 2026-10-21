@@ -4,6 +4,7 @@ import type { DatabaseConnection } from "@stock-arena/db";
 import { createPriceOracle } from "@stock-arena/fluxion-oracle";
 import { createPriceStore, startPricePolling } from "./prices.js";
 import { createDailyRetention, retainPriceSnapshots } from "./retention.js";
+import { settlePredictions } from "./predictions.js";
 
 // Migrations run explicitly via pnpm db:migrate, never from this worker.
 let connection: DatabaseConnection | undefined;
@@ -28,11 +29,19 @@ const stop = startPricePolling(
         );
       }
     }
-    await retainDaily();
     oracle ??= createPriceOracle();
     store ??= createPriceStore(connection, oracle.config);
-    const poll = await oracle.poll();
-    await store(poll);
+    const poll = await (async () => {
+      try {
+        const current = await oracle!.poll();
+        await store!(current);
+        return current;
+      } finally {
+        // Existing samples and void deadlines must still progress if polling fails.
+        await settlePredictions(connection!);
+        await retainDaily();
+      }
+    })();
     const tickers = poll.snapshots
       .filter((snapshot) => snapshot.source === "xstocks")
       .map((snapshot) => snapshot.ticker);

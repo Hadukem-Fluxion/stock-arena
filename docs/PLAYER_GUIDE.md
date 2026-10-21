@@ -31,6 +31,15 @@ Turn on the daily reminder in Settings if you want a nudge when your quiz is rea
 
 Every stock card has a View on Fluxion button that opens the real xStock on Fluxion. Trading there is optional and separate from the game; xStocks are not available in the United States and some other regions.
 
+In Higher or Lower, the server chooses one stock; pick Up or Down for its next
+15 minutes. You can keep three runs active with one pending pick each. A correct
+pick earns 5 points; a wrong pick ends the run; ten correct complete it. Equal
+prices or a void result let you pick again without losing the run. You may leave
+and come back: the server stores and settles your pick. Closed markets show
+"Waiting for market open" and the scheduled time in UTC; the 15 minutes begin
+only after reopening is confirmed. A weekend pick can therefore take much longer
+than 15 minutes. Pool quotes do not decide results.
+
 ## Stay safe
 
 - mStocks Arena never asks for a wallet, a seed phrase, a private key or a payment.
@@ -43,7 +52,7 @@ Every stock card has a View on Fluxion button that opens the real xStock on Flux
 
 **Do I need a wallet?** No. You log in with Discord or Telegram.
 
-**Where do the prices come from?** From the xStock pools on Fluxion, Mantle's exchange for tokenized stocks, updated every 15 seconds.
+**Where do the prices come from?** The xStocks public API supplies primary prices every 15 seconds. Fluxion pools on Mantle provide cross-checks and informational on-chain quotes.
 
 **Can I play on both Discord and Telegram?** Yes. For now each platform has its own progress; linking accounts is planned for later in Season 1.
 

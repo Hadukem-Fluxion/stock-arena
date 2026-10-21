@@ -12,46 +12,58 @@ A game day runs from 00:00 to 23:59 UTC. Daily games reset at 00:00 UTC. The sto
 
 ## Season 1 games
 
-| Game            | How it works                                                                                                                                       | Points                                                     |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| Daily Check-in  | Open the app and tap Check in. You get the Stock of the Day: its live price, 24h change and one fact about the company.                            | 10 per day. Streak bonus: +50 on day 7, +300 on day 30     |
-| Daily Quiz      | Three multiple-choice questions on tokenized stocks, RWA, Mantle and Fluxion. 30 seconds per question, one attempt per day.                        | 20 per correct answer, +15 if all three are right (max 75) |
-| Higher or Lower | Two stocks appear. Pick the one with the bigger 24h price move. A run ends at your first wrong pick or after 10 correct picks. Up to 3 runs a day. | 5 per correct pick (max 150 a day)                         |
-| Invite friends  | Share your invite link. Your friend counts once they check in on 3 different days.                                                                 | 50 per friend, up to 10 friends per season                 |
+| Game            | How it works                                                                                                                                                                                    | Points                                                               |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Daily Check-in  | Open the app and tap Check in. You get the Stock of the Day: its live price, 24h change and one fact about the company.                                                                         | 10 per day. Streak bonus: +50 on day 7, +300 on day 30               |
+| Daily Quiz      | Three multiple-choice questions on tokenized stocks, RWA, Mantle and Fluxion. 30 seconds per question, one attempt per day.                                                                     | 20 per correct answer, +15 if all three are right (max 75)           |
+| Higher or Lower | Predict whether one server-chosen stock will rise or fall in the next 15 minutes. First wrong pick ends the run; ten correct complete it. Three runs may start per UTC day and run in parallel. | 5 per correct pick, up to 50 per run; at most 3 runs started per day |
+| Invite friends  | Share your invite link. Your friend counts once they check in on 3 different days.                                                                                                              | 50 per friend, up to 10 friends per season                           |
 
 Missing a day resets your check-in streak to zero.
 
-### Higher or Lower when the market is closed
+### Higher or Lower: future prices
 
-Higher or Lower is available seven days a week when enough price history exists.
-During trading, compare the bigger absolute 24h move as usual. When the market
-is closed without a trading halt, the question becomes "Which stock moved more
-in the last trading session?" and the round and feedback show "Last session".
-The comparison uses each stock's last primary price before the confirmed closing
-boundary versus its price approximately 24 hours before that boundary, with the
-same two-minute sampling tolerance. A fall counts as a move. Pairs still require
-the configured minimum difference between their absolute moves.
-The closing price and comparison are saved when the close is confirmed and stay
-available throughout the closure even after raw price history is compacted.
-An interrupted worker may confirm the close later, provided those original
-primary samples meet the same tolerance; it never uses a later weekend quote.
+Choose Up or Down for one randomly assigned eligible stock. The server locks
+your pick on receipt. The start price is the first valid primary (`xstocks`)
+sample strictly after that lock; the end is the first valid primary sample at
+or after start + 15 minutes, within 120 seconds. These two stored samples replace
+the TWAP for this game. A rise wins Up; a fall wins Down. Persisted decimal prices
+are compared exactly: any nonzero movement counts. Equality means "No change —
+pick again", with no points and no loss. Fluxion pools never decide results.
 
-Stocks with missing closing/history data or a trading halt cannot enter a new
-round. Fewer than two eligible stocks pauses the game without consuming a run.
-The server freezes each pair's comparison and result, including across reopening;
-live and last-session comparisons never mix in a pair. Points, daily limits and
-UTC resets are unchanged.
+One pending pick per run, up to three active runs. Each correct pick gives +5;
+the first wrong pick ends that run; ten correct complete it. The daily limit counts
+runs started, not rounds settled. Pending predictions survive the UTC day change.
+An idle run expires 24 hours after its last settlement, keeping points. Before
+the first settlement, that clock starts at creation. Pending picks do not expire
+as idle runs. The worker settles and awards once; leaving the app is safe.
 
-The closed-market price panel keeps the last primary price and may also show
-"On-chain · Fluxion pool" with its sample time. This pool quote is informational;
-it never supplies a game price, change or answer.
+### Closed markets, interruptions and voids
+
+When the market is closed without a trading halt, you can lock a prediction for
+the next session. "Waiting for market open" shows the scheduled opening in UTC.
+After the source confirms reopening, the first valid primary sample at or after
+that boundary starts the 15 minutes. This can involve a weekend wait; a scheduled
+time alone never confirms that trading resumed.
+
+Paused, stale, missing, divergent and jump-limited observations cannot supply
+start/end prices. A recorded trading halt between those prices voids the round.
+Missing start data retry for up to six hours from lock. Closed-market opening
+delays or missing metadata retry for six hours from the scheduled boundary.
+Missing end data retry for six hours from the original target, looking only in
+its original 120-second sample window. After the deadline: "Void — no data";
+no points, the run continues. A halted asset cannot accept a new pick.
+
+Old retrospective rounds and awards are preserved as Classic data, with active
+Classic runs ended at migration. T25 last-session comparisons remain display
+data only. The closed-market price panel keeps the last primary price and may
+show "On-chain · Fluxion pool" with its sample time, for information only.
 
 ## Coming later in Season 1
 
-| Game                     | How it works                                                                                                                                              | Points                          |
-| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
-| Daily Call               | Call Up or Down for three stocks before 20:00 UTC. Calls settle 24 hours later on Fluxion's 15-minute average price. Moves under 0.1% count as no result. | 30 per correct call             |
-| Weekly Fantasy Portfolio | Pick 3 stocks for the week and make one your captain (counts double). Your score is their average % change, Monday to Friday.                             | Top 10% of lineups earn a bonus |
+| Game                     | How it works                                                                                                                  | Points                          |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| Weekly Fantasy Portfolio | Pick 3 stocks for the week and make one your captain (counts double). Your score is their average % change, Monday to Friday. | Top 10% of lineups earn a bonus |
 
 ## Leaderboards
 

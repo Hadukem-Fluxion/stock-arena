@@ -17,19 +17,19 @@ describe("T04 price source migration", () => {
       await client.exec(
         await readFile(new URL("../drizzle/0002_price-source.sql", import.meta.url), "utf8"),
       );
-      const [legacy] = await connection.db.select().from(priceSnapshots);
-      expect(legacy).toMatchObject({ source: "fluxion_pool", blockNumber: 123n, priceUsd: "100" });
-      const [primary] = await connection.db
-        .insert(priceSnapshots)
-        .values({
-          ticker: "AAPL",
-          priceUsd: "101",
-          blockNumber: null,
-          source: "xstocks",
-          takenAt: new Date(),
+      const [legacy] = await connection.db
+        .select({
+          source: priceSnapshots.source,
+          blockNumber: priceSnapshots.blockNumber,
+          priceUsd: priceSnapshots.priceUsd,
         })
-        .returning();
-      expect(primary).toMatchObject({ source: "xstocks", blockNumber: null });
+        .from(priceSnapshots);
+      expect(legacy).toMatchObject({ source: "fluxion_pool", blockNumber: 123n, priceUsd: "100" });
+      // Exercise the T04 schema without assuming columns added by later migrations.
+      const primary = await client.query(
+        "INSERT INTO price_snapshots (ticker, price_usd, block_number, source, taken_at) VALUES ('AAPL', 101, NULL, 'xstocks', now()) RETURNING source, block_number",
+      );
+      expect(primary.rows[0]).toMatchObject({ source: "xstocks", block_number: null });
       await expect(client.query("UPDATE points_ledger SET amount = 0")).rejects.toMatchObject({
         code: "55000",
       });

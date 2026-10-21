@@ -1,4 +1,4 @@
-import { createLocalDatabase, priceSnapshots, tickerStatus } from "@stock-arena/db";
+import { createLocalDatabase, priceSnapshots, tickerStatus, tickerHalts } from "@stock-arena/db";
 import { TICKERS } from "@stock-arena/game-core";
 import type { OraclePoll, SpotPrice, TradingStatus } from "@stock-arena/fluxion-oracle";
 import { eq } from "drizzle-orm";
@@ -208,6 +208,56 @@ describe("price worker storage", () => {
     expect((await readStatus()).nextChangeAt).toBeNull();
     await store(poll(305, [], closed));
     expect((await readStatus()).nextChangeAt).toBeNull();
+  });
+  it("freezes sample validity, observed halts and confirmed reopening across later recovery", async () => {
+    await connection.db.delete(tickerStatus);
+    await connection.db.delete(priceSnapshots);
+    await connection.db.delete(tickerHalts);
+    await store(poll(310, [quote(310)]));
+    await store(poll(325, [quote(325, "130")])); // jump
+    await store(poll(340, [quote(340, "130")], { ...trading, isTradingHalted: true }));
+    await store(poll(355, [quote(355, "130")], { ...trading, isTradingHalted: true }));
+    await store(
+      poll(370, [quote(370, "130")], {
+        ...trading,
+        currentPeriod: "closed",
+        openNow: false,
+        nextChangeAt: at(400).toISOString(),
+      }),
+    );
+    await store(
+      poll(385, [quote(385, "130")], {
+        ...trading,
+        currentPeriod: "closed",
+        openNow: false,
+        nextChangeAt: at(400).toISOString(),
+      }),
+    );
+    await store(poll(1000, [quote(1000, "130")])); // worker returns ten minutes late
+    const rows = await connection.db.select().from(priceSnapshots);
+    expect(rows.map((row) => row.tradable)).toEqual([
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+    ]);
+    const [status] = await connection.db
+      .select()
+      .from(tickerStatus)
+      .where(eq(tickerStatus.ticker, "AAPL"));
+    expect(status!.lastOpenedAt).toEqual(at(400));
+    expect(
+      (await connection.db.select().from(tickerHalts)).filter((row) => row.ticker === "AAPL"),
+    ).toEqual([{ ticker: "AAPL", takenAt: at(340) }]);
+    await store({ ...poll(1015, [quote(1015, "130")]), trading: {} });
+    expect((await connection.db.select().from(priceSnapshots)).at(-1)!.tradable).toBe(false);
+    expect(
+      (await connection.db.select().from(tickerStatus)).find((row) => row.ticker === "AAPL")!
+        .lastOpenedAt,
+    ).toEqual(at(400));
   });
 });
 

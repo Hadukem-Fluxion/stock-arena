@@ -57,6 +57,13 @@
       "when": 1792345222698,
       "tag": "0007_frozen-last-session",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792518158566,
+      "tag": "0008_hl-predictions",
+      "breakpoints": true
     }
   ]
 }

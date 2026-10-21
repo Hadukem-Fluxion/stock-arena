@@ -745,6 +745,44 @@ dd {
   gap: 16px;
   min-width: 0;
 }
+.prediction-slots {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.prediction-slot {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+  min-width: 0;
+}
+.prediction-slot h3 {
+  font-size: 17px;
+  margin: 16px 0;
+}
+.prediction-stock {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.prediction-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.prediction-result {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0;
+}
+.prediction-result p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.empty-slot {
+  border-style: dashed;
+  color: var(--muted);
+}
 .session-badge {
   justify-self: start;
 }

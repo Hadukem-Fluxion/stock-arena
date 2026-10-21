@@ -15,6 +15,7 @@
     "db:migrate": "tsx --env-file-if-exists=../../.env src/migrate.ts"
   },
   "dependencies": {
+    "@stock-arena/game-core": "workspace:*",
     "@electric-sql/pglite": "0.5.10",
     "drizzle-orm": "0.45.4",
     "pg": "8.23.1",

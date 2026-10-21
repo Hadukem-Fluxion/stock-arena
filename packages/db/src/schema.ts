@@ -1,4 +1,5 @@
 import { sql } from "drizzle-orm";
+import type { Asset } from "@stock-arena/game-core";
 import {
   bigint,
   boolean,
@@ -14,6 +15,7 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 
@@ -120,11 +122,78 @@ export const hlRuns = pgTable(
     runNumber: integer("run_number").notNull(),
     correctCount: integer("correct_count").default(0).notNull(),
     endedAt: instant("ended_at"),
+    model: text("model", { enum: ["classic", "prediction"] })
+      .default("classic")
+      .notNull(),
+    createdAt: instant("created_at").defaultNow().notNull(),
+    lastSettledAt: instant("last_settled_at"),
+    requestId: uuid("request_id"),
   },
   (table) => [
     unique("hl_runs_user_day_run_unique").on(table.userId, table.day, table.runNumber),
+    unique("hl_runs_request_unique").on(table.userId, table.requestId),
     check("hl_runs_run_number", sql`${table.runNumber} BETWEEN 1 AND 3`),
   ],
+);
+
+export const hlPredictions = pgTable(
+  "hl_predictions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    runId: uuid("run_id")
+      .notNull()
+      .references(() => hlRuns.id),
+    position: integer("position").notNull(),
+    ticker: text("ticker").notNull(),
+    referenceTicker: text("reference_ticker").notNull(),
+    asset: jsonb("asset").$type<Asset>().notNull(),
+    offeredAt: instant("offered_at").notNull(),
+    direction: text("direction", { enum: ["up", "down"] }),
+    lockedAt: instant("locked_at"),
+    scheduledOpenAt: instant("scheduled_open_at"),
+    state: text("state", {
+      enum: ["offered", "waiting_open", "waiting_start", "pending", "won", "lost", "equal", "void"],
+    })
+      .default("offered")
+      .notNull(),
+    startPrice: numeric("start_price"),
+    startTakenAt: instant("start_taken_at"),
+    targetAt: instant("target_at"),
+    endPrice: numeric("end_price"),
+    endTakenAt: instant("end_taken_at"),
+    settledAt: instant("settled_at"),
+  },
+  (table) => [
+    unique("hl_predictions_position_unique").on(table.runId, table.position),
+    index("hl_predictions_pending_idx").on(table.settledAt, table.lockedAt),
+    uniqueIndex("hl_predictions_one_pending")
+      .on(table.runId)
+      .where(sql`${table.settledAt} IS NULL`),
+    check(
+      "hl_predictions_direction",
+      sql`${table.direction} IS NULL OR ${table.direction} IN ('up', 'down')`,
+    ),
+    check(
+      "hl_predictions_state",
+      sql`${table.state} IN ('offered', 'waiting_open', 'waiting_start', 'pending', 'won', 'lost', 'equal', 'void')`,
+    ),
+    check("hl_predictions_lock", sql`(${table.direction} IS NULL) = (${table.lockedAt} IS NULL)`),
+    check(
+      "hl_predictions_start",
+      sql`(${table.startPrice} IS NULL) = (${table.startTakenAt} IS NULL)`,
+    ),
+    check("hl_predictions_end", sql`(${table.endPrice} IS NULL) = (${table.endTakenAt} IS NULL)`),
+  ],
+);
+
+/** Observed halt onsets survive restarts and price retention. */
+export const tickerHalts = pgTable(
+  "ticker_halts",
+  {
+    ticker: text("ticker").notNull(),
+    takenAt: instant("taken_at").notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.ticker, table.takenAt] })],
 );
 
 export type HlStockSnapshot = { ticker: string; priceUsd: string; change24hPct: number };
@@ -174,6 +243,7 @@ export const priceSnapshots = pgTable(
     blockNumber: bigint("block_number", { mode: "bigint" }),
     source: priceSource("source").default("fluxion_pool").notNull(),
     takenAt: instant("taken_at").notNull(),
+    tradable: boolean("tradable"),
   },
   (table) => [index("price_snapshots_ticker_taken_at_idx").on(table.ticker, table.takenAt)],
 );
@@ -198,6 +268,7 @@ export const tickerStatus = pgTable("ticker_status", {
   periodChangeAt: instant("period_change_at"),
   lastClosedAt: instant("last_closed_at"),
   lastSession: jsonb("last_session").$type<LastSessionSnapshot>(),
+  lastOpenedAt: instant("last_opened_at"),
   updatedAt: instant("updated_at").defaultNow().notNull(),
 });
 
