@@ -317,6 +317,21 @@ Activities load through Discord's proxy. Expose the dev server with a tunnel, se
 
 Point the bot's Mini App URL (BotFather) at the same tunnel. Use a separate test bot for development.
 
+## Telegram webhook setup (T16a)
+
+The existing API handles private bot chats at `POST /api/telegram/webhook`,
+authenticated by `TELEGRAM_WEBHOOK_SECRET`, without a player session or database.
+It answers /start, /help and other text with an inline Play web_app button by
+returning `sendMessage` in the webhook response. No new service or polling loop.
+The start payload is parsed for future T13 referrals but is not stored or echoed.
+All bot copy is in `apps/web/src/copy/en.ts`.
+
+After Railway recovers and the API is deployed, Hadukem runs `pnpm telegram:setup`
+locally using the private `.env`. It configures the webhook, start/help commands
+and default Play menu. See [DEPLOY.md](docs/DEPLOY.md) for the secret, deployment
+order, smoke test and rollback. The script never runs in CI or on startup.
+Opt-in reminders remain a later T16 delivery. This PR does not configure a real bot.
+
 ## Working agreement
 
 - One task brief from `docs/TASKS.md` per pull request.

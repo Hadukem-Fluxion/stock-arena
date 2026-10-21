@@ -14,6 +14,15 @@ const providers = {
 } as const;
 
 export const en = {
+  telegramBot: {
+    welcome:
+      "Welcome to mStocks Arena! Play a few minutes a day with tokenized stocks: daily check-in, quiz and Higher or Lower. Points only, no wallet. Not financial advice.",
+    help: "Tap Play to open the app, check in each day, take the quiz and play Higher or Lower. Points only. We will never ask for your wallet, seed phrase, private key or payment. Not financial advice.",
+    open: "Tap Play to open mStocks Arena.",
+    play: "Play",
+    startDescription: "Open mStocks Arena",
+    helpDescription: "How to play and stay safe",
+  },
   providers,
   priceReference: providers.xstocks,
   appName: "mStocks Arena",

@@ -271,6 +271,8 @@ list, and cache the rarely changing metadata. Do not change the oracle during T0
 
 ## T16 — Telegram bot
 
+**Split**: T16a covers /start, /help and the Play menu through the API webhook, without a new service. Opt-in reminders remain a later T16 task; do not duplicate the webhook with a polling bot.
+
 **Do** (`apps/telegram-bot`, grammY)
 
 - `/start` (with or without a referral payload): welcome message in English plus a Play button that opens the Mini App.
@@ -280,6 +282,28 @@ list, and cache the rarely changing metadata. Do not change the oracle during T0
 **Acceptance**
 
 - Works in private chat; reminder only reaches users who opted in.
+
+---
+
+## T16a — Telegram /start via webhook (no new service)
+
+**Status**: implemented for review on `t16a-telegram-start`, separately from PR #20. Hadukem authorized starting now; merge and real setup wait for Railway to recover. No merge by Codex.
+
+**Do**
+
+- Add `POST /api/telegram/webhook`, exempt only this exact POST route from player session auth. Verify `X-Telegram-Bot-Api-Secret-Token` against `TELEGRAM_WEBHOOK_SECRET` using constant-time comparison; missing/invalid credentials or unconfigured secret return 401. Never log tokens, secrets or full updates.
+- Reply directly in the webhook response with `method: sendMessage`. No outbound polling, new Railway service, database writes or point awards.
+- Private chat `/start`, with or without payload: "Welcome to mStocks Arena! Play a few minutes a day with tokenized stocks: daily check-in, quiz and Higher or Lower. Points only, no wallet. Not financial advice." Inline button "Play", `web_app.url = https://mstocks-arena.vercel.app`.
+- Keep the parsed start payload available for T13, without storing, echoing or logging it. `/help` explains how to play and warns that the app will never ask for a wallet/seed. Other text gets the Play button. Ignore non-message, non-text and non-private-chat updates (web_app buttons require a private chat).
+- Keep all bot copy in `apps/web/src/copy/en.ts`.
+- `pnpm telegram:setup`: explicit local operator script reading `TELEGRAM_BOT_TOKEN` and `TELEGRAM_WEBHOOK_SECRET` from `.env`. Set webhook URL to `https://mstocks-arena.vercel.app/api/telegram/webhook`, with `secret_token` and `allowed_updates: ["message"]`; set commands start/help; set default web_app menu button "Play". Hadukem runs it after deployment; never run setup at startup or in CI.
+- Add the new secret to `.env.example` and DEPLOY.md. Hadukem generates a random 32+ character secret and configures Railway/local environment. Setup accepts Telegram's URL-safe character set, up to 256 characters. Sanitize all setup failures because Telegram request URLs contain the bot token.
+
+**Acceptance**
+
+- Tests cover secret authentication, /start with and without payload, /help, other text, ignored updates and log privacy. Other API routes remain session protected.
+- Mocked setup tests verify all three configuration calls, validation and sanitized failures, with no real credentials or network requests.
+- No new service or migration. Real Telegram smoke test and setup remain post-merge, after Railway recovers. Rest of T16 remains pending.
 
 ---
 

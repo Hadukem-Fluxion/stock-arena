@@ -103,6 +103,7 @@ container.
 | `DISCORD_CLIENT_SECRET`                   | segredo do app, inserido pelo Hadukem                                                             |
 | `DISCORD_PUBLIC_KEY`                      | chave pública Ed25519 de General Information no Developer Portal; Claude copia para a API Railway |
 | `TELEGRAM_BOT_TOKEN`                      | token do bot de teste, inserido pelo Hadukem                                                      |
+| `TELEGRAM_WEBHOOK_SECRET`                 | segredo aleatório de 32–256 caracteres URL-safe, inserido pelo Hadukem; valida o webhook T16a     |
 | `ADMIN_DISCORD_IDS`, `ADMIN_TELEGRAM_IDS` | opcionais, IDs de administradores autorizados                                                     |
 
 Os provedores não configurados retornam erro de login tipado; `/api/health` continua
@@ -239,6 +240,56 @@ Referências oficiais: [assinaturas e validação do endpoint](https://docs.disc
 [tipo LAUNCH_ACTIVITY](https://docs.discord.com/developers/interactions/receiving-and-responding),
 [registro global e upsert](https://docs.discord.com/developers/interactions/application-commands)
 e [client credentials](https://docs.discord.com/developers/topics/oauth2#client-credentials-grant).
+
+### Telegram via webhook na API (T16a)
+
+Esta entrega usa a API existente: nenhum serviço novo no Railway e nenhum
+polling do bot. O merge e a configuração real aguardam a recuperação da Railway.
+O comando de setup não roda em CI, startup, worker ou deploy.
+
+1. Hadukem gera localmente um segredo aleatório de pelo menos 32 caracteres,
+   usando apenas `A-Z`, `a-z`, `0-9`, `_` e `-` (máximo 256). Pode usar o gerenciador
+   de senhas ou salvar um valor gerado por `randomBytes(32).toString('base64url')`
+   direto no arquivo, sem imprimir. Não enviar o valor no chat.
+2. Hadukem preenche `TELEGRAM_BOT_TOKEN` e `TELEGRAM_WEBHOOK_SECRET` no `.env`
+   local. Na API Railway, configurar `TELEGRAM_WEBHOOK_SECRET` com o mesmo valor;
+   manter o `TELEGRAM_BOT_TOKEN` já usado pelo login Telegram. Não colocar esses
+   valores na Vercel, no worker nem no GitHub Actions.
+3. Após o merge autorizado, implantar a API e confirmar `/api/health` pelo domínio
+   Vercel. A rota precisa estar acessível antes do setup:
+   `https://mstocks-arena.vercel.app/api/telegram/webhook`.
+   POST sem o header correto deve retornar 401, inclusive sem segredo configurado.
+4. **Hadukem**, da raiz do repositório, executa `pnpm telegram:setup`. O comando
+   carrega o `.env`, configura `setWebhook` (somente updates `message`),
+   `setMyCommands` (start/help) e `setChatMenuButton` (Play, web_app) e imprime
+   somente `Telegram setup complete: 3 settings applied.` em caso de sucesso.
+   Não imprimir respostas, URLs com token, segredos nem erros brutos. Se falhar
+   parcialmente, corrigir o ambiente/acesso e repetir: atualiza as mesmas opções,
+   sem apagar updates pendentes. Não executar `getUpdates` nem outro bot por polling
+   com o mesmo token enquanto houver webhook configurado.
+5. No **chat privado** com o bot, testar `/start`, `/start TEST_PAYLOAD`, `/help`
+   e um texto comum. Todas as respostas de texto incluem Play; verificar que ele
+   abre o Mini App e que o menu também abre `https://mstocks-arena.vercel.app`.
+   O payload fica apenas disponível no parser para T13: nada é salvo por T16a.
+
+O Telegram envia `X-Telegram-Bot-Api-Secret-Token`; apenas esse POST dispensa
+sessão de jogador. O endpoint responde com o objeto `sendMessage` no próprio
+HTTP, sem chamar a API do Telegram. Updates não suportados são reconhecidos sem
+mensagem. O Telegram não retorna o resultado desse envio ao nosso endpoint;
+um 200 isolado não substitui a confirmação de recebimento no aplicativo.
+
+Logs da API devem conter apenas caminho/status e erros sanitizados, nunca o
+header secreto, token, texto ou update inteiro. Para trocar o segredo, atualizar
+Railway e `.env`, implantar e repetir setup; um desencontro retorna 401 até os
+valores coincidirem. Em rollback, manter uma revisão que suporte esse endpoint
+ou restaurar conscientemente a configuração anterior do webhook; rollback de
+código sozinho não muda o que foi configurado no Telegram. Lembretes opt-in ficam
+para a T16 futura.
+
+Referências oficiais: [responder pelo próprio webhook](https://core.telegram.org/bots/api#making-requests-when-getting-updates),
+[segredo do webhook](https://core.telegram.org/bots/api#setwebhook),
+[botão web_app em chat privado](https://core.telegram.org/bots/api#inlinekeyboardbutton)
+e [menu padrão](https://core.telegram.org/bots/api#setchatmenubutton).
 
 ### Verificações do staging (T23)
 

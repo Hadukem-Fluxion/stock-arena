@@ -75,7 +75,8 @@ export function registerAuth(app: FastifyInstance, options: AuthOptions = {}) {
     if (
       !route?.startsWith("/api/") ||
       route === "/api/health" ||
-      (request.method === "POST" && route === "/api/discord/interactions")
+      (request.method === "POST" &&
+        (route === "/api/discord/interactions" || route === "/api/telegram/webhook"))
     )
       return;
     await requireUser(request);

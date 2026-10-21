@@ -36,6 +36,13 @@ SQL, including start boundaries, end targets, void deadlines and idle run expiry
 
 ## How a task moves
 
+T16a is authorized ahead of the remaining queue: private Telegram /start, /help
+and a Play menu through the existing API webhook, on `t16a-telegram-start`, in a
+small PR separate from #20. Implementation is ready for review; merge, operator
+setup and a real Telegram smoke test wait for Railway to recover. No new service;
+opt-in reminders remain pending in T16. This does not start the admin tasks or
+change PR #20's status.
+
 1. Claude writes the brief in `docs/TASKS.md`.
 2. Hadukem gives the brief to Codex, which opens a pull request on a branch named `t<id>-<short-name>`.
 3. Claude reviews the diff against the brief; Codex fixes what the review finds.
