@@ -417,6 +417,46 @@ describe("deny-by-default role permissions", () => {
 });
 
 describe("team and append-only audit", () => {
+  it("does not promote an inactive account or count it as a usable remaining owner", async () => {
+    const owner = await member();
+    const inactive = await member("owner");
+    const app = server();
+    await connection.db.update(users).set({ status: "banned" }).where(eq(users.id, inactive.id));
+    expect(
+      (
+        await app.inject({
+          method: "POST",
+          url: "/api/admin/team",
+          headers: owner.headers,
+          payload: {
+            discordId: inactive.discordId,
+            role: "owner",
+            confirmation: inactive.displayName,
+          },
+        })
+      ).statusCode,
+    ).toBe(403);
+    expect(
+      (
+        await app.inject({
+          method: "POST",
+          url: "/api/admin/team/revoke",
+          headers: owner.headers,
+          payload: { userId: owner.id },
+        })
+      ).json().error.code,
+    ).toBe("LAST_OWNER");
+    expect(
+      (
+        await app.inject({
+          method: "POST",
+          url: "/api/admin/team/revoke",
+          headers: owner.headers,
+          payload: { userId: inactive.id },
+        })
+      ).statusCode,
+    ).toBe(200);
+  });
   it("validates all team writes and rolls back an unconfirmed new owner completely", async () => {
     const owner = await member();
     const app = server();

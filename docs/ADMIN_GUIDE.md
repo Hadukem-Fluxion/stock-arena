@@ -58,7 +58,9 @@ also requires the display-name confirmation.
 
 There must always be at least one owner. The last owner cannot revoke or demote
 themselves, including through simultaneous requests. Consider adding a second
-trusted owner before the original owner becomes unavailable.
+trusted owner before the original owner becomes unavailable. Inactive accounts
+cannot be promoted to Owner or counted as the usable remaining owner when another
+owner is removed.
 
 ## Transfer ownership
 

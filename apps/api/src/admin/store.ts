@@ -57,8 +57,10 @@ async function guardLastOwner(
   const owners = await tx
     .select({ id: staff.userId })
     .from(staff)
-    .where(and(eq(staff.role, "owner"), isNull(staff.revokedAt)));
-  if (owners.length <= 1) throw new AdminError("LAST_OWNER");
+    .innerJoin(users, eq(users.id, staff.userId))
+    .where(and(eq(staff.role, "owner"), isNull(staff.revokedAt), eq(users.status, "active")));
+  if (owners.some((entry) => entry.id === target.userId) && owners.length <= 1)
+    throw new AdminError("LAST_OWNER");
 }
 async function invalidate(tx: Transaction, userId: string, now: Date) {
   await tx
@@ -96,7 +98,7 @@ export function createTeamStore(database: () => DatabaseConnection) {
         await lockTeam(tx);
         await owner(tx, context.actor);
         let [target] = await tx
-          .select({ id: users.id, displayName: users.displayName })
+          .select({ id: users.id, displayName: users.displayName, status: users.status })
           .from(identities)
           .innerJoin(users, eq(users.id, identities.userId))
           .where(
@@ -124,7 +126,7 @@ export function createTeamStore(database: () => DatabaseConnection) {
           if (!inserted.length) {
             await tx.delete(users).where(eq(users.id, created.id));
             [target] = await tx
-              .select({ id: users.id, displayName: users.displayName })
+              .select({ id: users.id, displayName: users.displayName, status: users.status })
               .from(identities)
               .innerJoin(users, eq(users.id, identities.userId))
               .where(
@@ -136,6 +138,8 @@ export function createTeamStore(database: () => DatabaseConnection) {
           } else target = created;
         }
         if (!target) throw new AuthError("INTERNAL_ERROR", 500);
+        if (input.role === "owner" && target.status !== "active")
+          throw new AuthError("ACCOUNT_UNAVAILABLE", 403);
         if (input.role === "owner" && input.confirmation !== target.displayName)
           throw new AdminError("CONFIRMATION_REQUIRED");
         const [previous] = await tx.select().from(staff).where(eq(staff.userId, target.id));
