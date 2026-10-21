@@ -7,7 +7,7 @@ const discordUser = z.object({
   id: z
     .string()
     .regex(/^\d{1,20}$/)
-    .refine((id) => BigInt(id) > 0n && BigInt(id) < 2n ** 64n),
+    .refine((id) => /^\d{1,20}$/.test(id) && BigInt(id) > 0n && BigInt(id) < 2n ** 64n),
   username: z.string().min(1).max(256),
   global_name: z.string().min(1).max(256).nullish(),
   avatar: z
@@ -18,7 +18,7 @@ const discordUser = z.object({
 
 export async function exchangeDiscordCode(
   code: string,
-  config: { clientId: string; clientSecret: string },
+  config: { clientId: string; clientSecret: string; redirectUri?: string },
   fetcher: typeof fetch = fetch,
 ): Promise<{ accessToken: string; identity: VerifiedIdentity }> {
   async function request(url: string, options: RequestInit): Promise<unknown> {
@@ -49,6 +49,7 @@ export async function exchangeDiscordCode(
       client_secret: config.clientSecret,
       grant_type: "authorization_code",
       code,
+      ...(config.redirectUri ? { redirect_uri: config.redirectUri } : {}),
     }),
   });
   const token = tokenSchema.safeParse(rawToken);

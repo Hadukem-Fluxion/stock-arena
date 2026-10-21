@@ -36,6 +36,12 @@ Full rules and point values: `docs/GAME_RULES.md`, implemented in `packages/game
 
 - Done: scaffold, game rules and scoring in `packages/game-core` (tested), TWAP and price health checks in `packages/fluxion-oracle` (tested).
 - T26 replaces retrospective Higher or Lower with server-settled predictions. Next, after its integration: T28–T31 (admin hub and rewards registration), then T27 (Flyer). Track review and dependencies in `docs/TASKS.md`.
+- T28 adds the standalone `/admin` hub: Discord web login, revocable 12-hour admin
+  sessions, four staff roles, owner-managed team access and append-only audit.
+  Setup is in [DEPLOY.md](docs/DEPLOY.md#admin-hub-t28); the English
+  [operator guide](docs/ADMIN_GUIDE.md) covers daily use. Game operations, seasons
+  and rewards remain T29–T31. Real owner login requires the new Discord redirect
+  and API environment settings after deployment.
 
 ## Architecture
 

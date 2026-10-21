@@ -15,6 +15,8 @@ import { registerDiscordInteractions } from "./discord/interactions.js";
 import { registerTelegramWebhook } from "./telegram/webhook.js";
 import { HlError, registerHl } from "./higher-lower.js";
 import type { HlOptions } from "./higher-lower.js";
+import { registerAdmin } from "./admin/index.js";
+import { AdminError } from "./admin/permissions.js";
 
 export const VERSION = "0.1.0";
 
@@ -58,6 +60,11 @@ export function buildServer(
 
   app.get("/api/health", async () => ({ ok: true, version: VERSION, tickers: TICKERS }));
   const auth = registerAuth(app, options.auth);
+  registerAdmin(app, {
+    ...options.auth,
+    database: auth.database,
+    requireLegacyAdmin: auth.requireAdmin,
+  });
   registerCheckin(app, { ...options.checkin, database: auth.database, now: options.auth?.now });
   registerLeaderboard(app, {
     ...options.leaderboard,
@@ -80,7 +87,8 @@ export function buildServer(
       error instanceof AuthError ||
       error instanceof GameError ||
       error instanceof QuizError ||
-      error instanceof HlError
+      error instanceof HlError ||
+      error instanceof AdminError
     ) {
       return reply.code(error.statusCode).send({ error: { code: error.code } });
     }

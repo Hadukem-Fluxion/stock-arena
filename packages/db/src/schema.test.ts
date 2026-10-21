@@ -95,6 +95,9 @@ describe("migrations and typed client", () => {
     `);
     expect(tables.rows.map((row) => row.table_name).sort()).toEqual([
       "admin_actions",
+      "admin_control",
+      "admin_oauth_states",
+      "admin_sessions",
       "checkins",
       "flags",
       "hl_predictions",
@@ -107,6 +110,7 @@ describe("migrations and typed client", () => {
       "quiz_daily_sets",
       "quiz_questions",
       "referrals",
+      "staff",
       "ticker_halts",
       "ticker_status",
       "users",

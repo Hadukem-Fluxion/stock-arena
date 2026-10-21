@@ -4,14 +4,15 @@ One brief = one pull request. Paste the whole brief into Codex together with AGE
 
 ## Task Board updates — 2026-10-21
 
-| Task                  | State / dependency                                                                    |
-| --------------------- | ------------------------------------------------------------------------------------- |
-| T14                   | Superseded by T28–T30                                                                 |
-| T21 Daily Call        | CANCELLED — merged into T26                                                           |
-| T26                   | Integrated via PR #20; post-deploy smoke test remains pending confirmation            |
-| T28 → T29 → T30 → T31 | Planned, one branch/PR per task; do not implement before T26 is integrated            |
-| T27 mStocks Flyer     | Hold-to-rise brief updated; planned after T26, T28, T29, T30 and T31; not implemented |
-| T32                   | Settlement query optimization; required before T19 load test; not part of T26         |
+| Task              | State / dependency                                                                    |
+| ----------------- | ------------------------------------------------------------------------------------- |
+| T14               | Superseded by T28–T30                                                                 |
+| T21 Daily Call    | CANCELLED — merged into T26                                                           |
+| T26               | Integrated via PR #20; post-deploy smoke test remains pending confirmation            |
+| T28               | Implemented on `t28-admin-foundation`; review/deploy pending; login, team and audit   |
+| T29 → T30 → T31   | Planned after T28 review/integration; one branch/PR per task                          |
+| T27 mStocks Flyer | Hold-to-rise brief updated; planned after T26, T28, T29, T30 and T31; not implemented |
+| T32               | Settlement query optimization; required before T19 load test; not part of T26         |
 
 Campaign decision for Mantle (not code): accepted reward identifiers (Bybit UID,
 Mantle address or both) and manual delivery process. Keep both fields optional
@@ -469,6 +470,10 @@ Display price moves with two decimal places and a sign for nonzero moves (e.g. `
 ---
 
 ## T28 — Admin hub foundation: login, team and audit
+
+**Status**: implemented on `t28-admin-foundation`, pending Claude review and Hadukem merge.
+Includes migration `0009_admin-foundation`, PGlite/OAuth tests, browser captures,
+and operator/deploy guides. Real Discord web login is pending post-merge setup.
 
 **Goal**: Hadukem runs the product alone and can grant/revoke team access without code changes or AI. Implement only after T26 is integrated.
 

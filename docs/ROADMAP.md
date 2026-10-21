@@ -21,6 +21,13 @@ its implementation has not started. The T27 control is hold to rise/release to f
 with deterministic 60 Hz press/release replay; its revised brief also covers release
 outside the canvas and mobile gesture blocking. These dependencies do not confirm launch dates.
 
+T28's admin foundation is implemented on `t28-admin-foundation` for review:
+standalone Discord web login, revocable admin sessions, four Staff roles,
+owner-managed team and append-only audit. It requires migration `0009`, the new
+Discord web redirect, `ADMIN_WEB_ORIGIN` and `OWNER_DISCORD_ID` after merge.
+Real owner login/revocation smoke tests remain pending deployment. T29–T31 and
+T27 have not started; the agreed implementation order is unchanged.
+
 The official Task Board is `docs/TASKS.md` and this file; there is no external
 board. T26 is integrated via PR #20, including the requested offer-recovery and
 percentage-format review fixes and successful reads with an unavailable offer

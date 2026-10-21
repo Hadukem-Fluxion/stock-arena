@@ -14,6 +14,17 @@ describe("Vercel staging configuration", () => {
       installCommand: "pnpm install --frozen-lockfile",
       buildCommand: "pnpm build",
     });
+    expect(config.headers).toEqual([
+      {
+        source: "/admin/:path*",
+        headers: [
+          { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "Cache-Control", value: "no-store" },
+        ],
+      },
+    ]);
   });
   it.each([
     undefined,

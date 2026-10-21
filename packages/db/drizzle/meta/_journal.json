@@ -64,6 +64,13 @@
       "when": 1792518158566,
       "tag": "0008_hl-predictions",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792602166831,
+      "tag": "0009_admin-foundation",
+      "breakpoints": true
     }
   ]
 }

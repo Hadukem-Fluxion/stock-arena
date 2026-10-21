@@ -29,6 +29,17 @@ export function createVercelConfig(apiUrl: string | undefined): VercelConfig {
     installCommand: "pnpm install --frozen-lockfile",
     buildCommand: "pnpm build",
     outputDirectory: "dist",
+    headers: [
+      {
+        source: "/admin/:path*",
+        headers: [
+          { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "Cache-Control", value: "no-store" },
+        ],
+      },
+    ],
     rewrites: [
       { source: "/api/:path*", destination: `${parsed.data}/api/:path*` },
       { source: "/:path*", destination: "/index.html" },

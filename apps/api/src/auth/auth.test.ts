@@ -57,7 +57,9 @@ function server(
   });
   // Future game/admin routes inherit authentication without opting in individually.
   app.get("/api/test/game", async (request) => ({ id: request.user?.id }));
-  app.get("/api/admin/test", async () => ({ ok: true }));
+  app.get("/api/admin/test", { config: { adminPermission: "overview:read" } }, async () => ({
+    ok: true,
+  }));
   return app;
 }
 

@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App.js";
+import { AdminApp } from "./admin/AdminApp.js";
 import "@fontsource/space-grotesk/latin-700.css";
 import "@fontsource/ibm-plex-sans/latin-400.css";
 import "@fontsource/ibm-plex-sans/latin-500.css";
@@ -14,6 +15,10 @@ if (!root) throw new Error("Missing #root element");
 
 createRoot(root).render(
   <StrictMode>
-    <App />
+    {window.location.pathname === "/admin" || window.location.pathname.startsWith("/admin/") ? (
+      <AdminApp />
+    ) : (
+      <App />
+    )}
   </StrictMode>,
 );

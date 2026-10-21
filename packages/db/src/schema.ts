@@ -24,6 +24,7 @@ export const platform = pgEnum("platform", ["discord", "telegram"]);
 export const tickerState = pgEnum("ticker_state", ["live", "paused"]);
 export const flagState = pgEnum("flag_state", ["open", "cleared", "actioned"]);
 export const priceSource = pgEnum("price_source", ["xstocks", "fluxion_pool"]);
+export const staffRole = pgEnum("staff_role", ["owner", "admin", "moderator", "support"]);
 
 const instant = (name: string) => timestamp(name, { withTimezone: true });
 
@@ -318,15 +319,66 @@ export const flags = pgTable("flags", {
   createdAt: instant("created_at").defaultNow().notNull(),
 });
 
-export const adminActions = pgTable("admin_actions", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  adminId: uuid("admin_id")
+export const adminActions = pgTable(
+  "admin_actions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    adminId: uuid("admin_id")
+      .notNull()
+      .references(() => users.id),
+    action: text("action").notNull(),
+    targetUserId: uuid("target_user_id").references(() => users.id),
+    reason: text("reason").notNull(),
+    targetType: text("target_type"),
+    targetId: text("target_id"),
+    details: jsonb("details").$type<Record<string, unknown>>().default({}).notNull(),
+    ipHash: text("ip_hash"),
+    createdAt: instant("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("admin_actions_created_idx").on(table.createdAt, table.id),
+    index("admin_actions_actor_idx").on(table.adminId, table.createdAt),
+  ],
+);
+
+export const staff = pgTable("staff", {
+  userId: uuid("user_id")
+    .primaryKey()
+    .references(() => users.id),
+  role: staffRole("role").notNull(),
+  grantedBy: uuid("granted_by")
     .notNull()
     .references(() => users.id),
-  action: text("action").notNull(),
-  targetUserId: uuid("target_user_id")
-    .notNull()
-    .references(() => users.id),
-  reason: text("reason").notNull(),
-  createdAt: instant("created_at").defaultNow().notNull(),
+  grantedAt: instant("granted_at").defaultNow().notNull(),
+  revokedAt: instant("revoked_at"),
+});
+
+// A permanent singleton serializes bootstrap and last-owner checks across API instances.
+export const adminControl = pgTable(
+  "admin_control",
+  {
+    id: integer("id").primaryKey(),
+    bootstrappedAt: instant("bootstrapped_at"),
+  },
+  (table) => [check("admin_control_singleton", sql`${table.id} = 1`)],
+);
+
+export const adminSessions = pgTable(
+  "admin_sessions",
+  {
+    tokenHash: text("token_hash").primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id),
+    createdAt: instant("created_at").notNull(),
+    expiresAt: instant("expires_at").notNull(),
+    revokedAt: instant("revoked_at"),
+  },
+  (table) => [index("admin_sessions_user_idx").on(table.userId)],
+);
+
+export const adminOauthStates = pgTable("admin_oauth_states", {
+  stateHash: text("state_hash").primaryKey(),
+  browserHash: text("browser_hash").notNull(),
+  expiresAt: instant("expires_at").notNull(),
 });
