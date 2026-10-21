@@ -12,6 +12,7 @@ import { GameError, registerCheckin } from "./checkin.js";
 import type { CheckinOptions } from "./checkin.js";
 import { QuizError, registerQuiz } from "./quiz.js";
 import { registerDiscordInteractions } from "./discord/interactions.js";
+import { registerTelegramWebhook } from "./telegram/webhook.js";
 import { HlError, registerHl } from "./higher-lower.js";
 import type { HlOptions } from "./higher-lower.js";
 
@@ -24,6 +25,7 @@ export function buildServer(
     checkin?: CheckinOptions;
     higherLower?: HlOptions;
     discord?: { publicKey?: string };
+    telegram?: { webhookSecret?: string };
     logger?: false | { stream: Writable };
     leaderboard?: LeaderboardOptions;
     prices?: PricesOptions;
@@ -40,6 +42,7 @@ export function buildServer(
             redact: [
               "req.headers.authorization",
               "req.headers.cookie",
+              'req.headers["x-telegram-bot-api-secret-token"]',
               "req.body.initData",
               "req.body.code",
             ],
@@ -67,6 +70,10 @@ export function buildServer(
   registerDiscordInteractions(
     app,
     options.discord ? options.discord.publicKey : process.env.DISCORD_PUBLIC_KEY,
+  );
+  registerTelegramWebhook(
+    app,
+    options.telegram ? options.telegram.webhookSecret : process.env.TELEGRAM_WEBHOOK_SECRET,
   );
   app.setErrorHandler((error, _request, reply) => {
     if (
