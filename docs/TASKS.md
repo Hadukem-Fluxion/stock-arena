@@ -2,16 +2,16 @@
 
 One brief = one pull request. Paste the whole brief into Codex together with AGENTS.md. This file and `docs/ROADMAP.md` are the official Task Board; there is no external board. Keep them updated with implementation/review status and dependencies. Non-code tasks (T00, T01, T05, T06, T17, T20) are done by people or Claude and are not listed here.
 
-## Task Board updates — 2026-10-20
+## Task Board updates — 2026-10-21
 
-| Task                  | State / dependency                                                            |
-| --------------------- | ----------------------------------------------------------------------------- |
-| T14                   | Superseded by T28–T30                                                         |
-| T21 Daily Call        | CANCELLED — merged into T26                                                   |
-| T26                   | Review fixes implemented in PR #20; awaiting final review and Hadukem's merge |
-| T28 → T29 → T30 → T31 | Planned, one branch/PR per task; do not implement before T26 is integrated    |
-| T27 mStocks Flyer     | Planned after T26, T28, T29, T30 and T31; do not implement in T26             |
-| T32                   | Settlement query optimization; required before T19 load test; not part of T26 |
+| Task                  | State / dependency                                                                    |
+| --------------------- | ------------------------------------------------------------------------------------- |
+| T14                   | Superseded by T28–T30                                                                 |
+| T21 Daily Call        | CANCELLED — merged into T26                                                           |
+| T26                   | Integrated via PR #20; post-deploy smoke test remains pending confirmation            |
+| T28 → T29 → T30 → T31 | Planned, one branch/PR per task; do not implement before T26 is integrated            |
+| T27 mStocks Flyer     | Hold-to-rise brief updated; planned after T26, T28, T29, T30 and T31; not implemented |
+| T32                   | Settlement query optimization; required before T19 load test; not part of T26         |
 
 Campaign decision for Mantle (not code): accepted reward identifiers (Bybit UID,
 Mantle address or both) and manual delivery process. Keep both fields optional
@@ -287,7 +287,7 @@ list, and cache the rarely changing metadata. Do not change the oracle during T0
 
 ## T16a — Telegram /start via webhook (no new service)
 
-**Status**: implemented for review on `t16a-telegram-start`, separately from PR #20. Hadukem authorized starting now; merge and real setup wait for Railway to recover. No merge by Codex.
+**Status**: code integrated via PR #21, separately from PR #20. Real setup/deployment and the Telegram smoke test remain pending confirmation. No merge by Codex.
 
 **Do**
 
@@ -512,7 +512,7 @@ Display price moves with two decimal places and a sign for nonzero moves (e.g. `
 
 ---
 
-## T27 — mStocks Flyer (one-tap arcade)
+## T27 — mStocks Flyer (hold-to-rise arcade)
 
 **Order**: implement only after T26, T28, T29, T30 and T31. One branch/PR, no merge by Codex.
 
@@ -520,9 +520,10 @@ Display price moves with two decimal places and a sign for nonzero moves (e.g. `
 
 **Gameplay**
 
-- Tap to flap, gravity pulls down; pass through gaps between pipes. Canvas, 60 fps target, works inside the Discord Activity and the Telegram Mini App (touch + click + Space), portrait and landscape.
+- Hold to rise, release to fall; pass through gaps between pipes. While touch, mouse or Space is held, the bird rises with acceleration up to a maximum upward speed. On release, gravity pulls it down. Movement is smooth; there is no fixed impulse per tap. Canvas, 60 fps target, works inside the Discord Activity and the Telegram Mini App, portrait and landscape.
+- Mobile input: use `touch-action: none` and `user-select: none` on the canvas, and `preventDefault` for `touchstart`/`contextmenu` to block long-press, selection and context menus. Releasing outside the canvas must count as a release too. Keep this behavior working inside both Discord Activity and Telegram Mini App.
 - Course: segments of 10 pipes, one stock per segment, in a server-chosen random order from the catalog (never assume 7 assets). The gap center of each pipe follows that stock's primary (`xstocks`) price over the last 24 h, downsampled to 10 points and normalized to the playfield (min→bottom margin, max→top margin). Segment label shows ticker and logo.
-- Difficulty ramps per segment: scroll speed up, gap size down, to config limits.
+- Difficulty ramps per segment: scroll speed up, gap size down, to config limits. Tune the curve for held acceleration and gravity rather than tap impulses. Document the chosen rise acceleration, maximum rise/fall speeds, gravity and minimum gap (with units), plus segment ramp values, in the versioned game config during T27 implementation.
 - Game over card: the chart(s) flown with ticker and 24 h % move, a company fact (reuse facts), score, daily best, "Play again".
 - Branding: bird uses the Fluxion mark, pipes show provider logos via the asset/provider configuration. No Bybit/mStocks assets until the brand kit is approved; swapping must be config/asset-only.
 
@@ -530,7 +531,7 @@ Display price moves with two decimal places and a sign for nonzero moves (e.g. `
 
 - `POST /api/flyer/start` → session id, seed, course data (price points per segment), config version. One active session per user; expires after 10 min.
 - Deterministic simulation in `packages/game-core` (fixed 60 Hz timestep, fixed-point or integer math, no Math.random/Date in the sim), shared by client and server.
-- `POST /api/flyer/finish` with the input log (tick numbers of each flap). The server replays it with the session's seed/course, computes the score, and rejects: mismatched or impossible logs, tick count inconsistent with wall-clock time between start and finish (±15%), expired or reused sessions. The client score is never trusted.
+- `POST /api/flyer/finish` with the input log: tick-stamped `press`/`release` pairs, alternating and beginning with `press`. Record actual held-state transitions, not repeated flap impulses. The server replays these transitions with the session's seed/course in the same deterministic 60 Hz simulation and computes the score. Reject out-of-order or overlapping events, invalid press/release sequences, events with ticks beyond the match's end, mismatched or impossible logs, tick count inconsistent with wall-clock time between start and finish (±15%), and expired or reused sessions. The client score is never trusted.
 - Limits from config/env (not committed values for anti-abuse thresholds): max finishes per user per UTC day, max session length.
 
 **Points and leaderboard**
@@ -539,9 +540,9 @@ Display price moves with two decimal places and a sign for nonzero moves (e.g. `
 - Own leaderboard (best score: today / week / season), ties to whoever reached it first. Points also count in the main leaderboards.
 - Admin (T29/T30): per-game pause switch includes Flyer; admin can view a player's sessions and void a session (ledger correction row).
 
-**Copy (en.ts)**: "mStocks Flyer", "Tap to fly", "Fly through real price charts", "New best!", "Daily points cap reached — keep playing for the leaderboard".
+**Copy (en.ts)**: "mStocks Flyer", "Hold to fly, release to fall", "Fly through real price charts", "New best!", "Daily points cap reached — keep playing for the leaderboard".
 
-**Acceptance (tests)**: deterministic replay (same log → same score on client and server); tampered log rejected; time-inconsistent log rejected; session expiry/reuse; daily cap and delta awards; course built from primary snapshots only, with missing data → that stock skipped; catalogs with 3 and 30 assets; mobile and desktop screenshots; performance check on a mid-range phone viewport. Update README and GAME_RULES.
+**Acceptance (tests)**: deterministic press/release replay (same log → same score on client and server); invalid sequences (including starting with release), out-of-order/overlapping events and ticks beyond match end rejected; release outside the canvas clears held input and is captured in the replay; touch/mouse/Space controls and mobile long-press/selection/context-menu blocking; tampered log rejected; time-inconsistent log rejected; session expiry/reuse; daily cap and delta awards; course built from primary snapshots only, with missing data → that stock skipped; catalogs with 3 and 30 assets; mobile and desktop screenshots; performance check on a mid-range phone viewport. Update README and GAME_RULES.
 
 ---
 

@@ -17,12 +17,15 @@ has its own branch/PR, reviewed by Claude and merged by Hadukem. T28–T31 canno
 start until T26 is integrated. T14 is superseded by T28–T30; T21 Daily Call is
 cancelled and merged into T26's 15-minute Up/Down prediction. T27's complete Flyer
 brief is recorded in TASKS.md for after admin controls and rewards registration;
-its implementation has not started. These dependencies do not confirm launch dates.
+its implementation has not started. The T27 control is hold to rise/release to fall,
+with deterministic 60 Hz press/release replay; its revised brief also covers release
+outside the canvas and mobile gesture blocking. These dependencies do not confirm launch dates.
 
 The official Task Board is `docs/TASKS.md` and this file; there is no external
-board. T26's PR #20 includes the requested offer-recovery and percentage-format
-review fixes, including successful reads with an unavailable offer alongside
-pending predictions, pending final review/merge. **T32 — settlement query optimization**
+board. T26 is integrated via PR #20, including the requested offer-recovery and
+percentage-format review fixes and successful reads with an unavailable offer
+alongside pending predictions. Post-deploy smoke tests remain pending confirmation.
+**T32 — settlement query optimization**
 is a separate follow-up required before T19's load test: select only due work in
 SQL, including start boundaries, end targets, void deadlines and idle run expiry.
 
@@ -36,10 +39,9 @@ SQL, including start boundaries, end targets, void deadlines and idle run expiry
 
 ## How a task moves
 
-T16a is authorized ahead of the remaining queue: private Telegram /start, /help
-and a Play menu through the existing API webhook, on `t16a-telegram-start`, in a
-small PR separate from #20. Implementation is ready for review; merge, operator
-setup and a real Telegram smoke test wait for Railway to recover. No new service;
+T16a is integrated via PR #21: private Telegram /start, /help
+and a Play menu through the existing API webhook, separately from #20.
+Operator setup/deployment and a real Telegram smoke test remain pending confirmation. No new service;
 opt-in reminders remain pending in T16. This does not start the admin tasks or
 change PR #20's status.
 
