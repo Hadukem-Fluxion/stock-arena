@@ -75,12 +75,13 @@ export function registerAuth(app: FastifyInstance, options: AuthOptions = {}) {
     if (
       !route?.startsWith("/api/") ||
       route === "/api/health" ||
+      route === "/api/admin" ||
+      route?.startsWith("/api/admin/") ||
       (request.method === "POST" &&
         (route === "/api/discord/interactions" || route === "/api/telegram/webhook"))
     )
       return;
     await requireUser(request);
-    if (route === "/api/admin" || route.startsWith("/api/admin/")) await requireAdmin(request);
   });
 
   app.post("/api/auth/discord", async (request) => {

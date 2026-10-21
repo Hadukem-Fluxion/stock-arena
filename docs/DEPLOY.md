@@ -39,6 +39,60 @@ Os testes locais usam PGlite e dados fictícios; o PR não aplica migrations no 
 No rollback, encerrar novas previsões até restabelecer API/worker compatíveis;
 rollback de código não desfaz a migration nem reativa sequências Classic.
 
+## Admin hub (T28)
+
+Depois do merge, a API aplica `0009_admin-foundation` no pre-deploy. Ela adiciona
+Staff, sessões administrativas, estado transitório OAuth e o bloqueio de equipe;
+estende a auditoria existente e instala seu trigger de imutabilidade. Não remove
+histórico, pontos ou dados de jogadores. Não há seed nesta tarefa.
+
+No serviço **API** da Railway, manter `SESSION_SECRET`, `DISCORD_CLIENT_ID` e
+`DISCORD_CLIENT_SECRET` existentes e adicionar:
+
+- `ADMIN_WEB_ORIGIN=https://mstocks-arena.vercel.app` (origem pública HTTPS, sem
+  caminho, query, credenciais ou fragmento; usada também para validar Origin).
+- `OWNER_DISCORD_ID`: ID pessoal do Hadukem no Discord. Com Developer Mode ativo,
+  copiar o ID do usuário. Nunca usar o Client ID do aplicativo.
+
+No Discord Developer Portal → aplicativo mStocks Arena → OAuth2 → Redirects,
+**adicionar** `https://mstocks-arena.vercel.app/api/admin/auth/callback`. Manter
+o redirect da Activity existente (`https://127.0.0.1`). O admin usa o fluxo web de
+[authorization code com state](https://discord.com/developers/docs/topics/oauth2#authorization-code-grant),
+scope `identify`, separado da autenticação do SDK da Activity. Não alterar os URL
+mappings, Interactions Endpoint ou escopos da Activity para esta tarefa.
+
+Implantar API e web da mesma revisão. Abrir `/admin` diretamente em um navegador
+HTTPS (não dentro da Activity/Mini App), entrar com a conta configurada e conferir
+o primeiro owner. A criação inicial ocorre uma única vez; mudanças posteriores
+de equipe e transferência de ownership são feitas pela tela **Team**, sem editar
+env. Se o owner já existe, alterar `OWNER_DISCORD_ID` não transfere seu acesso.
+
+O cookie final é HttpOnly + Secure + SameSite=Strict, por 12h, limitado a
+`/api/admin`, sem Domain. Somente o cookie transitório OAuth de 10min usa Lax para
+permitir o callback do Discord. O state é de uso único, ligado ao navegador,
+e apenas hashes de state/cookie são persistidos. As escritas exigem Origin exato e
+CSRF ligado à sessão. Não desativar Secure para testar por HTTP; usar HTTPS local
+com origem/redirect registrados, ou staging após o merge. Os testes usam mocks,
+sem credenciais reais.
+
+As páginas `/admin` recebem headers contra embedding, cache e vazamento de
+referer; isso não bloqueia a raiz do jogo no Discord. A API não confia em XFF
+arbitrário: o hash de IP da auditoria usa o peer de socket (pode ser o proxy no
+Railway), sem persistir o IP bruto. Nunca habilitar `trustProxy: true` sem definir
+quais proxies são confiáveis.
+
+Teste após o deploy: login de owner, grant de um membro de teste, login do membro,
+revogação e nova chamada com sua sessão antiga (deve falhar), filtros da auditoria,
+logout e novo login. Confirmar a migration `0009` no Supabase. O PR valida tudo
+com PGlite/OAuth simulado; esse teste real continua pendente até o deploy.
+O guia do operador é [ADMIN_GUIDE.md](ADMIN_GUIDE.md).
+
+As allowlists `ADMIN_DISCORD_IDS`/`ADMIN_TELEGRAM_IDS` continuam funcionando até
+a T29, sem acesso de gestão de equipe; Staff revogado sempre prevalece sobre a
+allowlist. Migrar operadores para Staff antes de retirar essas variáveis. Em um
+rollback, preservar schema/auditoria e preferir uma revisão compatível com Staff:
+uma API anterior à T28 não reconhece suas sessões e volta à autorização legada.
+
 ## Railway: configurações dos dois serviços
 
 Em um projeto de staging, criar dois serviços a partir do repositório público
@@ -104,7 +158,9 @@ container.
 | `DISCORD_PUBLIC_KEY`                      | chave pública Ed25519 de General Information no Developer Portal; Claude copia para a API Railway |
 | `TELEGRAM_BOT_TOKEN`                      | token do bot de teste, inserido pelo Hadukem                                                      |
 | `TELEGRAM_WEBHOOK_SECRET`                 | segredo aleatório de 32–256 caracteres URL-safe, inserido pelo Hadukem; valida o webhook T16a     |
-| `ADMIN_DISCORD_IDS`, `ADMIN_TELEGRAM_IDS` | opcionais, IDs de administradores autorizados                                                     |
+| `ADMIN_WEB_ORIGIN`                        | `https://mstocks-arena.vercel.app`; origem HTTPS pública do web, sem `/admin`                     |
+| `OWNER_DISCORD_ID`                        | ID do usuário Discord do Hadukem, para criar o primeiro owner; não é o Client ID                  |
+| `ADMIN_DISCORD_IDS`, `ADMIN_TELEGRAM_IDS` | allowlists legadas, descontinuadas após a T29; usar a tela Team para novos acessos                |
 
 Os provedores não configurados retornam erro de login tipado; `/api/health` continua
 público e funciona sem app Discord ou bot Telegram. Não preencher credenciais
