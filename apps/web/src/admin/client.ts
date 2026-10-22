@@ -6,7 +6,6 @@ const instant = z.string().datetime({ offset: true });
 const sessionSchema = z.object({
   user: z.object({ id: z.string().uuid(), displayName: z.string(), role: roleSchema }),
   permissions: z.array(z.string()),
-  legacy: z.boolean(),
   expiresAt: instant.nullable(),
   csrf: z.string().min(1),
 });

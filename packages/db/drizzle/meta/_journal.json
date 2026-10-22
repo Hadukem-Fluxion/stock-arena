@@ -71,6 +71,13 @@
       "when": 1792602166831,
       "tag": "0009_admin-foundation",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792692208739,
+      "tag": "0010_admin-operations",
+      "breakpoints": true
     }
   ]
 }

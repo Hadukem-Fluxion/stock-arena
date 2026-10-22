@@ -356,7 +356,7 @@ describe("session and permissions", () => {
     }
   });
 
-  it("allows only platform IDs in the matching admin list", async () => {
+  it("never grants admin access from deprecated platform allowlists", async () => {
     const adminId = ++userNumber;
     const initData = signedInitData({ user: JSON.stringify({ id: adminId, first_name: "Admin" }) });
     const app = server({ env: { ADMIN_TELEGRAM_IDS: ` 999, ${adminId} ` } });
@@ -366,8 +366,8 @@ describe("session and permissions", () => {
         await app.inject({ method: "POST", url: "/api/auth/telegram", payload: { initData } })
       ).json<LoginResponse>();
       const headers = { authorization: `Bearer ${session.token}` };
-      expect((await app.inject({ url: "/api/admin/test", headers })).statusCode).toBe(200);
-      expect((await notAdmin.inject({ url: "/api/admin/test", headers })).statusCode).toBe(403);
+      expect((await app.inject({ url: "/api/admin/test", headers })).statusCode).toBe(401);
+      expect((await notAdmin.inject({ url: "/api/admin/test", headers })).statusCode).toBe(401);
     } finally {
       await app.close();
       await notAdmin.close();

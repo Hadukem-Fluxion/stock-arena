@@ -41,7 +41,11 @@ Full rules and point values: `docs/GAME_RULES.md`, implemented in `packages/game
   sessions, four staff roles, owner-managed team access and append-only audit.
   Setup is in [DEPLOY.md](docs/DEPLOY.md#admin-hub-t28); the English
   [operator guide](docs/ADMIN_GUIDE.md) covers daily use. Game operations, seasons
-  and rewards remain T29–T31. Real owner login requires the new Discord redirect
+  and rewards remain T30–T31. T29 adds quiz editing/import, player profiles,
+  moderation, append-only point corrections and flag review. Admin access now
+  requires Staff membership; legacy environment allowlists and player bearer
+  tokens no longer grant admin access. Apply migration `0010` before deploying.
+  Real owner login requires the new Discord redirect
   and API environment settings after deployment.
 
 ## Architecture
@@ -191,10 +195,12 @@ disables login with a typed `AUTH_UNAVAILABLE` response; health remains public.
 No default signing secret or fake login endpoint exists. Run `pnpm db:migrate`
 before API logins; the API does not apply migrations itself.
 
-All registered `/api/*` routes require a session by default, except `/api/health`,
-the two login routes and `POST /api/discord/interactions` (authenticated by the
-Discord Ed25519 signature). Routes under `/api/admin` additionally require a matching
-platform ID in `ADMIN_DISCORD_IDS` or `ADMIN_TELEGRAM_IDS`. Errors contain only
+Player `/api/*` routes require a bearer session by default. Health and login are
+public; Discord interactions and the Telegram webhook use their own signature or
+secret verification. Admin OAuth has its own state/browser checks; other
+`/api/admin/*` routes require a separate admin cookie and active Staff membership
+with the route's explicit permission. Admin writes also require CSRF and origin
+checks. Errors contain only
 `{error: {code}}`; the client maps these codes to copy. Authentication responses
 are not cacheable. Logs omit request bodies, authorization headers and query
 strings, and never include raw database/provider errors.
@@ -265,20 +271,21 @@ Closed prices keep `Last price` and `Market closed`; the price panel may also sh
 
 ### Environment variables
 
-| Name                                       | Used by               | What it is                                                 |
-| ------------------------------------------ | --------------------- | ---------------------------------------------------------- |
-| `DATABASE_URL`                             | api, worker           | Postgres connection string                                 |
-| `DATABASE_SSL_CA`                          | api, worker, migrate  | PEM CA path; defaults to the bundled Supabase CA           |
-| `SESSION_SECRET`                           | api                   | Signs session tokens                                       |
-| `DISCORD_CLIENT_ID`                        | web, api, discord-bot | Discord application id                                     |
-| `DISCORD_CLIENT_SECRET`                    | api                   | Discord OAuth secret, server only                          |
-| `DISCORD_BOT_TOKEN`                        | discord-bot           | Bot token                                                  |
-| `TELEGRAM_BOT_TOKEN`                       | api, telegram-bot     | Bot token; also used to verify Mini App init data          |
-| `MANTLE_RPC_URL`                           | worker                | Mantle mainnet RPC (chain id 5000)                         |
-| `FLUXION_POOLS_JSON`                       | worker                | Ticker to pool address map, from the Fluxion team          |
-| `XSTOCKS_API_BASE`                         | worker, oracle:print  | Public price API, defaults to https://api.backed.fi/api/v2 |
-| `PRICE_DIVERGENCE_PCT`                     | worker, oracle:print  | Maximum pool vs primary quote difference, defaults to 3    |
-| `ADMIN_DISCORD_IDS` / `ADMIN_TELEGRAM_IDS` | api                   | Comma-separated admin ids                                  |
+| Name                    | Used by               | What it is                                                 |
+| ----------------------- | --------------------- | ---------------------------------------------------------- |
+| `DATABASE_URL`          | api, worker           | Postgres connection string                                 |
+| `DATABASE_SSL_CA`       | api, worker, migrate  | PEM CA path; defaults to the bundled Supabase CA           |
+| `SESSION_SECRET`        | api                   | Signs session tokens                                       |
+| `DISCORD_CLIENT_ID`     | web, api, discord-bot | Discord application id                                     |
+| `DISCORD_CLIENT_SECRET` | api                   | Discord OAuth secret, server only                          |
+| `DISCORD_BOT_TOKEN`     | discord-bot           | Bot token                                                  |
+| `TELEGRAM_BOT_TOKEN`    | api, telegram-bot     | Bot token; also used to verify Mini App init data          |
+| `MANTLE_RPC_URL`        | worker                | Mantle mainnet RPC (chain id 5000)                         |
+| `FLUXION_POOLS_JSON`    | worker                | Ticker to pool address map, from the Fluxion team          |
+| `XSTOCKS_API_BASE`      | worker, oracle:print  | Public price API, defaults to https://api.backed.fi/api/v2 |
+| `PRICE_DIVERGENCE_PCT`  | worker, oracle:print  | Maximum pool vs primary quote difference, defaults to 3    |
+| `ADMIN_WEB_ORIGIN`      | api                   | Public web origin for admin OAuth and CSRF                 |
+| `OWNER_DISCORD_ID`      | api                   | First-owner bootstrap; later access uses Staff             |
 
 Never commit `.env`. Secrets live only in the hosting provider's settings.
 

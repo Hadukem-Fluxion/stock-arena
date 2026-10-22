@@ -31,6 +31,7 @@ import {
 } from "./security.js";
 import { audit, auditOrder, createTeamStore, lockTeam } from "./store.js";
 import type { Actor, AuditContext } from "./store.js";
+import { registerOperations } from "./operations.js";
 
 declare module "fastify" {
   interface FastifyContextConfig {
@@ -91,7 +92,6 @@ export function registerAdmin(
   app: FastifyInstance,
   options: Omit<AuthOptions, "database"> & {
     database: () => DatabaseConnection;
-    requireLegacyAdmin: (request: FastifyRequest) => Promise<void>;
   },
 ) {
   const env = options.env ?? process.env;
@@ -99,17 +99,13 @@ export function registerAdmin(
   const db = () => options.database().db;
   const team = createTeamStore(options.database);
   app.decorateRequest("admin", null);
-  const legacyDiscord = (id: string) =>
-    (env.ADMIN_DISCORD_IDS ?? "")
-      .split(",")
-      .map((entry) => entry.trim())
-      .includes(id);
   const context = (request: FastifyRequest): AuditContext => {
     if (!request.admin) throw new AuthError("UNAUTHORIZED", 401);
     return {
       actor: request.admin,
       ipHash: hmac(env.SESSION_SECRET, `admin-ip:${request.ip}`),
       now: now(),
+      tokenHash: request.admin.tokenHash ?? undefined,
     };
   };
   async function authenticate(request: FastifyRequest) {
@@ -118,7 +114,6 @@ export function registerAdmin(
     let expiresAt: Date | null = null;
     let tokenHash: string | null = null;
     let credential: string;
-    let legacy = false;
     if (token) {
       tokenHash = digest(token);
       credential = token;
@@ -135,38 +130,17 @@ export function registerAdmin(
       if (!session) throw new AuthError("UNAUTHORIZED", 401);
       userId = session.userId;
       expiresAt = session.expiresAt;
-    } else {
-      // Compatibility for the old allowlist API until T29; never grants team ownership.
-      await options.requireLegacyAdmin(request);
-      if (!request.user) throw new AuthError("UNAUTHORIZED", 401);
-      userId = request.user.id;
-      credential = request.headers.authorization!;
-      legacy = true;
-    }
+    } else throw new AuthError("UNAUTHORIZED", 401);
     const [user] = await db().select().from(users).where(eq(users.id, userId));
     if (!user || user.status !== "active") throw new AuthError("ACCOUNT_UNAVAILABLE", 403);
     const [member] = await db().select().from(staff).where(eq(staff.userId, userId));
     if (member?.revokedAt) throw new AuthError("FORBIDDEN", 403);
-    let role: Role;
-    if (member) role = legacy && member.role === "owner" ? "admin" : member.role;
-    else {
-      if (!legacy) {
-        // Re-check the deprecated list even for sessions issued through web OAuth.
-        const identity = await db().query.identities.findFirst({
-          where: (table, { and, eq }) =>
-            and(eq(table.userId, userId), eq(table.platform, "discord")),
-        });
-        if (!identity || !legacyDiscord(identity.platformUserId))
-          throw new AuthError("FORBIDDEN", 403);
-      }
-      role = "admin";
-      legacy = true;
-    }
+    if (!member) throw new AuthError("FORBIDDEN", 403);
+    const role: Role = member.role;
     request.admin = {
       userId,
       displayName: user.displayName,
       role,
-      legacy,
       credential,
       expiresAt,
       tokenHash,
@@ -284,7 +258,6 @@ export function registerAdmin(
             userId: user.id,
             displayName: result.identity.displayName,
             role: member?.role ?? "admin",
-            legacy: !member,
           },
           now: time,
           ipHash: hmac(env.SESSION_SECRET, `admin-ip:${request.ip}`),
@@ -306,8 +279,7 @@ export function registerAdmin(
           await tx.update(adminControl).set({ bootstrappedAt: time }).where(eq(adminControl.id, 1));
           await audit(tx, auditContext, "team.owner_bootstrapped", user.id, { after: "owner" });
         }
-        if (member?.revokedAt || (!member && !legacyDiscord(result.identity.platformUserId)))
-          throw new AuthError("FORBIDDEN", 403);
+        if (!member || member.revokedAt) throw new AuthError("FORBIDDEN", 403);
         await tx
           .update(users)
           .set({ displayName: result.identity.displayName, avatarUrl: result.identity.avatarUrl })
@@ -339,7 +311,6 @@ export function registerAdmin(
         role: request.admin!.role,
       },
       permissions: ROLE_PERMISSIONS[request.admin!.role],
-      legacy: request.admin!.legacy,
       expiresAt: request.admin!.expiresAt?.toISOString() ?? null,
       csrf: hmac(env.SESSION_SECRET, `admin-csrf:${request.admin!.credential}`),
     }),
@@ -413,5 +384,6 @@ export function registerAdmin(
       .offset((input.page - 1) * 50);
     return { entries: rows.slice(0, 50), page: input.page, hasMore: rows.length > 50 };
   });
+  registerOperations(app, { database: options.database, now, context });
   return { requirePermission };
 }

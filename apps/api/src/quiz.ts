@@ -4,7 +4,14 @@ import { z } from "zod";
 import type { FastifyInstance } from "fastify";
 import { GAME_CONFIG, gameDay, quizAnswerInTime, quizPoints } from "@stock-arena/game-core";
 import type { QuizFeedback, QuizView } from "@stock-arena/game-core";
-import { pointsLedger, quizAttempts, quizDailySets, quizQuestions, users } from "@stock-arena/db";
+import {
+  pointsLedger,
+  quizAttempts,
+  quizDailySets,
+  quizQuestions,
+  quizBankControl,
+  users,
+} from "@stock-arena/db";
 import type { DatabaseConnection, QuizQuestionSnapshot } from "@stock-arena/db";
 import { AuthError } from "./auth/types.js";
 
@@ -38,6 +45,8 @@ export function createQuizStore(connection: DatabaseConnection, now = () => new 
         .where(and(eq(quizAttempts.userId, userId), eq(quizAttempts.day, day)));
       let [daily] = await tx.select().from(quizDailySets).where(eq(quizDailySets.day, day));
       if (!attempt && action.type === "start") {
+        await tx.select().from(quizBankControl).where(eq(quizBankControl.id, 1)).for("update");
+        [daily] = await tx.select().from(quizDailySets).where(eq(quizDailySets.day, day));
         if (!daily) {
           const candidates = await tx
             .select()

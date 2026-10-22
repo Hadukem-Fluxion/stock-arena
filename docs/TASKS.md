@@ -2,18 +2,19 @@
 
 One brief = one pull request. Paste the whole brief into Codex together with AGENTS.md. This file and `docs/ROADMAP.md` are the official Task Board; there is no external board. Keep them updated with implementation/review status and dependencies. Non-code tasks (T00, T01, T05, T06, T17, T20) are done by people or Claude and are not listed here.
 
-## Task Board updates — 2026-10-21
+## Task Board updates — 2026-10-22
 
-| Task              | State / dependency                                                                                    |
-| ----------------- | ----------------------------------------------------------------------------------------------------- |
-| T14               | Superseded by T28–T30                                                                                 |
-| T21 Daily Call    | CANCELLED — merged into T26                                                                           |
-| T26               | Integrated via PR #20; post-deploy smoke test remains pending confirmation                            |
-| T28               | Integrated via PR #23; real admin smoke test pending deployment                                       |
-| Lightsail hosting | Replacement API/worker deployment prepared on `chore-lightsail-hosting`; instance/DNS/cutover pending |
-| T29 → T30 → T31   | Planned after T28 review/integration; one branch/PR per task                                          |
-| T27 mStocks Flyer | Hold-to-rise brief updated; planned after T26, T28, T29, T30 and T31; not implemented                 |
-| T32               | Settlement query optimization; required before T19 load test; not part of T26                         |
+| Task              | State / dependency                                                                    |
+| ----------------- | ------------------------------------------------------------------------------------- |
+| T14               | Superseded by T28–T30                                                                 |
+| T21 Daily Call    | CANCELLED — merged into T26                                                           |
+| T26               | Integrated via PR #20; post-deploy smoke test remains pending confirmation            |
+| T28               | Integrated via PR #23; real admin smoke test pending deployment                       |
+| Lightsail hosting | Integrated via PR #24; instance/DNS/cutover pending                                   |
+| T29               | Implemented on `t29-admin-operations`; review and post-deploy smoke test pending      |
+| T30 → T31         | Planned after T29 review/integration; one branch/PR per task                          |
+| T27 mStocks Flyer | Hold-to-rise brief updated; planned after T26, T28, T29, T30 and T31; not implemented |
+| T32               | Settlement query optimization; required before T19 load test; not part of T26         |
 
 Campaign decision for Mantle (not code): accepted reward identifiers (Bybit UID,
 Mantle address or both) and manual delivery process. Keep both fields optional
@@ -510,6 +511,13 @@ and operator/deploy guides. Real Discord web login is pending post-merge setup.
 - Tests: each role × each route permission, revocation, last-owner protection, ownership transfer, audit row per write.
 
 ## T29 — Admin operations: quiz, players, points, flags
+
+Implementation: quiz bank and frozen-day-safe imports; player profiles/status;
+idempotent ledger corrections; append-only flag notes and transactional resolution.
+Migration `0010_admin-operations` is required. Legacy admin allowlists are removed;
+operators must have Staff membership. English guide: `docs/ADMIN_GUIDE.md`.
+Review captures contain synthetic data only. No live migration or production
+bank import is part of this PR. Game controls/seasons remain T30; rewards remain T31.
 
 - Quiz bank: list, search, add, edit, deactivate, schedule for a day, import JSON (same format as seed-quiz). Answer key visible only in admin. Questions in use by today's frozen set cannot be edited, only deactivated for future days.
 - Players: search by name or platform id; profile with identities, account age, eligibility, ledger history, runs/attempts; suspend and ban with reason (suspended users cannot earn points; banned cannot log in).

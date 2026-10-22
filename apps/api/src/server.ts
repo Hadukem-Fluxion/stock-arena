@@ -63,7 +63,6 @@ export function buildServer(
   registerAdmin(app, {
     ...options.auth,
     database: auth.database,
-    requireLegacyAdmin: auth.requireAdmin,
   });
   registerCheckin(app, { ...options.checkin, database: auth.database, now: options.auth?.now });
   registerLeaderboard(app, {

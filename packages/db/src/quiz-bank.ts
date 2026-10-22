@@ -3,7 +3,7 @@ import type { DatabaseConnection } from "./client.js";
 import { quizQuestions } from "./schema.js";
 
 const content = z.string().trim().min(1).max(16_000);
-const bankSchema = z
+export const bankSchema = z
   .array(
     z
       .object({
