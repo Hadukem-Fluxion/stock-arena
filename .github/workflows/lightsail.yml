@@ -1,0 +1,39 @@
+name: Lightsail containers
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  containers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate shell syntax
+        run: |
+          bash -n deploy/lightsail/deploy.sh
+          sh -n deploy/lightsail/entrypoint.sh
+      - name: Build pinned runtime
+        run: |
+          mkdir -p .corepack packages/db/.local
+          printf 'BUILD_CONTEXT_CANARY=synthetic-test-only\n' > .env
+          printf 'synthetic-test-only\n' > .corepack/build-canary
+          printf '[]\n' > packages/db/.local/quiz-bank.json
+          docker build -f deploy/lightsail/Dockerfile -t mstocks-arena:ci .
+      - name: Verify runtime and build-context isolation
+        run: |
+          docker run --rm --entrypoint node mstocks-arena:ci -e '
+            const fs = require("node:fs");
+            if (process.versions.node !== "24.19.0") process.exit(1);
+            for (const path of [".env", ".corepack", ".git", "packages/db/.local/quiz-bank.json"])
+              if (fs.existsSync(path)) process.exit(1);
+            if (!fs.existsSync("packages/db/certs/supabase-ca.crt")) process.exit(1);
+          '
+      - name: Exercise migrations with isolated PGlite (test only)
+        run: docker run --rm --entrypoint pnpm mstocks-arena:ci db:migrate
+      - name: Exercise Caddy HTTPS, API health and fail-closed migration flow
+        run: bash deploy/lightsail/smoke-test.sh

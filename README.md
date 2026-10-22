@@ -20,17 +20,18 @@ Full rules and point values: `docs/GAME_RULES.md`, implemented in `packages/game
 
 ## Documentation
 
-| File                    | For                       | What it holds                                                  |
-| ----------------------- | ------------------------- | -------------------------------------------------------------- |
-| `AGENTS.md`             | Codex                     | How to work in this repo, code rules, platform and price rules |
-| `docs/TASKS.md`         | Codex                     | One brief per pull request, with acceptance criteria           |
-| `docs/ROADMAP.md`       | Everyone                  | Phases, dates, gates, who does what, open questions            |
-| `docs/GAME_RULES.md`    | Everyone                  | Games, points, leaderboards, fair play                         |
-| `docs/PLAYER_GUIDE.md`  | Players                   | How to play on Discord and Telegram, FAQ                       |
-| `docs/ADMIN_GUIDE.md`   | Admins and mods           | Permissions, routines, abuse signals, incidents, payouts       |
-| `docs/INFRA.md`         | Everyone                  | Infrastructure services, account ownership and secret storage  |
-| `docs/DEPLOY.md`        | Claude and Hadukem        | Staging dashboard settings, environment variables and rollback |
-| `docs/design/DESIGN.md` | Implementation and review | Visual guide and mobile/desktop prototype references for T08   |
+| File                        | For                       | What it holds                                                            |
+| --------------------------- | ------------------------- | ------------------------------------------------------------------------ |
+| `AGENTS.md`                 | Codex                     | How to work in this repo, code rules, platform and price rules           |
+| `docs/TASKS.md`             | Codex                     | One brief per pull request, with acceptance criteria                     |
+| `docs/ROADMAP.md`           | Everyone                  | Phases, dates, gates, who does what, open questions                      |
+| `docs/GAME_RULES.md`        | Everyone                  | Games, points, leaderboards, fair play                                   |
+| `docs/PLAYER_GUIDE.md`      | Players                   | How to play on Discord and Telegram, FAQ                                 |
+| `docs/ADMIN_GUIDE.md`       | Admins and mods           | Permissions, routines, abuse signals, incidents, payouts                 |
+| `docs/INFRA.md`             | Everyone                  | Infrastructure services, account ownership and secret storage            |
+| `docs/DEPLOY.md`            | Claude and Hadukem        | Staging dashboard settings, environment variables and rollback           |
+| `docs/HOSTING_LIGHTSAIL.md` | Hadukem and Claude        | Lightsail replacement hosting, secret rotation and rollback (Portuguese) |
+| `docs/design/DESIGN.md`     | Implementation and review | Visual guide and mobile/desktop prototype references for T08             |
 
 ## Project status
 
@@ -79,8 +80,11 @@ docs/
 
 ## Getting started
 
-For the Vercel frontend, Railway API/worker and Supabase staging setup, follow
-[docs/DEPLOY.md](docs/DEPLOY.md). The API uses Railway's `PORT` when present and
+For the replacement Lightsail API/worker hosting, secret rotation and Vercel
+cutover, follow [docs/HOSTING_LIGHTSAIL.md](docs/HOSTING_LIGHTSAIL.md).
+Railway is blocked per Hadukem's incident report; its historical setup remains in
+[docs/DEPLOY.md](docs/DEPLOY.md). No live Lightsail deployment is claimed yet.
+The API uses the host's `PORT` when present and
 otherwise `API_PORT`. Migrations run only in the API's pre-deploy command.
 The worker retains every price sample for 48 hours, then the last sample of each
 UTC hour per ticker/source. Retention runs at startup and on each new UTC day,

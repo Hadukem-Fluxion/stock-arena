@@ -12,6 +12,13 @@ The MVP runs on Discord and Telegram by Nov 20, closed beta follows, and public 
 
 ## Who does what
 
+Hosting priority (22/10/2026): prepare the API/worker move to Lightsail in
+`chore-lightsail-hosting`, following Hadukem's report that Railway is blocked after
+the 21/10 environment-variable incident. Artifacts and the operator guide are for
+review; instance, DNS, new provider credentials and live smoke tests remain pending.
+Railway resources/configuration are retained. T28 is integrated via PR #23;
+T29 implementation has not started. This hosting PR does not implement T29 or Flyer.
+
 Current implementation order: **T26 → T28 → T29 → T30 → T31 → T27**. Each task
 has its own branch/PR, reviewed by Claude and merged by Hadukem. T28–T31 cannot
 start until T26 is integrated. T14 is superseded by T28–T30; T21 Daily Call is
@@ -21,7 +28,7 @@ its implementation has not started. The T27 control is hold to rise/release to f
 with deterministic 60 Hz press/release replay; its revised brief also covers release
 outside the canvas and mobile gesture blocking. These dependencies do not confirm launch dates.
 
-T28's admin foundation is implemented on `t28-admin-foundation` for review:
+T28's admin foundation is integrated via PR #23:
 standalone Discord web login, revocable admin sessions, four Staff roles,
 owner-managed team and append-only audit. It requires migration `0009`, the new
 Discord web redirect, `ADMIN_WEB_ORIGIN` and `OWNER_DISCORD_ID` after merge.

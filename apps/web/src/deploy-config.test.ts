@@ -36,7 +36,7 @@ describe("Vercel staging configuration", () => {
     "https://api.example.com#fragment",
   ])("rejects invalid upstream origins without echoing their values", (url) => {
     expect(() => createVercelConfig(url)).toThrow(
-      "Set RAILWAY_API_URL to the Railway API HTTPS origin.",
+      "Set RAILWAY_API_URL to the backend API HTTPS origin.",
     );
   });
 });

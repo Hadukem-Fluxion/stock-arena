@@ -26,9 +26,10 @@ The scaffold exists but has never been installed. Start with brief **T02** in `d
 
 ## Accounts and secrets
 
-- Hadukem owns every external account (GitHub, Supabase, Discord, Telegram, Vercel, Railway). Claude configures the web dashboards; you work only from this repository and the terminal.
+- Hadukem owns every external account (GitHub, Supabase, Discord, Telegram, Vercel, Railway, AWS Lightsail). Claude configures the web dashboards; you work only from this repository and the terminal.
 - Never ask for passwords or tokens in chat. Secret values live only in the local `.env` and in the hosting dashboards, entered by Hadukem.
 - Never commit the quiz question bank or anti-abuse thresholds; both come from the database or environment variables.
+- Lightsail hosting follows `docs/HOSTING_LIGHTSAIL.md`: server secrets stay in `/etc/mstocks-arena/.env`, root-owned and mode 600, outside the checkout. Railway configuration is retained as history; do not send rotated secrets to the blocked service.
 - If a command needs a login (for example the first `git push`), stop and tell Hadukem what window will open and what to click.
 
 ## How to work

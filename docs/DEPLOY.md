@@ -1,5 +1,11 @@
 # Deploy de staging (T23)
 
+> **22/10/2026:** Railway bloqueada após incidente de variáveis informado pelo
+> Hadukem em 21/10. Este guia é preservado como configuração histórica. Para a
+> hospedagem substituta e rotação das credenciais, usar
+> [HOSTING_LIGHTSAIL.md](HOSTING_LIGHTSAIL.md). Não copiar os novos segredos para
+> a Railway bloqueada nem interpretar as instruções antigas abaixo como estado atual.
+
 Este documento é para o Claude configurar os painéis com o Hadukem logado. O Codex
 prepara código e testes; não cria contas, projetos ou serviços. Os segredos são
 inseridos pelo Hadukem nos painéis, nunca enviados pelo chat.
