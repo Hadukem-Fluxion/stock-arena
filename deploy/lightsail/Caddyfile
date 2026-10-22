@@ -1,0 +1,33 @@
+{
+    servers {
+        protocols h1 h2
+    }
+    log default {
+        format filter {
+            wrap json
+            fields {
+                request>uri delete
+                request>headers delete
+                request>remote_ip delete
+                request>remote_port delete
+                request>client_ip delete
+                resp_headers delete
+            }
+        }
+    }
+}
+
+{$API_HOST} {
+    @api path /api /api/*
+    handle @api {
+        reverse_proxy api:8787 {
+            health_uri /api/health
+            health_interval 15s
+            health_timeout 5s
+            flush_interval -1
+        }
+    }
+    handle {
+        respond 404
+    }
+}

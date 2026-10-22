@@ -4,19 +4,38 @@ One brief = one pull request. Paste the whole brief into Codex together with AGE
 
 ## Task Board updates — 2026-10-21
 
-| Task              | State / dependency                                                                    |
-| ----------------- | ------------------------------------------------------------------------------------- |
-| T14               | Superseded by T28–T30                                                                 |
-| T21 Daily Call    | CANCELLED — merged into T26                                                           |
-| T26               | Integrated via PR #20; post-deploy smoke test remains pending confirmation            |
-| T28               | Implemented on `t28-admin-foundation`; review/deploy pending; login, team and audit   |
-| T29 → T30 → T31   | Planned after T28 review/integration; one branch/PR per task                          |
-| T27 mStocks Flyer | Hold-to-rise brief updated; planned after T26, T28, T29, T30 and T31; not implemented |
-| T32               | Settlement query optimization; required before T19 load test; not part of T26         |
+| Task              | State / dependency                                                                                    |
+| ----------------- | ----------------------------------------------------------------------------------------------------- |
+| T14               | Superseded by T28–T30                                                                                 |
+| T21 Daily Call    | CANCELLED — merged into T26                                                                           |
+| T26               | Integrated via PR #20; post-deploy smoke test remains pending confirmation                            |
+| T28               | Integrated via PR #23; real admin smoke test pending deployment                                       |
+| Lightsail hosting | Replacement API/worker deployment prepared on `chore-lightsail-hosting`; instance/DNS/cutover pending |
+| T29 → T30 → T31   | Planned after T28 review/integration; one branch/PR per task                                          |
+| T27 mStocks Flyer | Hold-to-rise brief updated; planned after T26, T28, T29, T30 and T31; not implemented                 |
+| T32               | Settlement query optimization; required before T19 load test; not part of T26                         |
 
 Campaign decision for Mantle (not code): accepted reward identifiers (Bybit UID,
 Mantle address or both) and manual delivery process. Keep both fields optional
 until confirmed. This table records the official task status changes.
+
+### Operational brief — Lightsail replacement hosting (2026-10-22)
+
+Hadukem requested this hosting change before continuing feature work. Prepare one
+PR on `chore-lightsail-hosting`, without merging. Railway is blocked per Hadukem's
+21/10 incident report; retain its resources and historical setup.
+
+- Ubuntu LTS/1 GB, pinned Node 24.19.0 and existing install/typecheck/start commands.
+- Run migrations before API startup; worker never migrates or publishes a port.
+- Caddy HTTPS proxy, `/api/health`, restricted SSH/80/443 firewall, key-only SSH,
+  automatic Ubuntu security updates and a private server `.env` with mode 600.
+- Generate fresh 48-character URL-safe session/webhook secrets without printing
+  values; never include env files or the private quiz bank in images/Git.
+- Portuguese `HOSTING_LIGHTSAIL.md` covers instance/static IP/DNS, provider secret
+  rotation, Vercel's existing `RAILWAY_API_URL` key pointing to the new backend,
+  local env synchronization, explicit `pnpm telegram:setup`, logs and rollback.
+- Test generator/runtime guards locally and containers/Caddy/migration failure in
+  Linux CI. Actual deployment and external smoke tests remain operator tasks.
 
 ---
 
@@ -471,7 +490,7 @@ Display price moves with two decimal places and a sign for nonzero moves (e.g. `
 
 ## T28 — Admin hub foundation: login, team and audit
 
-**Status**: implemented on `t28-admin-foundation`, pending Claude review and Hadukem merge.
+**Status**: integrated via PR #23, merged by Hadukem. Real deployment validation remains pending.
 Includes migration `0009_admin-foundation`, PGlite/OAuth tests, browser captures,
 and operator/deploy guides. Real Discord web login is pending post-merge setup.
 

@@ -6,5 +6,5 @@ const expected = readFileSync(new URL("../.nvmrc", import.meta.url), "utf8")
   .trim()
   .replace(/^v/, "");
 if (process.versions.node !== expected) {
-  throw new Error("Node version must match .nvmrc. Set RAILPACK_NODE_VERSION from that file.");
+  throw new Error("Node version must match .nvmrc. Use the pinned deployment runtime.");
 }
