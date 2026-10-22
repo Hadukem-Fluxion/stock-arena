@@ -1,13 +1,14 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { en } from "../copy/en.js";
 import { AdminClientError, createAdminClient } from "./client.js";
 import type { AdminRole, AdminSession, AuditFilters, AuditView, TeamMember } from "./client.js";
 import "./admin.css";
+import { QuizOperations, PlayerOperations, FlagOperations } from "./Operations.js";
 
 const copy = en.admin;
 const client = createAdminClient();
-type Screen = "overview" | "team" | "audit";
+type Screen = "overview" | "team" | "audit" | "quiz" | "players" | "flags";
 function message(error: unknown): string {
   const code = error instanceof AdminClientError ? error.code : "generic";
   return Object.hasOwn(copy.error, code)
@@ -32,6 +33,7 @@ export function AdminApp() {
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
   const [revision, setRevision] = useState(0);
+  const operationError = useCallback((failure: unknown) => setError(message(failure)), []);
   const embedded = window.self !== window.top || Boolean(window.Telegram?.WebApp?.initData);
   useEffect(() => {
     let mounted = true;
@@ -88,6 +90,9 @@ export function AdminApp() {
   const navigation = [
     "overview",
     ...(session?.permissions.includes("team:read") ? ["team"] : []),
+    ...(session?.permissions.includes("quiz:read") ? ["quiz"] : []),
+    ...(session?.permissions.includes("players:read") ? ["players"] : []),
+    ...(session?.permissions.includes("flags:read") ? ["flags"] : []),
     "audit",
   ] as Screen[];
   return (
@@ -193,11 +198,6 @@ export function AdminApp() {
                 {copy.protected}
               </span>
             </header>
-            {session.legacy && (
-              <p className="admin-warning" role="status">
-                {copy.legacy}
-              </p>
-            )}
             {error && (
               <p className="admin-error" role="alert">
                 {error}
@@ -259,7 +259,6 @@ export function AdminApp() {
                 <div className="admin-planned">
                   {(
                     [
-                      [copy.operations, copy.operationsBody],
                       [copy.controls, copy.controlsBody],
                       [copy.rewards, copy.rewardsBody],
                     ] as const
@@ -282,6 +281,33 @@ export function AdminApp() {
               />
             )}
             {screen === "audit" && <Audit onError={setError} />}
+            {screen === "quiz" && (
+              <QuizOperations
+                session={session}
+                busy={busy}
+                revision={revision}
+                write={write}
+                onError={operationError}
+              />
+            )}
+            {screen === "players" && (
+              <PlayerOperations
+                session={session}
+                busy={busy}
+                revision={revision}
+                write={write}
+                onError={operationError}
+              />
+            )}
+            {screen === "flags" && (
+              <FlagOperations
+                session={session}
+                busy={busy}
+                revision={revision}
+                write={write}
+                onError={operationError}
+              />
+            )}
           </main>
         </>
       )}

@@ -9,7 +9,6 @@ const targetId = "244091b4-3408-4c01-95da-3ff14d8937f5";
 const session = {
   user: { id: ownerId, displayName: "Alex · Demo owner", role: "owner" },
   permissions: ["overview:read", "team:read", "team:write", "ownership:transfer", "audit:read"],
-  legacy: false,
   expiresAt: "2026-10-22T00:00:00Z",
   csrf: "synthetic-csrf-token",
 };

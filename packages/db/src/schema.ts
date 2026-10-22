@@ -319,6 +319,31 @@ export const flags = pgTable("flags", {
   createdAt: instant("created_at").defaultNow().notNull(),
 });
 
+export const flagNotes = pgTable(
+  "flag_notes",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    flagId: uuid("flag_id")
+      .notNull()
+      .references(() => flags.id),
+    actorId: uuid("actor_id")
+      .notNull()
+      .references(() => users.id),
+    note: text("note").notNull(),
+    createdAt: instant("created_at").defaultNow().notNull(),
+  },
+  (table) => [index("flag_notes_flag_idx").on(table.flagId, table.createdAt)],
+);
+
+/** Serializes bank edits/imports with the first frozen daily selection. */
+export const quizBankControl = pgTable(
+  "quiz_bank_control",
+  {
+    id: integer("id").primaryKey(),
+  },
+  (table) => [check("quiz_bank_control_singleton", sql`${table.id} = 1`)],
+);
+
 export const adminActions = pgTable(
   "admin_actions",
   {

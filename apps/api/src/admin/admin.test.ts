@@ -134,7 +134,7 @@ describe("admin OAuth and session security", () => {
     expect(result.callback.statusCode).toBe(502);
     expect(result.callback.json()).toEqual({ error: { code: "PROVIDER_UNAVAILABLE" } });
   });
-  it("keeps the player session separate and limits deprecated bearer access to admin operations", async () => {
+  it("rejects player bearer access even when a deprecated allowlist is configured", async () => {
     const user = await member();
     const app = server({ ADMIN_DISCORD_IDS: user.discordId });
     const player = await createSessions(secret, () => time).issue({
@@ -144,11 +144,8 @@ describe("admin OAuth and session security", () => {
       identity: { platform: "discord", platformUserId: user.discordId },
     });
     const headers = { authorization: `Bearer ${player.token}` };
-    expect((await app.inject({ url: "/api/admin/session", headers })).json()).toMatchObject({
-      legacy: true,
-      user: { role: "admin" },
-    });
-    expect((await app.inject({ url: "/api/admin/team", headers })).statusCode).toBe(403);
+    expect((await app.inject({ url: "/api/admin/session", headers })).statusCode).toBe(401);
+    expect((await app.inject({ url: "/api/admin/team", headers })).statusCode).toBe(401);
     expect((await app.inject({ url: "/api/checkin", headers: user.headers })).statusCode).toBe(401);
   });
   it("persists admin access and revocation across API restarts", async () => {
@@ -263,19 +260,15 @@ describe("admin OAuth and session security", () => {
     expect((await login(second)).callback.headers.location).toBe("/admin?error=access");
     expect(await connection.db.select().from(staff)).toHaveLength(1);
   });
-  it("keeps allowlisted Discord access but never restores a revoked member", async () => {
+  it("rejects deprecated allowlists both for revoked and unregistered Discord accounts", async () => {
     const user = await member("admin", true);
     const app = server({ ADMIN_DISCORD_IDS: user.discordId }, discordFetch(user.discordId));
     expect((await login(app)).callback.headers.location).toBe("/admin?error=access");
     const id = String(++serial);
     const legacy = server({ ADMIN_DISCORD_IDS: id }, discordFetch(id));
     const result = await login(legacy);
-    const cookie = result.callback.cookies.find((entry) => entry.name === SESSION_COOKIE)!;
-    const headers = { cookie: `${SESSION_COOKIE}=${cookie.value}` };
-    const response = await legacy.inject({ url: "/api/admin/session", headers });
-    expect(response.statusCode).toBe(200);
-    expect(response.json()).toMatchObject({ legacy: true, user: { role: "admin" } });
-    expect((await legacy.inject({ url: "/api/admin/team", headers })).statusCode).toBe(403);
+    expect(result.callback.headers.location).toBe("/admin?error=access");
+    expect(result.callback.cookies.some((entry) => entry.name === SESSION_COOKIE)).toBe(false);
   });
   it("revokes logout on the server, rejects CSRF, cross-origin and duplicate cookies", async () => {
     const user = await member();

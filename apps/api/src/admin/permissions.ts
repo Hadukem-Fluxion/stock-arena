@@ -10,6 +10,9 @@ export const PERMISSIONS = [
   "players:read",
   "players:write",
   "flags:write",
+  "flags:read",
+  "flags:resolve",
+  "quiz:read",
   "quiz:write",
   "points:write",
   "games:write",
@@ -29,6 +32,9 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "players:read",
     "players:write",
     "flags:write",
+    "flags:read",
+    "flags:resolve",
+    "quiz:read",
     "quiz:write",
     "points:write",
     "games:write",
@@ -37,8 +43,15 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "rewards:write",
     "rewards:export",
   ],
-  moderator: ["overview:read", "audit:read", "players:read", "flags:write", "rewards:read"],
-  support: ["overview:read", "audit:read", "players:read", "rewards:read"],
+  moderator: [
+    "overview:read",
+    "audit:read",
+    "players:read",
+    "flags:read",
+    "flags:write",
+    "rewards:read",
+  ],
+  support: ["overview:read", "audit:read", "players:read", "flags:read", "rewards:read"],
 };
 
 export function allowed(role: Role, permission: Permission): boolean {
@@ -48,7 +61,15 @@ export function allowed(role: Role, permission: Permission): boolean {
 export class AdminError extends Error {
   constructor(
     public readonly code:
-      "LAST_OWNER" | "CONFIRMATION_REQUIRED" | "MEMBER_NOT_FOUND" | "CSRF_REJECTED",
+      | "LAST_OWNER"
+      | "CONFIRMATION_REQUIRED"
+      | "MEMBER_NOT_FOUND"
+      | "CSRF_REJECTED"
+      | "NOT_FOUND"
+      | "QUIZ_FROZEN"
+      | "SLUG_EXISTS"
+      | "REQUEST_CONFLICT"
+      | "FLAG_CLOSED",
     public readonly statusCode = 409,
   ) {
     super(code);

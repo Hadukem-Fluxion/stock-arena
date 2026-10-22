@@ -14,8 +14,8 @@ import { AdminError } from "./permissions.js";
 import type { Role } from "./permissions.js";
 
 type Transaction = Parameters<Parameters<DatabaseConnection["db"]["transaction"]>[0]>[0];
-export type Actor = { userId: string; displayName: string; role: Role; legacy: boolean };
-export type AuditContext = { actor: Actor; ipHash: string; now: Date };
+export type Actor = { userId: string; displayName: string; role: Role };
+export type AuditContext = { actor: Actor; ipHash: string; now: Date; tokenHash?: string };
 
 export async function lockTeam(tx: Transaction) {
   await tx.select().from(adminControl).where(eq(adminControl.id, 1)).for("update");

@@ -50,22 +50,6 @@ export function registerAuth(app: FastifyInstance, options: AuthOptions = {}) {
     const claims = await sessions().verify(header.slice(7));
     request.user = await identityStore().find(claims.sub, claims);
   }
-  async function requireAdmin(request: FastifyRequest) {
-    if (!request.user) await requireUser(request);
-    if (!request.user) throw new AuthError("UNAUTHORIZED", 401);
-    const ids =
-      request.user.identity.platform === "discord" ? env.ADMIN_DISCORD_IDS : env.ADMIN_TELEGRAM_IDS;
-    if (
-      !(ids ?? "")
-        .split(",")
-        .map((id) => id.trim())
-        .filter(Boolean)
-        .includes(request.user.identity.platformUserId)
-    ) {
-      throw new AuthError("FORBIDDEN", 403);
-    }
-  }
-
   app.addHook("preHandler", async (request, reply) => {
     const route = request.routeOptions.url;
     if (route === "/api/auth/discord" || route === "/api/auth/telegram") {
@@ -112,5 +96,5 @@ export function registerAuth(app: FastifyInstance, options: AuthOptions = {}) {
   app.addHook("onClose", async () => {
     if (!options.database) await connection?.close();
   });
-  return { requireUser, requireAdmin, database };
+  return { requireUser, database };
 }
