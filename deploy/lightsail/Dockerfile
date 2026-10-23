@@ -10,8 +10,8 @@ RUN corepack enable && corepack prepare pnpm@10.28.0 --activate
 COPY . .
 RUN pnpm install --frozen-lockfile \
     && pnpm verify:node \
-    && NODE_OPTIONS=--max-old-space-size=384 pnpm --filter @stock-arena/api typecheck \
-    && NODE_OPTIONS=--max-old-space-size=384 pnpm --filter @stock-arena/worker typecheck
+    && NODE_OPTIONS=--max-old-space-size=512 pnpm --filter @stock-arena/api typecheck \
+    && NODE_OPTIONS=--max-old-space-size=512 pnpm --filter @stock-arena/worker typecheck
 
 # Tests may mount an isolated local database; production requires DATABASE_URL.
 RUN mkdir -p packages/db/.local && chown node:node packages/db/.local

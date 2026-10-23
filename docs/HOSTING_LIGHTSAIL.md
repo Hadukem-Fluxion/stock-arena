@@ -129,7 +129,9 @@ free -h
 Antes de repetir, verificar `swapon --show` e `/etc/fstab`; não reformatar swap em
 uso nem duplicar a linha. API tem limite de 320 MB, worker de 384 MB e Caddy de
 96 MB; são limites máximos, não RAM reservada. O build verifica tipos em sequência
-e usa heap de 384 MB. Não fazer build/testes completos em paralelo nesse host.
+e usa heap de 512 MB por processo de TypeScript (ajustado na T30 após o limite
+anterior de 384 MB ser esgotado no CI). Isso não muda os limites de runtime.
+Manter o swap configurado e não fazer build/testes completos em paralelo nesse host.
 1 GB serve como alvo inicial de staging, **não há teste de carga que comprove
 capacidade de lançamento**. Se houver OOM, swap constante ou latência, ampliar o
 plano antes de aumentar tráfego. Logs Docker têm rotação de 10 MB × 3 por serviço.
