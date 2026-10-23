@@ -11,12 +11,20 @@ import {
   addDays,
 } from "@stock-arena/game-core";
 import type { AssetCatalog, CheckinView } from "@stock-arena/game-core";
-import { checkins, pointsLedger, priceSnapshots, tickerStatus, users } from "@stock-arena/db";
+import {
+  checkins,
+  pointsLedger,
+  priceSnapshots,
+  tickerStatus,
+  users,
+  gamePaused,
+} from "@stock-arena/db";
 import type { DatabaseConnection } from "@stock-arena/db";
 import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { AuthError } from "./auth/types.js";
+import { GameControlError } from "./game-control.js";
 
 export class GameError extends Error {
   readonly statusCode = 409;
@@ -43,6 +51,8 @@ export function createCheckinStore(
       const [user] = await tx.select().from(users).where(eq(users.id, userId)).for("update");
       if (!user) throw new AuthError("UNAUTHORIZED", 401);
       if (user.status !== "active") throw new AuthError("ACCOUNT_UNAVAILABLE", 403);
+      const maintenance = await gamePaused(tx, "checkin");
+      if (award && maintenance) throw new GameControlError();
       const instant = (options.now ?? (() => new Date()))();
       const today = gameDay(instant);
       const [last] = await tx
@@ -123,6 +133,7 @@ export function createCheckinStore(
           : null;
       const stockFacts = facts[ticker] ?? [];
       return {
+        maintenance,
         serverTime: instant.toISOString(),
         day: today,
         checkedIn: Boolean(current),

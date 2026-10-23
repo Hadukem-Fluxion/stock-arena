@@ -78,6 +78,13 @@
       "when": 1792692208739,
       "tag": "0010_admin-operations",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792694884896,
+      "tag": "0011_admin-game-controls",
+      "breakpoints": true
     }
   ]
 }

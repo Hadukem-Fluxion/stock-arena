@@ -99,7 +99,7 @@ export function TodayTopFive({
   const state = useLeaderboard(platform, enabled, "day", "all");
   return (
     <>
-      <p className="eyebrow">{en.labels.season}</p>
+      <p className="eyebrow">{state.view?.season.name ?? en.labels.season}</p>
       <h2>{en.labels.topFive}</h2>
       {state.view?.top.length ? (
         <RankingRows rows={state.view.top.slice(0, 5)} callerId={state.view.caller?.userId} />
@@ -170,6 +170,9 @@ export function LeaderboardPanel({
       )}
       {state.view && (
         <>
+          {period === "season" && (
+            <p className="eyebrow">{state.view.season.name ?? state.view.season.id}</p>
+          )}
           <p className="caption muted">
             {en.leaderboard.updates} · {en.labels.utc}
           </p>

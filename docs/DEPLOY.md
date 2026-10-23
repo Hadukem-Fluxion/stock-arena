@@ -96,8 +96,15 @@ O guia do operador é [ADMIN_GUIDE.md](ADMIN_GUIDE.md).
 Na T29, as allowlists `ADMIN_DISCORD_IDS`/`ADMIN_TELEGRAM_IDS` foram removidas.
 Antes de atualizar, o owner deve cadastrar os operadores pela tela Team; remova
 as variáveis antigas do ambiente. Tokens de jogador também não autorizam o admin.
-Aplique a migration `0010_admin-operations` antes da API. Em um
-rollback, preservar schema/auditoria e preferir uma revisão compatível com Staff:
+Aplique a migration `0010_admin-operations` antes da API.
+A T30 exige também `0011_admin-game-controls` antes de atualizar API/worker;
+publique primeiro o web atualizado (compatível com os campos antigos), depois
+aplique a migration e atualize API/worker juntos. Activities/Mini Apps já abertas
+precisam de reload para os novos formatos de resposta de jogos/ranking.
+A migration preserva a Season 1 e adiciona controles. Validar com contas/dados sintéticos os
+switches de jogos, a persistência das pausas de ticker e o bloqueio de alterações
+de início passado para admin. Consultar o ADMIN_GUIDE para as janelas UTC.
+Em um rollback, preservar schema/auditoria e preferir uma revisão compatível com Staff:
 uma API anterior à T28 não reconhece suas sessões e volta à autorização legada.
 
 ## Railway: configurações dos dois serviços

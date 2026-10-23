@@ -48,6 +48,7 @@ export type PredictionRound = {
   changePct: string | null;
 };
 export type PredictionView = {
+  maintenance?: boolean;
   day: string;
   serverTime: string;
   runsUsed: number;

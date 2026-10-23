@@ -81,7 +81,7 @@ function pattern(value: string) {
 function paginated<T>(rows: T[], current: number) {
   return { entries: rows.slice(0, size), page: current, hasMore: rows.length > size };
 }
-async function event(
+export async function event(
   tx: Tx,
   ctx: AuditContext,
   action: string,
@@ -102,7 +102,7 @@ async function event(
     createdAt: ctx.now,
   });
 }
-async function activeActor(tx: Tx, ctx: AuditContext, permission: Permission) {
+export async function activeActor(tx: Tx, ctx: AuditContext, permission: Permission) {
   // Same serialization gate as grants/revocations; prevents stale role writes.
   await lockTeam(tx);
   const [member] = await tx

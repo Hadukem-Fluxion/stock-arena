@@ -25,6 +25,7 @@ export const leaderboardSchema: z.ZodType<LeaderboardView> = z
     season: z
       .object({
         id: z.string(),
+        name: z.string().optional(),
         startsAt: z.string().datetime(),
         endsAt: z.string().datetime().nullable(),
         ended: z.boolean(),

@@ -2,7 +2,7 @@
 
 One brief = one pull request. Paste the whole brief into Codex together with AGENTS.md. This file and `docs/ROADMAP.md` are the official Task Board; there is no external board. Keep them updated with implementation/review status and dependencies. Non-code tasks (T00, T01, T05, T06, T17, T20) are done by people or Claude and are not listed here.
 
-## Task Board updates — 2026-10-22
+## Task Board updates — 2026-10-23
 
 | Task              | State / dependency                                                                    |
 | ----------------- | ------------------------------------------------------------------------------------- |
@@ -11,8 +11,9 @@ One brief = one pull request. Paste the whole brief into Codex together with AGE
 | T26               | Integrated via PR #20; post-deploy smoke test remains pending confirmation            |
 | T28               | Integrated via PR #23; real admin smoke test pending deployment                       |
 | Lightsail hosting | Integrated via PR #24; instance/DNS/cutover pending                                   |
-| T29               | Implemented on `t29-admin-operations`; review and post-deploy smoke test pending      |
-| T30 → T31         | Planned after T29 review/integration; one branch/PR per task                          |
+| T29               | Integrated via PR #25; post-deploy smoke test pending                                 |
+| T30               | Implemented on `t30-admin-game-controls`; review and post-deploy smoke test pending   |
+| T31               | Planned after T30 review/integration                                                  |
 | T27 mStocks Flyer | Hold-to-rise brief updated; planned after T26, T28, T29, T30 and T31; not implemented |
 | T32               | Settlement query optimization; required before T19 load test; not part of T26         |
 
@@ -526,6 +527,14 @@ bank import is part of this PR. Game controls/seasons remain T30; rewards remain
 - Tests for each write path and the audit rows.
 
 ## T30 — Admin game controls and seasons
+
+Implementation: game gates preserve reads and in-flight prediction settlement;
+manual ticker overrides are separate from oracle health; database seasons replace
+`GAME_CONFIG.season`. Migration `0011_admin-game-controls` preserves Season 1,
+seeds active game switches and retains legacy manual pauses. Owner-only past-start
+changes and all controls are audited. Review uses PGlite and synthetic mobile/
+desktop captures (catalogs with 3/30 assets). Live migration/deploy checks remain
+pending after review/merge; no ledger rewrite or T31 feature is included.
 
 - Per-game switch: pause/resume Check-in, Quiz, Higher or Lower (paused game shows an English "Paused for maintenance" message; no runs consumed).
 - Prices: ticker status table; manual pause/resume per ticker with reason.

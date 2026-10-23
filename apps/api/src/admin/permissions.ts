@@ -69,7 +69,10 @@ export class AdminError extends Error {
       | "QUIZ_FROZEN"
       | "SLUG_EXISTS"
       | "REQUEST_CONFLICT"
-      | "FLAG_CLOSED",
+      | "FLAG_CLOSED"
+      | "SEASON_ORDER"
+      | "SEASON_OVERLAP"
+      | "SEASON_EXISTS",
     public readonly statusCode = 409,
   ) {
     super(code);

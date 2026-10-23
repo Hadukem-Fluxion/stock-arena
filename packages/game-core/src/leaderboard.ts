@@ -2,7 +2,7 @@ import type { AssetCatalog } from "./assets.js";
 
 export type LeaderboardPeriod = "day" | "week" | "season";
 export type LeaderboardPlatform = "all" | "discord" | "telegram";
-export type Season = { id: string; startsAt: string; endsAt: string | null };
+export type Season = { id: string; name?: string; startsAt: string; endsAt: string | null };
 export type LeaderboardEntry = {
   userId: string;
   displayName: string;

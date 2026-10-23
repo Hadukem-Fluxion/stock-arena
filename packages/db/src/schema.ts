@@ -263,6 +263,8 @@ export const tickerStatus = pgTable("ticker_status", {
   ticker: text("ticker").primaryKey(),
   state: tickerState("state").notNull(),
   reason: text("reason"),
+  oracleState: tickerState("oracle_state"),
+  oracleReason: text("oracle_reason"),
   nextChangeAt: instant("next_change_at"),
   tradingPeriod: text("trading_period"),
   tradingHalted: boolean("trading_halted"),
@@ -272,6 +274,41 @@ export const tickerStatus = pgTable("ticker_status", {
   lastOpenedAt: instant("last_opened_at"),
   updatedAt: instant("updated_at").defaultNow().notNull(),
 });
+
+export const gameControls = pgTable(
+  "game_controls",
+  {
+    game: text("game", { enum: ["checkin", "quiz", "higher_lower"] }).primaryKey(),
+    paused: boolean("paused").default(false).notNull(),
+    reason: text("reason").default("").notNull(),
+    updatedAt: instant("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    check("game_controls_game", sql`${table.game} IN ('checkin', 'quiz', 'higher_lower')`),
+  ],
+);
+
+/** Manual override is independent of the oracle's current health result. */
+export const tickerControls = pgTable("ticker_controls", {
+  ticker: text("ticker").primaryKey(),
+  paused: boolean("paused").default(false).notNull(),
+  reason: text("reason").default("").notNull(),
+  updatedAt: instant("updated_at").defaultNow().notNull(),
+});
+
+export const seasons = pgTable(
+  "seasons",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    startsAt: instant("starts_at").notNull(),
+    endsAt: instant("ends_at"),
+  },
+  (table) => [
+    unique("seasons_start_unique").on(table.startsAt),
+    check("seasons_dates", sql`${table.endsAt} IS NULL OR ${table.endsAt} > ${table.startsAt}`),
+  ],
+);
 
 export const pointsLedger = pgTable(
   "points_ledger",

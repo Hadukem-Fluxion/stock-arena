@@ -1,15 +1,15 @@
 import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { createLocalDatabase, identities, pointsLedger, users } from "@stock-arena/db";
-import { GAME_CONFIG } from "@stock-arena/game-core";
-import type { LeaderboardView, Season } from "@stock-arena/game-core";
+import { createLocalDatabase, identities, pointsLedger, users, seasons } from "@stock-arena/db";
+import type { LeaderboardView } from "@stock-arena/game-core";
 import type { FastifyInstance } from "fastify";
 import { buildServer } from "./server.js";
 import { createSessions } from "./auth/session.js";
 import { leaderboardWindow } from "./leaderboard.js";
 
 const connection = createLocalDatabase();
+const initialSeason = { id: "season-1", startsAt: "2026-10-16T00:00:00Z", endsAt: null };
 const secret = "fake-leaderboard-secret-for-isolated-tests-48-bytes";
 let now = new Date("2026-10-19T12:00:00Z");
 const apps: FastifyInstance[] = [];
@@ -19,6 +19,13 @@ beforeAll(async () => {
 beforeEach(async () => {
   now = new Date("2026-10-19T12:00:00Z");
   await connection.db.update(users).set({ status: "suspended" });
+  await connection.db.delete(seasons);
+  await connection.db.insert(seasons).values({
+    id: initialSeason.id,
+    name: "Season 1",
+    startsAt: new Date(initialSeason.startsAt),
+    endsAt: null,
+  });
 });
 afterEach(async () => {
   for (const app of apps.splice(0)) await app.close();
@@ -45,11 +52,10 @@ async function awards(userId: string, entries: [number, string][]) {
     })),
   );
 }
-function server(season?: Season) {
+function server() {
   const app = buildServer({
     logger: false,
     auth: { database: connection, env: { SESSION_SECRET: secret }, now: () => now },
-    leaderboard: { season },
   });
   apps.push(app);
   return (token: string, query = "period=day&platform=all") =>
@@ -61,13 +67,15 @@ function server(season?: Season) {
 }
 describe("leaderboard windows", () => {
   it("uses Monday-to-Monday UTC weeks and calendar UTC days at both boundaries", () => {
-    expect(
-      leaderboardWindow("week", new Date("2026-10-18T23:59:59.999Z"), GAME_CONFIG.season),
-    ).toEqual({ startsAt: "2026-10-12T00:00:00.000Z", endsAt: "2026-10-19T00:00:00.000Z" });
-    expect(leaderboardWindow("week", new Date("2026-10-19T00:00:00Z"), GAME_CONFIG.season)).toEqual(
-      { startsAt: "2026-10-19T00:00:00.000Z", endsAt: "2026-10-26T00:00:00.000Z" },
-    );
-    expect(leaderboardWindow("day", new Date("2026-10-19T00:00:00Z"), GAME_CONFIG.season)).toEqual({
+    expect(leaderboardWindow("week", new Date("2026-10-18T23:59:59.999Z"), initialSeason)).toEqual({
+      startsAt: "2026-10-12T00:00:00.000Z",
+      endsAt: "2026-10-19T00:00:00.000Z",
+    });
+    expect(leaderboardWindow("week", new Date("2026-10-19T00:00:00Z"), initialSeason)).toEqual({
+      startsAt: "2026-10-19T00:00:00.000Z",
+      endsAt: "2026-10-26T00:00:00.000Z",
+    });
+    expect(leaderboardWindow("day", new Date("2026-10-19T00:00:00Z"), initialSeason)).toEqual({
       startsAt: "2026-10-19T00:00:00.000Z",
       endsAt: "2026-10-20T00:00:00.000Z",
     });
@@ -99,11 +107,12 @@ describe("leaderboard API", () => {
       [100, "2026-10-18T00:00:00Z"],
       [200, "2026-10-19T00:00:00Z"],
     ]);
+    await connection.db
+      .update(seasons)
+      .set({ endsAt: new Date("2026-10-18T00:00:00Z") })
+      .where(eq(seasons.id, initialSeason.id));
     const result = (
-      await server({ ...GAME_CONFIG.season, endsAt: "2026-10-18T00:00:00Z" })(
-        user.token,
-        "period=season&platform=all",
-      )
+      await server()(user.token, "period=season&platform=all")
     ).json<LeaderboardView>();
     expect(result.season.ended).toBe(true);
     expect(result.caller!.score).toBe(20);

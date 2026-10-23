@@ -64,7 +64,13 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
           selectGame("checkin");
           void checkin.award();
         }}
-        disabled={!checkin.allowed || !checkin.view || checkin.busy || checkin.view.checkedIn}
+        disabled={
+          !checkin.allowed ||
+          !checkin.view ||
+          checkin.busy ||
+          checkin.view.checkedIn ||
+          checkin.view.maintenance
+        }
       >
         {checkin.busy
           ? en.checkin.saving
@@ -79,6 +85,11 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
         </p>
       )}
       {!checkin.allowed && <p className="caption muted">{en.checkin.preview}</p>}
+      {checkin.view?.maintenance && (
+        <p className="caption muted" role="status">
+          {en.maintenance}
+        </p>
+      )}
       {checkin.allowed && checkin.busy && !checkin.view && (
         <p className="caption muted">{en.checkin.loading}</p>
       )}

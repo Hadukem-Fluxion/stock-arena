@@ -1,5 +1,4 @@
 import { registerLeaderboard } from "./leaderboard.js";
-import type { LeaderboardOptions } from "./leaderboard.js";
 import { registerPrices } from "./prices.js";
 import type { PricesOptions } from "./prices.js";
 import Fastify, { type FastifyInstance } from "fastify";
@@ -17,6 +16,7 @@ import { HlError, registerHl } from "./higher-lower.js";
 import type { HlOptions } from "./higher-lower.js";
 import { registerAdmin } from "./admin/index.js";
 import { AdminError } from "./admin/permissions.js";
+import { GameControlError } from "./game-control.js";
 
 export const VERSION = "0.1.0";
 
@@ -29,7 +29,6 @@ export function buildServer(
     discord?: { publicKey?: string };
     telegram?: { webhookSecret?: string };
     logger?: false | { stream: Writable };
-    leaderboard?: LeaderboardOptions;
     prices?: PricesOptions;
   } = {},
 ): FastifyInstance {
@@ -63,10 +62,10 @@ export function buildServer(
   registerAdmin(app, {
     ...options.auth,
     database: auth.database,
+    catalog: options.checkin?.catalog,
   });
   registerCheckin(app, { ...options.checkin, database: auth.database, now: options.auth?.now });
   registerLeaderboard(app, {
-    ...options.leaderboard,
     database: auth.database,
     now: options.auth?.now,
   });
@@ -87,7 +86,8 @@ export function buildServer(
       error instanceof GameError ||
       error instanceof QuizError ||
       error instanceof HlError ||
-      error instanceof AdminError
+      error instanceof AdminError ||
+      error instanceof GameControlError
     ) {
       return reply.code(error.statusCode).send({ error: { code: error.code } });
     }

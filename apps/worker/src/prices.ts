@@ -1,6 +1,6 @@
 import { TICKERS } from "@stock-arena/game-core";
 import type { Ticker } from "@stock-arena/game-core";
-import { priceSnapshots, tickerStatus, tickerHalts } from "@stock-arena/db";
+import { priceSnapshots, tickerStatus, tickerHalts, tickerControls } from "@stock-arena/db";
 import type { DatabaseConnection } from "@stock-arena/db";
 import { evaluateTicker } from "@stock-arena/fluxion-oracle";
 import type { OraclePoll, TickerState } from "@stock-arena/fluxion-oracle";
@@ -17,6 +17,12 @@ export function createPriceStore(
       if (poll.snapshots.length) await tx.insert(priceSnapshots).values(poll.snapshots);
       const statuses: { ticker: Ticker; status: TickerState }[] = [];
       for (const ticker of TICKERS) {
+        await tx.insert(tickerControls).values({ ticker }).onConflictDoNothing();
+        const [manual] = await tx
+          .select()
+          .from(tickerControls)
+          .where(eq(tickerControls.ticker, ticker))
+          .for("share");
         const history = await tx
           .select()
           .from(priceSnapshots)
@@ -28,8 +34,9 @@ export function createPriceStore(
           .from(tickerStatus)
           .where(eq(tickerStatus.ticker, ticker));
         const previousState: TickerState | undefined =
-          previous?.state === "paused" && ["manual", "divergence"].includes(previous.reason ?? "")
-            ? { state: "paused", reason: previous.reason as "manual" | "divergence" }
+          (previous?.oracleState ?? previous?.state) === "paused" &&
+          (previous?.oracleReason ?? previous?.reason) === "divergence"
+            ? { state: "paused", reason: "divergence" }
             : undefined;
         const pool = poll.snapshots.find(
           (snapshot) => snapshot.ticker === ticker && snapshot.source === "fluxion_pool",
@@ -46,6 +53,9 @@ export function createPriceStore(
           ...options,
         });
         const trading = poll.trading[ticker];
+        const effective: TickerState = manual?.paused
+          ? { state: "paused", reason: "manual" }
+          : result.status;
         if (trading?.isTradingHalted && previous?.tradingHalted !== true) {
           await tx
             .insert(tickerHalts)
@@ -60,7 +70,7 @@ export function createPriceStore(
             .update(priceSnapshots)
             .set({
               tradable:
-                result.status.state === "live" &&
+                effective.state === "live" &&
                 !!trading &&
                 !trading.isTradingHalted &&
                 trading.currentPeriod !== "closed",
@@ -118,8 +128,10 @@ export function createPriceStore(
           lastClosedAt,
           lastSession,
           lastOpenedAt: opening ?? previous?.lastOpenedAt ?? null,
-          state: result.status.state,
-          reason: result.status.state === "paused" ? result.status.reason : null,
+          state: effective.state,
+          reason: effective.state === "paused" ? effective.reason : null,
+          oracleState: result.status.state,
+          oracleReason: result.status.state === "paused" ? result.status.reason : null,
           // Only a scheduled closed-period transition can advertise a reopening.
           // A halt or missing metadata cannot promise an opening time.
           nextChangeAt:
@@ -139,7 +151,7 @@ export function createPriceStore(
         if (result.divergencePct !== null && result.divergencePct > options.divergencePct) {
           warn(`[worker] ${ticker} divergence ${result.divergencePct.toFixed(3)}%; ticker paused.`);
         }
-        statuses.push({ ticker, status: result.status });
+        statuses.push({ ticker, status: effective });
       }
       return statuses;
     });

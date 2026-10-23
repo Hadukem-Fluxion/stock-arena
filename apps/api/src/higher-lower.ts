@@ -4,10 +4,11 @@ import { z } from "zod";
 import type { FastifyInstance } from "fastify";
 import { ASSETS, GAME_CONFIG, gameDay, predictionChange } from "@stock-arena/game-core";
 import type { AssetCatalog, PredictionView } from "@stock-arena/game-core";
-import { hlPredictions, hlRuns, tickerStatus, users } from "@stock-arena/db";
+import { hlPredictions, hlRuns, tickerStatus, users, gamePaused } from "@stock-arena/db";
 import type { DatabaseConnection } from "@stock-arena/db";
 import { AuthError } from "./auth/types.js";
 import { readMarket } from "./market.js";
+import { GameControlError } from "./game-control.js";
 
 export class HlError extends Error {
   constructor(
@@ -39,6 +40,8 @@ export function createHlStore(
       const [user] = await tx.select().from(users).where(eq(users.id, userId)).for("update");
       if (!user) throw new AuthError("UNAUTHORIZED", 401);
       if (user.status !== "active") throw new AuthError("ACCOUNT_UNAVAILABLE", 403);
+      const maintenance = await gamePaused(tx, "higher_lower");
+      if (maintenance && action.type !== "read") throw new GameControlError();
       const now = receivedAt,
         day = gameDay(now);
       const today = await tx
@@ -211,7 +214,7 @@ export function createHlStore(
       const available = await candidates();
       const visible: PredictionView["runs"] = [];
       for (const run of runs) {
-        if (action.type === "read") {
+        if (action.type === "read" && !maintenance) {
           const offered = await roundFor(run.id);
           if (offered) await replaceUnavailableOffer(run, offered, available);
         }
@@ -224,6 +227,7 @@ export function createHlStore(
           correctCount: run.correctCount,
           score: run.correctCount * config.pointsPerCorrect,
           canPick: Boolean(
+            !maintenance &&
             round &&
             !round.lockedAt &&
             !round.settledAt &&
@@ -257,6 +261,7 @@ export function createHlStore(
         });
       }
       return {
+        maintenance,
         day,
         serverTime: now.toISOString(),
         runsUsed: today.length,
@@ -264,6 +269,7 @@ export function createHlStore(
         maxCorrect: config.maxCorrectPerRun,
         pointsPerCorrect: config.pointsPerCorrect,
         canStart:
+          !maintenance &&
           today.length < config.runsPerDay &&
           (await active()) < config.runsPerDay &&
           available.length > 0,

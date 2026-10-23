@@ -32,6 +32,8 @@ import {
 import { audit, auditOrder, createTeamStore, lockTeam } from "./store.js";
 import type { Actor, AuditContext } from "./store.js";
 import { registerOperations } from "./operations.js";
+import { registerControls } from "./controls.js";
+import type { AssetCatalog } from "@stock-arena/game-core";
 
 declare module "fastify" {
   interface FastifyContextConfig {
@@ -92,6 +94,7 @@ export function registerAdmin(
   app: FastifyInstance,
   options: Omit<AuthOptions, "database"> & {
     database: () => DatabaseConnection;
+    catalog?: AssetCatalog;
   },
 ) {
   const env = options.env ?? process.env;
@@ -385,5 +388,6 @@ export function registerAdmin(
     return { entries: rows.slice(0, 50), page: input.page, hasMore: rows.length > 50 };
   });
   registerOperations(app, { database: options.database, now, context });
+  registerControls(app, { database: options.database, now, context, catalog: options.catalog });
   return { requirePermission };
 }

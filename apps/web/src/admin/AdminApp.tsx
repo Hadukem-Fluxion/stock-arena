@@ -5,10 +5,12 @@ import { AdminClientError, createAdminClient } from "./client.js";
 import type { AdminRole, AdminSession, AuditFilters, AuditView, TeamMember } from "./client.js";
 import "./admin.css";
 import { QuizOperations, PlayerOperations, FlagOperations } from "./Operations.js";
+import { GameControls, TickerControls, Seasons } from "./Controls.js";
 
 const copy = en.admin;
 const client = createAdminClient();
-type Screen = "overview" | "team" | "audit" | "quiz" | "players" | "flags";
+type Screen =
+  "overview" | "team" | "audit" | "quiz" | "players" | "flags" | "games" | "tickers" | "seasons";
 function message(error: unknown): string {
   const code = error instanceof AdminClientError ? error.code : "generic";
   return Object.hasOwn(copy.error, code)
@@ -93,6 +95,8 @@ export function AdminApp() {
     ...(session?.permissions.includes("quiz:read") ? ["quiz"] : []),
     ...(session?.permissions.includes("players:read") ? ["players"] : []),
     ...(session?.permissions.includes("flags:read") ? ["flags"] : []),
+    ...(session?.permissions.includes("games:write") ? ["games", "tickers"] : []),
+    ...(session?.permissions.includes("seasons:write") ? ["seasons"] : []),
     "audit",
   ] as Screen[];
   return (
@@ -257,12 +261,7 @@ export function AdminApp() {
                 </div>
                 <h2 className="admin-section-title">{copy.planned}</h2>
                 <div className="admin-planned">
-                  {(
-                    [
-                      [copy.controls, copy.controlsBody],
-                      [copy.rewards, copy.rewardsBody],
-                    ] as const
-                  ).map(([title, body]) => (
+                  {([[copy.rewards, copy.rewardsBody]] as const).map(([title, body]) => (
                     <section className="admin-card" key={title}>
                       <h3>{title}</h3>
                       <p>{body}</p>
@@ -281,6 +280,33 @@ export function AdminApp() {
               />
             )}
             {screen === "audit" && <Audit onError={setError} />}
+            {screen === "games" && (
+              <GameControls
+                session={session}
+                busy={busy}
+                revision={revision}
+                write={write}
+                onError={operationError}
+              />
+            )}
+            {screen === "tickers" && (
+              <TickerControls
+                session={session}
+                busy={busy}
+                revision={revision}
+                write={write}
+                onError={operationError}
+              />
+            )}
+            {screen === "seasons" && (
+              <Seasons
+                session={session}
+                busy={busy}
+                revision={revision}
+                write={write}
+                onError={operationError}
+              />
+            )}
             {screen === "quiz" && (
               <QuizOperations
                 session={session}

@@ -191,6 +191,12 @@ export async function setupPrediction(page: Page, count: number, closed = false)
   return {
     catalog,
     picks: () => picks,
+    pause() {
+      view.maintenance = true;
+      view.canStart = false;
+      for (const run of view.runs) run.canPick = false;
+      checkin.maintenance = true;
+    },
     includeUnavailableOffer() {
       const pending = view.runs[0]!;
       view.canStart = false;

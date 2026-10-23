@@ -5,8 +5,8 @@ Discord Activity and Telegram Mini App. Sign in with Discord. Use your own accou
 never share a session or application secret with another operator.
 
 The hub provides login, team management, audit, quiz bank, player profiles,
-point corrections and flags (T28–T29). Game controls and seasons (T30), and
-reward registration/export (T31), are not available yet.
+point corrections, flags, game/ticker controls and seasons (T28–T30).
+Reward registration/export (T31) is not available yet.
 
 ## First owner
 
@@ -160,6 +160,72 @@ account/ledger change and resolution. Failed actions leave the flag open. An
 already resolved flag rejects a second resolution; notes can still document
 later follow-up. Moderator access never grants suspend, ban or point adjustment.
 
+## Games, tickers and seasons (T30)
+
+Only owners and admins see **Games**, **Tickers** and **Seasons**. Each change
+requires a reason and confirmation. Staff permissions and session validity are
+checked again inside the write transaction. Moderators/support cannot use these
+controls by calling the API directly.
+
+### Game maintenance
+
+On **Games**, enter a reason under Check-in, Quiz or Higher or Lower and choose
+**Pause** or **Resume**. A paused game shows **Paused for maintenance** to players.
+The API rejects new actions without inserting check-ins, quiz attempts, runs,
+picks or awards for those blocked actions. Read-only views remain available,
+including pending predictions and existing results. The app refreshes game state
+every 15 seconds while visible; an action that races a pause reloads the state.
+
+Maintenance does not refund previously consumed attempts or reset clocks. Quiz
+deadlines continue; a late answer after resumption is handled by the original
+server timer. Locked Higher or Lower predictions keep their original windows and
+settle normally in the worker, including points for correct picks. Idle expiry
+still applies. Pausing prevents further player actions; it is not a retroactive
+cancellation or a switch for the price worker.
+
+### Manual ticker overrides
+
+**Tickers** lists catalog reference tickers, last primary prices, effective
+pause status, automatic oracle health and the last control reason. Choose
+**Manage**, enter a reason, then Pause or Resume. A manual pause survives polling
+and restarts; the worker continues recording prices and checking health.
+Primary samples observed under that override are marked unusable for gameplay.
+The player's last-price panel remains available with its normal pause copy.
+
+Resume clears only the manual override. It never overrides a closed market,
+trading halt, stale/missing data, price jump or divergence. With unknown/stale
+health it remains paused until a valid poll. Previously captured valid samples
+are preserved; manual controls do not rewrite prediction prices or ledger awards.
+Manual reasons stay in the staff hub/audit and are not shown as player copy.
+
+### Seasons
+
+Season dates now live in the database, not `GAME_CONFIG.season`. Migration
+`0011_admin-game-controls` preserves the original provisional **Season 1** window:
+start `2026-10-16T00:00:00Z`, no end. Mantle still needs to confirm official dates.
+
+Open **Seasons**, choose **Edit season**, review UTC start/end and name, enter a
+reason and save. The season ID is permanent. An empty end means ongoing; an end
+must be strictly later than the start. The start is inclusive and the end is
+exclusive: points at the end belong to a next season starting at that exact time.
+There are no delete/reset-ledger operations.
+
+Only an **owner** can change the start of an already-started season, or move a
+future season's start into the past. The API enforces this even if the form is
+modified. The audit records complete before/after windows and the reason.
+Admins can update names/end dates and edit starts that remain in the future.
+
+To **Create next season**, first set the preceding season's end. Enter a unique
+ID, English name, future UTC start and optional end, then confirm with a reason.
+The next start must follow every existing start. Windows cannot overlap; the
+database also enforces this, including concurrent requests. Gaps are permitted.
+
+The ranking reads the most recently started season on every request. A completed
+season remains displayed, with its final window, until the next one begins.
+If all starts are future, the earliest future window is used with no pre-start
+points. Day/week windows are unchanged. Editing dates changes the ranking query
+and cache key; the underlying points ledger is never rewritten or reassigned.
+
 ## Audit log
 
 Open **Audit log**. Filter by the actor's internal user UUID, action, and UTC date
@@ -191,6 +257,15 @@ T29 requires `0010_admin-operations` before API startup. Confirm that migration,
 then use synthetic records to smoke-test quiz writes/imports, frozen protections,
 player status, one correction with a retry, and a flag action/audit. Do not run
 destructive checks on campaign players or copy the real bank into review evidence.
+T30 requires `0011_admin-game-controls` before updating API/worker. Verify the
+existing Season 1 and ledger survived, pause/resume each game with a synthetic
+player, test a manual ticker through multiple polls, and inspect the control and
+season audits. Confirm an admin cannot change a past start. Use only approved
+campaign dates in production; do not create throwaway production seasons.
+Publish the updated web first: its optional fields support the older API during
+rollout. Then migrate and update API/worker together, and reload any already-open
+Activity/Mini App so it receives the new response decoders. Do not roll back to
+an API that still reads season dates from code after relying on admin date changes.
 
 If login is unavailable, have the account owner check the API environment and
 the exact Discord redirect URI in [DEPLOY.md](DEPLOY.md#admin-hub-t28). Never paste

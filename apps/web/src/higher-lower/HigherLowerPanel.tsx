@@ -92,6 +92,7 @@ export function HigherLowerPanel({
   return (
     <div className="hl-panel" aria-busy={busy}>
       <p className="body-copy">{en.hl.predictionIntro}</p>
+      {view?.maintenance && <p role="status">{en.maintenance}</p>}
       <p className="caption muted">{en.hl.predictionRules}</p>
       {error && <p role="alert">{error === "session" ? en.quiz.sessionError : en.hl.error}</p>}
       {view && (
@@ -256,7 +257,7 @@ export function HigherLowerPanel({
                           <button
                             className="primary-button"
                             type="button"
-                            disabled={busy || !!error}
+                            disabled={busy || !!error || view.maintenance}
                             onClick={() => void run("next", { runId: entry.id })}
                           >
                             {en.hl.nextPrediction}
