@@ -17,10 +17,10 @@ Hosting priority (22/10/2026): prepare the API/worker move to Lightsail in
 the 21/10 environment-variable incident. Artifacts and the operator guide are for
 review and integrated via PR #24; instance, DNS, new provider credentials and live
 smoke tests remain pending. Railway resources/configuration are retained.
-T28 is integrated via PR #23. T29 is implemented on `t29-admin-operations`, pending
-review: quiz bank, players, points and flags, with migration `0010`, Staff-only
-admin authorization and the updated operator guide. Synthetic review captures and
-local/API/database/browser checks accompany that PR; live operations are not claimed.
+T28 is integrated via PR #23 and T29 via PR #25. T30 is implemented on
+`t30-admin-game-controls`, pending review: game maintenance, manual ticker controls
+and database-backed seasons with migration `0011`. Synthetic review captures and
+local/API/database/browser checks accompany the PR; live operations are not claimed.
 
 Current implementation order: **T26 → T28 → T29 → T30 → T31 → T27**. Each task
 has its own branch/PR, reviewed by Claude and merged by Hadukem. T28–T31 cannot
@@ -35,9 +35,10 @@ T28's admin foundation is integrated via PR #23:
 standalone Discord web login, revocable admin sessions, four Staff roles,
 owner-managed team and append-only audit. It requires migration `0009`, the new
 Discord web redirect, `ADMIN_WEB_ORIGIN` and `OWNER_DISCORD_ID` after merge.
-Real owner login/revocation smoke tests remain pending deployment. T29 review and
-live smoke tests are pending; T30, T31 and T27 have not started. The implementation
-order is unchanged.
+Real owner login/revocation and T29 smoke tests remain pending deployment. T30
+review and live smoke tests are pending; T31 and T27 have not started. The
+implementation order is unchanged. Official Season 1 dates still need Mantle
+confirmation; the admin hub records audited date changes without rewriting points.
 
 The official Task Board is `docs/TASKS.md` and this file; there is no external
 board. T26 is integrated via PR #20, including the requested offer-recovery and

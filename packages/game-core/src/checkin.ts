@@ -3,6 +3,7 @@ import type { PointsAward } from "./scoring.js";
 
 /** Public data only: points and dates in this view are computed by the server. */
 export type CheckinView = {
+  maintenance?: boolean;
   serverTime: string;
   day: string;
   checkedIn: boolean;

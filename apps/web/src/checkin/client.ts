@@ -34,6 +34,7 @@ export const assetSchema = z.object({
 export const checkinViewSchema: z.ZodType<CheckinView, z.ZodTypeDef, unknown> = z
   .object({
     serverTime: z.string().datetime(),
+    maintenance: z.boolean().optional(),
     day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     checkedIn: z.boolean(),
     streak: z.number().int().nonnegative(),
@@ -59,7 +60,7 @@ export const checkinViewSchema: z.ZodType<CheckinView, z.ZodTypeDef, unknown> = 
   .refine((value) => Boolean(value.catalog[value.stock.ticker]));
 
 export class CheckinError extends Error {
-  constructor(public readonly code: "unavailable" | "session" | "duplicate") {
+  constructor(public readonly code: "unavailable" | "session" | "duplicate" | "maintenance") {
     super(code);
   }
 }
@@ -81,9 +82,12 @@ export function createCheckinClient(session: () => Session | null, request: type
       if (response.status === 401) throw new CheckinError("session");
       if (response.status === 409) {
         const parsed = z
-          .object({ error: z.object({ code: z.literal("ALREADY_CHECKED_IN") }) })
+          .object({ error: z.object({ code: z.enum(["ALREADY_CHECKED_IN", "GAME_PAUSED"]) }) })
           .safeParse(await response.json());
-        if (parsed.success) throw new CheckinError("duplicate");
+        if (parsed.success)
+          throw new CheckinError(
+            parsed.data.error.code === "GAME_PAUSED" ? "maintenance" : "duplicate",
+          );
       }
       if (!response.ok) throw new CheckinError("unavailable");
       const parsed = checkinViewSchema.safeParse(await response.json());
@@ -99,7 +103,8 @@ export function createCheckinClient(session: () => Session | null, request: type
       try {
         return await call(true);
       } catch (error) {
-        if (error instanceof CheckinError && error.code === "duplicate") return call(false);
+        if (error instanceof CheckinError && ["duplicate", "maintenance"].includes(error.code))
+          return call(false);
         throw error;
       }
     },

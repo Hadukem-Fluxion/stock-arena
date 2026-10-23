@@ -64,8 +64,10 @@ export function useCheckin(platform: PlatformAdapter, enabled: boolean) {
       if (document.visibilityState === "visible") void run();
     };
     document.addEventListener("visibilitychange", visible);
+    const refreshTimer = setInterval(visible, 15_000);
     return () => {
       clearTimeout(timer);
+      clearInterval(refreshTimer);
       document.removeEventListener("visibilitychange", visible);
     };
   }, [allowed, run, view]);

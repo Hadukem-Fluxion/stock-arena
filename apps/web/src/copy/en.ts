@@ -14,6 +14,7 @@ const providers = {
 } as const;
 
 export const en = {
+  maintenance: "Paused for maintenance",
   admin: {
     title: "Admin hub",
     subtitle: "Your team. Your arena.",
@@ -33,6 +34,9 @@ export const en = {
     quiz: "Quiz bank",
     players: "Players",
     flags: "Flags",
+    games: "Games",
+    tickers: "Tickers",
+    seasons: "Seasons",
     workspace: "Workspace",
     signedIn: "Signed in as",
     sessionLabel: "Session expires (UTC)",
@@ -117,6 +121,9 @@ export const en = {
       REQUEST_CONFLICT:
         "This request was already used with different details. Review the ledger before trying again.",
       FLAG_CLOSED: "This flag has already been resolved. Reload to see the result.",
+      SEASON_ORDER: "Create the next season with a future start after every existing season.",
+      SEASON_OVERLAP: "Season windows cannot overlap. Set the previous season's end first.",
+      SEASON_EXISTS: "This season ID is already in use. Choose another ID or edit that season.",
       generic: "The admin hub could not complete this request. Please try again.",
     },
     auditActions: {
@@ -137,6 +144,54 @@ export const en = {
       "flag.raised": "Flag raised",
       "flag.noted": "Flag note added",
       "flag.resolved": "Flag resolved",
+      "game.control_changed": "Game pause changed",
+      "ticker.control_changed": "Ticker override changed",
+      "season.created": "Season created",
+      "season.updated": "Season updated",
+    },
+    gameControls: {
+      names: { checkin: "Daily Check-in", quiz: "Daily Quiz", higher_lower: "Higher or Lower" },
+      gameIntro:
+        "Pause or resume player actions. Paused games do not consume new daily attempts or runs.",
+      pendingNotice:
+        "Existing deadlines keep running. Locked predictions continue settling in the worker; pausing does not change their price windows or points.",
+      pause: "Pause",
+      resume: "Resume",
+      confirmToggle: "Apply this control change and save the required reason to the audit log?",
+      lastReason: "Last control reason",
+      tickerIntro:
+        "Catalog price status and manual overrides. Quotes and automatic health checks keep updating while a ticker is paused.",
+      price: "Primary price (USD)",
+      company: "Company",
+      oracle: "Oracle health",
+      live: "Live",
+      paused: "Paused",
+      manage: "Manage",
+      manageTicker: "Manage ticker",
+      manualControl: "Manual control",
+      resumeNotice:
+        "Resume removes only the manual override. Closed, stale, halted, jump-limited or divergent prices stay paused until the oracle clears them.",
+      seasonIntro:
+        "Manage UTC ranking windows. The latest started season is shown; an ended season remains visible until the next season starts.",
+      ledgerNotice:
+        "Changing season dates recalculates the ranking window. Ledger history is never rewritten. Official campaign dates still need Mantle confirmation.",
+      newSeason: "Create next season",
+      editSeason: "Edit season",
+      seasonEditor: "Season editor",
+      seasonId: "Season ID",
+      seasonName: "Season name",
+      starts: "Starts at (UTC)",
+      ends: "Ends at (UTC)",
+      ongoing: "Ongoing",
+      upcoming: "Upcoming",
+      ended: "Ended",
+      emptyEnd:
+        "Leave the end empty for an ongoing season. Close it before creating an overlapping next season.",
+      pastStart:
+        "Only an owner can change an already-started season's start or move a start into the past. Every change requires a reason.",
+      confirmSeason:
+        "Save this season window? Its ranking will use the new dates; point history stays unchanged.",
+      saveSeason: "Save season",
     },
     ops: {
       quizIntro:
@@ -295,7 +350,7 @@ export const en = {
     playerId: "Player ID",
     platform: "Platform",
     signedIn: "You're signed in",
-    season: "Season 1",
+    season: "Season",
   },
   games: {
     checkin: {

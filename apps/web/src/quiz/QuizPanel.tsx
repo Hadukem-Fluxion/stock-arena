@@ -81,6 +81,7 @@ export function QuizPanel({
   useEffect(() => {
     if (!view?.question) return;
     const interval = setInterval(() => setClock(Date.now()), 250);
+    if (view.maintenance) return () => clearInterval(interval);
     const serverNow = received.current.server + Date.now() - received.current.local;
     const expiry = Date.parse(view.question.deadline) + GAME_CONFIG.quiz.graceSeconds * 1000 + 100;
     const timer = setTimeout(
@@ -100,7 +101,11 @@ export function QuizPanel({
       if (document.visibilityState === "visible") void run("read");
     };
     document.addEventListener("visibilitychange", refresh);
-    return () => document.removeEventListener("visibilitychange", refresh);
+    const timer = setInterval(refresh, 15_000);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", refresh);
+    };
   }, [allowed, run]);
   useEffect(() => {
     if (!view) return;
@@ -128,6 +133,7 @@ export function QuizPanel({
   const feedback = view?.feedback;
   return (
     <div className="quiz-panel" aria-busy={busy}>
+      {view?.maintenance && <p role="status">{en.maintenance}</p>}
       {error && (
         <div role="alert">
           <p>
@@ -153,7 +159,7 @@ export function QuizPanel({
         <button
           className="primary-button"
           type="button"
-          disabled={busy}
+          disabled={busy || view?.maintenance}
           onClick={() => {
             void run("start");
           }}
@@ -185,7 +191,7 @@ export function QuizPanel({
                 className="quiz-option"
                 type="button"
                 key={index}
-                disabled={busy || seconds === 0}
+                disabled={busy || seconds === 0 || view?.maintenance}
                 onClick={() => {
                   void run("answer", view, index);
                 }}
@@ -231,7 +237,7 @@ export function QuizPanel({
         <button
           className="primary-button"
           type="button"
-          disabled={busy}
+          disabled={busy || view?.maintenance}
           onClick={() => {
             void run("next");
           }}

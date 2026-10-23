@@ -71,13 +71,24 @@ show "On-chain · Fluxion pool" with its sample time, for information only.
   at `2026-10-16T00:00:00Z`; `endsAt: null` means the season is ongoing and its
   leaderboard counts points from that start through the current time. A configured
   end instant closes the season and excludes points at or after that instant.
-  Dates live in `GAME_CONFIG.season` and change only through a reviewed PR; the
-  points ledger is never rewritten when the season window changes.
+  Dates live in the database and owners/admins manage them in the admin hub with
+  an audited reason. Only owners can change past start dates. The latest started
+  season supplies the ranking window; ended seasons stay visible until the next
+  begins. Windows cannot overlap. The points ledger is never rewritten when
+  a season window changes.
 - Daily, weekly and season leaderboards, on Discord and Telegram. Weeks run Monday to Sunday (UTC).
 - Ties go to the player who reached the score first.
 - The season leaderboard decides Season 1 rewards. Mods review the top of the leaderboard before any reward is paid.
 
 ## Fair play
+
+Paused games display "Paused for maintenance". They do not accept new actions
+or consume new daily attempts/runs. Existing attempts, quiz timers and idle run
+expiry keep their original clocks. Locked predictions keep settling normally;
+maintenance does not cancel choices or alter their price windows/points.
+Manual ticker pauses keep last prices visible and prevent paused observations
+from supplying new game prices. Removing a manual override does not bypass
+automatic price health checks.
 
 - One account per person. Duplicate or fake accounts lose all points and rewards.
 - Discord accounts younger than 30 days can play, but their points do not count for rewards.

@@ -10,10 +10,12 @@ import {
   quizDailySets,
   quizQuestions,
   quizBankControl,
+  gamePaused,
   users,
 } from "@stock-arena/db";
 import type { DatabaseConnection, QuizQuestionSnapshot } from "@stock-arena/db";
 import { AuthError } from "./auth/types.js";
+import { GameControlError } from "./game-control.js";
 
 export class QuizError extends Error {
   constructor(
@@ -34,6 +36,8 @@ export function createQuizStore(connection: DatabaseConnection, now = () => new 
       const [user] = await tx.select().from(users).where(eq(users.id, userId)).for("update");
       if (!user) throw new AuthError("UNAUTHORIZED", 401);
       if (user.status !== "active") throw new AuthError("ACCOUNT_UNAVAILABLE", 403);
+      const maintenance = await gamePaused(tx, "quiz");
+      if (maintenance && action.type !== "read") throw new GameControlError();
       const instant = now();
       const day = gameDay(instant);
       const total = GAME_CONFIG.quiz.questionsPerDay;
@@ -96,6 +100,7 @@ export function createQuizStore(connection: DatabaseConnection, now = () => new 
       if (!attempt) {
         if (action.type !== "read") throw new QuizError("QUIZ_NOT_STARTED");
         return {
+          maintenance,
           day,
           serverTime: instant.toISOString(),
           status: "ready",
@@ -196,6 +201,7 @@ export function createQuizStore(connection: DatabaseConnection, now = () => new 
             }
           : null;
       return {
+        maintenance,
         day,
         serverTime: instant.toISOString(),
         status: answered === total ? "completed" : current ? "question" : "feedback",

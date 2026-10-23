@@ -40,13 +40,16 @@ Full rules and point values: `docs/GAME_RULES.md`, implemented in `packages/game
 - T28 adds the standalone `/admin` hub: Discord web login, revocable 12-hour admin
   sessions, four staff roles, owner-managed team access and append-only audit.
   Setup is in [DEPLOY.md](docs/DEPLOY.md#admin-hub-t28); the English
-  [operator guide](docs/ADMIN_GUIDE.md) covers daily use. Game operations, seasons
-  and rewards remain T30–T31. T29 adds quiz editing/import, player profiles,
+  [operator guide](docs/ADMIN_GUIDE.md) covers daily use. T29 adds quiz editing/import, player profiles,
   moderation, append-only point corrections and flag review. Admin access now
   requires Staff membership; legacy environment allowlists and player bearer
   tokens no longer grant admin access. Apply migration `0010` before deploying.
   Real owner login requires the new Discord redirect
   and API environment settings after deployment.
+- T30 adds per-game maintenance, manual ticker controls and database-backed
+  seasons. Apply `0011_admin-game-controls` before API/worker startup. Locked
+  predictions keep settling during game maintenance; new actions consume no limits.
+  T31 reward destinations remain pending.
 
 ## Architecture
 
@@ -160,10 +163,13 @@ window, then a stable user ID order. Results are cached for 60 seconds per filte
 with UTC day/week boundaries invalidating the cache. Caller data is selected from
 that snapshot separately for each response.
 
-Season dates live in `GAME_CONFIG.season`, provisionally from
-`2026-10-16T00:00:00Z` with no end. A non-null end instant closes the season and
-excludes later points; changes go through a reviewed PR, without ledger edits.
-See [Game Rules](docs/GAME_RULES.md) and the open Mantle confirmation in the roadmap.
+Season dates live in `seasons`, managed by owners/admins in the admin hub.
+Migration `0011` preserves Season 1 from `2026-10-16T00:00:00Z` with no end.
+The latest started season supplies the ranking window; an ended season remains
+visible until the next starts. Starts are inclusive, ends exclusive, and windows
+cannot overlap. Only owners may change past starts. Every change is audited,
+with no ledger edits. See [Game Rules](docs/GAME_RULES.md), the
+[operator guide](docs/ADMIN_GUIDE.md) and the pending Mantle date confirmation.
 
 `GET /api/prices/stream` requires the same bearer session as game routes. It emits
 an immediate `prices` SSE event and updates every 15 seconds with the catalog,

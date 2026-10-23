@@ -12,6 +12,7 @@ export const hlViewSchema: z.ZodType<PredictionView, z.ZodTypeDef, unknown> = z
   .object({
     day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     serverTime: instant,
+    maintenance: z.boolean().optional(),
     runsUsed: count,
     runsLimit: count,
     maxCorrect: count,

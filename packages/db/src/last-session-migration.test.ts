@@ -48,7 +48,20 @@ describe("T25 last-session migration", () => {
         winner: "TEST_B",
         choice: null,
       });
-      expect((await connection.db.select().from(tickerStatus))[0]).toMatchObject({
+      // This upgrade stops at 0008; select only columns that existed then.
+      expect(
+        (
+          await connection.db
+            .select({
+              reason: tickerStatus.reason,
+              tradingPeriod: tickerStatus.tradingPeriod,
+              tradingHalted: tickerStatus.tradingHalted,
+              lastClosedAt: tickerStatus.lastClosedAt,
+              lastSession: tickerStatus.lastSession,
+            })
+            .from(tickerStatus)
+        )[0],
+      ).toMatchObject({
         reason: "closed",
         tradingPeriod: null,
         tradingHalted: null,

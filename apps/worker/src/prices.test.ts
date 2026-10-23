@@ -1,4 +1,10 @@
-import { createLocalDatabase, priceSnapshots, tickerStatus, tickerHalts } from "@stock-arena/db";
+import {
+  createLocalDatabase,
+  priceSnapshots,
+  tickerStatus,
+  tickerHalts,
+  tickerControls,
+} from "@stock-arena/db";
 import { TICKERS } from "@stock-arena/game-core";
 import type { OraclePoll, SpotPrice, TradingStatus } from "@stock-arena/fluxion-oracle";
 import { eq } from "drizzle-orm";
@@ -174,14 +180,18 @@ describe("price worker storage", () => {
       reason: "stale",
     });
     await connection.db
-      .update(tickerStatus)
-      .set({ reason: "manual" })
-      .where(eq(tickerStatus.ticker, "AAPL"));
+      .update(tickerControls)
+      .set({ paused: true, reason: "Synthetic operator review" })
+      .where(eq(tickerControls.ticker, "AAPL"));
     const manual = await store(poll(215, [quote(215)]));
     expect(manual.find((status) => status.ticker === "AAPL")?.status).toEqual({
       state: "paused",
       reason: "manual",
     });
+    await connection.db
+      .update(tickerControls)
+      .set({ paused: false })
+      .where(eq(tickerControls.ticker, "AAPL"));
   });
   it("rolls back all snapshots and statuses on a failed write", async () => {
     const before = await connection.db.select().from(priceSnapshots);

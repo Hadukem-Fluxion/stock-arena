@@ -9,6 +9,7 @@ export const quizViewSchema: z.ZodType<QuizView> = z
   .object({
     day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     serverTime: z.string().datetime(),
+    maintenance: z.boolean().optional(),
     status: z.enum(["ready", "question", "feedback", "completed"]),
     total: z.number().int().positive(),
     answered: z.number().int().nonnegative(),

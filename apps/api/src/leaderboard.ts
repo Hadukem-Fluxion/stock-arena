@@ -1,7 +1,8 @@
-import { sql } from "drizzle-orm";
+import { desc, lte, sql } from "drizzle-orm";
 import { z } from "zod";
 import type { FastifyInstance } from "fastify";
-import { GAME_CONFIG, addDays, gameDay, weekStart } from "@stock-arena/game-core";
+import { addDays, gameDay, weekStart } from "@stock-arena/game-core";
+import { seasons } from "@stock-arena/db";
 import type {
   LeaderboardEntry,
   LeaderboardPeriod,
@@ -31,12 +32,10 @@ export function leaderboardWindow(period: LeaderboardPeriod, now: Date, season: 
     endsAt: end ? new Date(end).toISOString() : null,
   };
 }
-export type LeaderboardOptions = { season?: Season };
 export function createLeaderboardStore(
   connection: DatabaseConnection,
-  options: LeaderboardOptions & { now?: () => Date } = {},
+  options: { now?: () => Date } = {},
 ) {
-  const season = options.season ?? GAME_CONFIG.season;
   const now = options.now ?? (() => new Date());
   const cache = new Map<
     string,
@@ -52,8 +51,23 @@ export function createLeaderboardStore(
     platform: LeaderboardPlatform,
   ): Promise<LeaderboardView> => {
     const instant = now();
+    let [current] = await connection.db
+      .select()
+      .from(seasons)
+      .where(lte(seasons.startsAt, instant))
+      .orderBy(desc(seasons.startsAt))
+      .limit(1);
+    if (!current)
+      [current] = await connection.db.select().from(seasons).orderBy(seasons.startsAt).limit(1);
+    if (!current) throw new Error("Season is not configured.");
+    const season: Season = {
+      id: current.id,
+      name: current.name,
+      startsAt: current.startsAt.toISOString(),
+      endsAt: current.endsAt?.toISOString() ?? null,
+    };
     const window = leaderboardWindow(period, instant, season);
-    const key = JSON.stringify([period, platform, window.startsAt, window.endsAt]);
+    const key = JSON.stringify([period, platform, season, window.startsAt, window.endsAt]);
     let snapshot = cache.get(key);
     if (!snapshot || snapshot.expiresAt <= instant.getTime()) {
       let query = pending.get(key);
@@ -138,7 +152,7 @@ export function createLeaderboardStore(
 }
 export function registerLeaderboard(
   app: FastifyInstance,
-  options: LeaderboardOptions & { database: () => DatabaseConnection; now?: () => Date },
+  options: { database: () => DatabaseConnection; now?: () => Date },
 ) {
   const query = z
     .object({

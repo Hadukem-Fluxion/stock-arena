@@ -20,6 +20,7 @@ export type QuizFeedback = {
   explanation: string;
 };
 export type QuizView = {
+  maintenance?: boolean;
   day: string;
   serverTime: string;
   status: "ready" | "question" | "feedback" | "completed";
