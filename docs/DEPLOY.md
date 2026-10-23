@@ -439,3 +439,17 @@ Referências oficiais: [configuração dinâmica Vercel](https://vercel.com/docs
 [comandos Railway](https://docs.railway.com/builds/build-and-start-commands),
 [pre-deploy](https://docs.railway.com/deployments/pre-deploy-command) e
 [healthchecks](https://docs.railway.com/deployments/healthchecks).
+
+## Recompensas e snapshot por temporada (T31)
+
+Aplicar `0012_rewards` antes da API/web compatíveis. A migration cria tabelas
+vazias e proteções append-only; não gera snapshot nem registra destinos reais.
+Nenhuma variável nova, credencial de pagamento ou serviço adicional é necessário.
+A API passa a depender de `viem` 2.57.7 para EIP-55 (mesma versão já usada no
+workspace; nenhuma versão foi atualizada). Worker e limites de runtime não mudam.
+
+Após merge/deploy, seguir o fluxo com dados sintéticos do ADMIN_GUIDE: cadastro,
+lock/unlock, leitura mascarada, temporada encerrada, snapshot, aprovação/anulação/
+entrega e CSV com auditoria. Não usar o primeiro teste para congelar uma temporada
+real. Snapshot, faixas de prêmio, entradas e eventos são permanentes; rollback de
+código não desfaz registros nem modifica ledger/admin_actions.

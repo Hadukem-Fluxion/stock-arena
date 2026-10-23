@@ -1,0 +1,70 @@
+.reward-profile {
+  margin-top: 24px;
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+  min-width: 0;
+}
+.reward-form {
+  display: grid;
+  gap: 16px;
+  max-width: 620px;
+}
+.reward-form label {
+  display: grid;
+  gap: 8px;
+}
+.reward-form input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+.reward-review,
+.reward-notice {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+}
+.reward-review dd {
+  overflow-wrap: anywhere;
+  margin: 6px 0 18px;
+}
+.reward-confirm {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.reward-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+.reward-history {
+  list-style: none;
+  padding: 0;
+}
+.reward-history li {
+  border-top: 1px solid var(--line);
+  padding: 12px 0;
+  overflow-wrap: anywhere;
+}
+.reward-actions .secondary-button {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 16px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+.reward-confirm input {
+  accent-color: var(--accent);
+}
