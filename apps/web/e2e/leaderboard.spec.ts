@@ -164,6 +164,10 @@ for (const count of [3, 30])
       await page.setViewportSize({ width, height: 900 });
       await setup(page, count);
       await page.goto("http://127.0.0.1:5174/#tgWebAppData=mock");
+      await page
+        .locator(".tabs-bottom")
+        .getByRole("button", { name: en.tabs.markets, exact: true })
+        .click();
       await expect(page.locator(".price-row")).toHaveCount(count);
       await expect(
         page.locator(".prices-card").getByText(en.prices.live, { exact: true }),
@@ -175,7 +179,7 @@ for (const count of [3, 30])
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
         true,
       );
-      const nav = page.locator(width < 1024 ? ".tabs-bottom" : ".tabs-header");
+      const nav = page.locator(".tabs-bottom");
       if (count === 3 && width === 1440) {
         await page.evaluate(() => document.fonts.ready);
         await page.evaluate(() => window.scrollTo(0, 0));
@@ -212,6 +216,10 @@ test("the SSE client reconnects after a dropped stream and receives a new price"
 }) => {
   await setup(page, 3);
   await page.goto("http://127.0.0.1:5174/#tgWebAppData=mock");
+  await page
+    .locator(".tabs-bottom")
+    .getByRole("button", { name: en.tabs.markets, exact: true })
+    .click();
   await expect(page.locator(".price-row").first().getByText("$100.00")).toBeVisible();
   frame = {
     ...frame,

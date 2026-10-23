@@ -182,12 +182,20 @@ test("player maintenance copy disables actions and keeps the pending prediction 
   const fixture = await setupPrediction(page, 3);
   try {
     await page.goto("http://127.0.0.1:5174/#tgWebAppData=mock");
+    await page
+      .locator(".tabs-bottom")
+      .getByRole("button", { name: en.tabs.home, exact: true })
+      .click();
     await page.getByRole("button", { name: en.games.higherLower.name }).click();
     const panel = page.locator(".hl-panel");
     await panel.getByRole("button", { name: en.hl.start }).click();
     await panel.getByRole("button", { name: en.hl.up, exact: true }).click();
     fixture.pause();
     await page.reload();
+    await page
+      .locator(".tabs-bottom")
+      .getByRole("button", { name: en.tabs.home, exact: true })
+      .click();
     await page.getByRole("button", { name: en.games.higherLower.name }).click();
     await expect(panel.getByText(en.maintenance, { exact: true })).toBeVisible();
     await expect(panel.getByText(en.hl.pending, { exact: true })).toBeVisible();
@@ -208,10 +216,18 @@ test("player maintenance copy disables actions and keeps the pending prediction 
         },
       }),
     );
+    await page
+      .locator(".tabs-bottom")
+      .getByRole("button", { name: en.tabs.home, exact: true })
+      .click();
     await page.getByRole("button", { name: en.games.quiz.name }).click();
     const quiz = page.locator(".quiz-panel");
     await expect(quiz.getByText(en.maintenance, { exact: true })).toBeVisible();
     await expect(quiz.getByRole("button", { name: en.quiz.start })).toBeDisabled();
+    await page
+      .locator(".tabs-bottom")
+      .getByRole("button", { name: en.tabs.home, exact: true })
+      .click();
     await expect(
       page.locator(".checkin-action").first().getByRole("button").first(),
     ).toBeDisabled();

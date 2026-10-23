@@ -98,28 +98,40 @@ for (const count of [3, 30])
         } else await route.fulfill({ json: viewFor(count) });
       });
       await page.goto("http://127.0.0.1:5174/#tgWebAppData=mock");
+      await page
+        .locator(".tabs-bottom")
+        .getByRole("button", { name: en.tabs.markets, exact: true })
+        .click();
       await expect(page.locator(".price-row")).toHaveCount(count);
+      await page
+        .locator(".tabs-bottom")
+        .getByRole("button", { name: en.tabs.home, exact: true })
+        .click();
       const card = page.locator(".featured-card");
       await expect(card.getByText("$110.50")).toBeVisible();
       await expect(card.getByText("▼ 1.50%")).toBeVisible();
       await expect(card.getByText(en.status.marketClosed)).toBeVisible();
       await expect(page.locator(".player-stats .points .number")).toHaveText("120");
-      await card.getByRole("button", { name: en.checkin.action, exact: true }).click();
+      await card.getByRole("button", { name: en.navigation.checkin(10), exact: true }).click();
       await expect.poll(() => posts).toBe(1);
       await expect(
         card.getByRole("button", { name: en.checkin.saving, exact: true }),
       ).toBeDisabled();
       await expect(page.locator(".player-stats .points .number")).toHaveText("120");
       release();
-      await expect(card.getByRole("button", { name: en.checkin.done, exact: true })).toBeDisabled();
+      await expect(
+        card.getByRole("button", { name: en.navigation.checkedIn(60), exact: true }),
+      ).toBeDisabled();
       await expect(page.locator(".player-stats .points .number")).toHaveText("180");
-      await expect(card.getByRole("status")).toHaveText(
-        `${en.checkin.awarded} · +60 ${en.labels.points}`,
-      );
+      await expect(card.getByRole("button").first()).toHaveText(en.navigation.checkedIn(60));
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
         true,
       );
-      await expect(page.locator(".legal-notice")).toHaveText(en.providers.xstocks.legalNotice);
+      await page.getByRole("button", { name: en.navigation.legal, exact: true }).click();
+      await expect(page.getByRole("dialog").getByRole("link")).toHaveText(
+        en.providers.xstocks.legalNotice,
+      );
+      await page.getByRole("button", { name: en.navigation.closeLegal }).click();
       await page.evaluate(() => window.scrollTo(0, 0));
       await page.screenshot({
         path: testInfo.outputPath(`checkin-${count}-${width}.png`),
@@ -139,8 +151,10 @@ test("a lost-response retry reloads the server's already-awarded check-in", asyn
   });
   await page.goto("http://127.0.0.1:5174/#tgWebAppData=mock");
   const card = page.locator(".featured-card");
-  await card.getByRole("button", { name: en.checkin.action, exact: true }).click();
-  await expect(card.getByRole("button", { name: en.checkin.done, exact: true })).toBeDisabled();
+  await card.getByRole("button", { name: en.navigation.checkin(10), exact: true }).click();
+  await expect(
+    card.getByRole("button", { name: en.navigation.checkedIn(60), exact: true }),
+  ).toBeDisabled();
   await expect(page.locator(".player-stats .points .number")).toHaveText("180");
 });
 
@@ -155,9 +169,9 @@ test("an API failure does not award points locally and the player can retry", as
   });
   await page.goto("http://127.0.0.1:5174/#tgWebAppData=mock");
   const card = page.locator(".featured-card");
-  await card.getByRole("button", { name: en.checkin.action, exact: true }).click();
+  await card.getByRole("button", { name: en.navigation.checkin(10), exact: true }).click();
   await expect(card.getByRole("alert")).toContainText(en.checkin.errors.unavailable);
   await expect(page.locator(".player-stats .points .number")).toHaveText("120");
-  await card.getByRole("button", { name: en.checkin.action, exact: true }).click();
+  await card.getByRole("button", { name: en.navigation.checkin(10), exact: true }).click();
   await expect(page.locator(".player-stats .points .number")).toHaveText("180");
 });

@@ -36,7 +36,7 @@ Full rules and point values: `docs/GAME_RULES.md`, implemented in `packages/game
 ## Project status
 
 - Done: scaffold, game rules and scoring in `packages/game-core` (tested), TWAP and price health checks in `packages/fluxion-oracle` (tested).
-- T26 replaces retrospective Higher or Lower with server-settled predictions. Next, after its integration: T28–T31 (admin hub and rewards registration), then T27 (Flyer). Track review and dependencies in `docs/TASKS.md`.
+- T26 predictions and T28–T30 admin controls are integrated. T31 rewards are in PR #27 for review. Current queue: T31 → T33 (new home) → T34 (referrals) → T27 (Flyer). Track review and dependencies in `docs/TASKS.md`.
 - T28 adds the standalone `/admin` hub: Discord web login, revocable 12-hour admin
   sessions, four staff roles, owner-managed team access and append-only audit.
   Setup is in [DEPLOY.md](docs/DEPLOY.md#admin-hub-t28); the English
@@ -413,7 +413,7 @@ and the browser scaffold at `http://localhost:5173`.
 The scaffold has 23 existing tests (14 game-core, 5 oracle, 3 host detection and
 1 API health test), rather than the 22 stated in the original T02 acceptance.
 
-## Platform shell development (T08)
+## Platform screens development (T33)
 
 The shared adapters in `apps/web/src/platform` expose `init()`, `login()`,
 `openExternal(url)`, `user` and an in-memory `session`. Discord uses the official
@@ -427,18 +427,25 @@ Only the public ID belongs in the Vite build. Never prefix a server secret with
 **development** mode, without an API session or point awards. Production browser
 visits show instructions to open Discord or Telegram; no fake login is available.
 
-The shell uses `docs/design/DESIGN.md`: mobile bottom navigation, two tablet
-columns and three desktop columns. The app always keeps the approved brand palette,
+The frontend uses the approved six-screen prototype and `docs/design/DESIGN.md`.
+Home, Markets, Ranks and Profile share bottom navigation from 360px to 1440px.
+Quiz and Higher or Lower have dedicated screens with a Back to home button,
+plus Telegram native BackButton support. Hash navigation preserves platform launch
+data across reloads. Home shows a compact daily stock, games and today's top three.
+Flyer and Invite friends are disabled with Soon until T27/T34; direct links show
+waiting screens. Higher or Lower keeps three run tabs, large Up/Down controls,
+pending countdowns and expandable rules. All price/ranking/game state still comes
+from existing APIs; this frontend change has no migration. The app keeps the approved brand palette,
 regardless of Telegram's theme. Only Telegram's header/background colors match our
 `--bg`, including on `themeChanged`. Typography is bundled locally with Fontsource, so fonts
 need no third-party URL mapping. Stock logos use the official metadata URLs outside
 Discord and the relative `/stock-logos/*` mapping inside an Activity; see
 `docs/INFRA.md` for the portal settings.
 
-Daily Check-in and Daily Quiz are available in T09–T10. Other games, price streaming and ranking
-endpoints arrive in T11–T13. Their shell panels show explicit waiting states,
-without sample prices, fake rankings or local point mutations. Login failures
-offer a retry and only display copy from `en.ts`.
+Daily Check-in, Daily Quiz, Higher or Lower, live prices and rankings use the
+existing endpoints. Connection copy appears only while loading or on error.
+The compact footer opens a legal dialog with the full disclaimer and provider
+notice; no fake rankings, sample prices or local point mutations are shown.
 
 ```powershell
 pnpm exec playwright install chromium    # once, or use an installed Edge below
@@ -450,10 +457,11 @@ pnpm test:web
 
 Browser checks start web-only development and production servers on ports 5173
 and 5174. They never start the API/worker or connect to the database. Checks cover
-360/768/1024/1440px layouts, navigation, game selection, approved legal copy,
-production browser blocking, simulated Telegram login/links and retry after an
-API error. Unit tests mock Discord's ready/authorize/authenticate sequence and
-verify relative API requests. Screenshots are saved under `apps/web/test-results`.
+360/390/768/1024/1440px layouts, catalogs with 3/30 assets, screen reload/back,
+keyboard run tabs, approved legal copy, production browser blocking, simulated
+Telegram native back/login/links, actual Discord SDK frames against a synthetic
+parent and API-error retry. Review captures use synthetic data only and are saved
+in `docs/review/t33`; transient test captures stay in `apps/web/test-results`.
 Real Discord test-server and Telegram test-bot screenshots remain pending platform
 account configuration and staging; simulated tests do not replace that acceptance.
 

@@ -17,27 +17,15 @@ Hosting priority (22/10/2026): prepare the API/worker move to Lightsail in
 the 21/10 environment-variable incident. Artifacts and the operator guide are for
 review and integrated via PR #24; instance, DNS, new provider credentials and live
 smoke tests remain pending. Railway resources/configuration are retained.
-T28 is integrated via PR #23 and T29 via PR #25. T30 is implemented on
-`t30-admin-game-controls`, pending review: game maintenance, manual ticker controls
-and database-backed seasons with migration `0011`. Synthetic review captures and
-local/API/database/browser checks accompany the PR; live operations are not claimed.
+T28, T29 and T30 are integrated via PRs #23, #25 and #26. T31 reward registration and frozen payout snapshots are implemented in PR #27, pending review/integration and live migration. No real database change or deployment is claimed.
 
-Current implementation order: **T26 → T28 → T29 → T30 → T31 → T27**. Each task
-has its own branch/PR, reviewed by Claude and merged by Hadukem. T28–T31 cannot
-start until T26 is integrated. T14 is superseded by T28–T30; T21 Daily Call is
-cancelled and merged into T26's 15-minute Up/Down prediction. T27's complete Flyer
-brief is recorded in TASKS.md for after admin controls and rewards registration;
-its implementation has not started. The T27 control is hold to rise/release to fall,
-with deterministic 60 Hz press/release replay; its revised brief also covers release
-outside the canvas and mobile gesture blocking. These dependencies do not confirm launch dates.
+Current queue: **T31 → T33 → T34 → T27**, one branch/PR per task, no merge/deploy/live database changes by Codex. T33 implements the new dedicated screens and home on t33-home-redesign, with Flyer/Invite cards disabled as Soon. T34 replaces the historical T13 referral brief: first-check-in qualification and inviter/invitee rewards will be implemented in that task. T27 then activates hold-to-rise Flyer with deterministic press/release replay, using screen 4 of the approved six-screen mockup. T14 remains superseded by T28–T30 and T21 cancelled into T26. These dependencies do not confirm launch dates.
 
 T28's admin foundation is integrated via PR #23:
 standalone Discord web login, revocable admin sessions, four Staff roles,
 owner-managed team and append-only audit. It requires migration `0009`, the new
 Discord web redirect, `ADMIN_WEB_ORIGIN` and `OWNER_DISCORD_ID` after merge.
-Real owner login/revocation and T29 smoke tests remain pending deployment. T30
-review and live smoke tests are pending; T31 and T27 have not started. The
-implementation order is unchanged. Official Season 1 dates still need Mantle
+Real owner login/revocation, admin operations/game controls and T31 reward smoke tests remain pending deployment. Official Season 1 dates still need Mantle
 confirmation; the admin hub records audited date changes without rewriting points.
 
 The official Task Board is `docs/TASKS.md` and this file; there is no external

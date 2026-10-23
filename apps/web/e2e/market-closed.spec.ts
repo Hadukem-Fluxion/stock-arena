@@ -9,15 +9,23 @@ for (const count of [3, 30])
       try {
         await page.setViewportSize({ width, height: 900 });
         await page.goto("http://127.0.0.1:5174/#tgWebAppData=mock");
+        await page
+          .locator(".tabs-bottom")
+          .getByRole("button", { name: en.tabs.markets, exact: true })
+          .click();
         await expect(page.locator(".prices-card").getByText(en.prices.closed)).toBeVisible();
         await expect(page.locator(".price-row").first().getByText(en.prices.pool)).toBeVisible();
+        await page
+          .locator(".tabs-bottom")
+          .getByRole("button", { name: en.tabs.home, exact: true })
+          .click();
         await page.getByRole("button", { name: en.games.higherLower.name }).click();
         const panel = page.locator(".hl-panel");
         await panel.getByRole("button", { name: en.hl.start }).click();
         await panel.getByRole("button", { name: en.hl.up, exact: true }).click();
         await expect(panel.getByText(en.hl.waitingOpen, { exact: true })).toBeVisible();
         await expect(panel.getByText("2026-10-21 00:00 UTC", { exact: false })).toBeVisible();
-        await expect(panel.getByText(en.hl.lastSession, { exact: true })).toHaveCount(0);
+        await expect(panel.getByText(/Which stock moved more/)).toHaveCount(0);
         await expect(panel.getByLabel(en.hl.countdown)).toHaveCount(0);
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
           true,

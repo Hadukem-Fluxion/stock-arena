@@ -115,7 +115,7 @@ test("standalone login does not initialize the Activity or use player tokens", a
     "href",
     "/api/admin/auth/discord",
   );
-  await expect(page.getByText(en.host.browserDevelopment)).toHaveCount(0);
+  await expect(page.locator(".host-label")).toHaveCount(0);
   expect(await page.evaluate(() => localStorage.length)).toBe(0);
 });
 test("owner manages team with confirmation and can sign out", async ({ page }) => {

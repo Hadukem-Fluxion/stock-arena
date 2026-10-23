@@ -13,6 +13,7 @@ export default defineConfig({
     {
       command: "pnpm --filter @stock-arena/web dev --host 127.0.0.1 --strictPort",
       cwd: "../..",
+      env: { VITE_DISCORD_CLIENT_ID: "111111111111111111" },
       url: "http://127.0.0.1:5173",
     },
     {

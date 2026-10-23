@@ -27,7 +27,9 @@ export function StockCard({
         <div>
           <h2>{stock.asset.symbol}</h2>
           <p className="muted caption">{stock.asset.name}</p>
-          <span className="caption muted">{en.providers[stock.asset.provider].name}</span>
+          <span className="caption muted stock-provider">
+            {en.providers[stock.asset.provider].name}
+          </span>
         </div>
         <div className="stock-price">
           {price.reason === "closed" && price.usd !== null && (
@@ -44,7 +46,9 @@ export function StockCard({
           </span>
         </div>
       </div>
-      <p className="body-copy">{stock.fact ?? en.checkin.factPending}</p>
+      <p className="body-copy" title={stock.fact ?? undefined}>
+        {stock.fact ?? en.checkin.factPending}
+      </p>
       {price.state === "paused" && (
         <p className="caption muted">
           {price.reason === "closed"

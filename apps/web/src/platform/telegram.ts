@@ -20,6 +20,12 @@ export interface TelegramBridge {
   onEvent(event: "themeChanged", callback: () => void): void;
   setHeaderColor(color: string): void;
   setBackgroundColor(color: string): void;
+  BackButton?: {
+    show(): void;
+    hide(): void;
+    onClick(handler: () => void): void;
+    offClick(handler: () => void): void;
+  };
 }
 
 declare global {
@@ -95,6 +101,18 @@ export function createTelegramAdapter(
       return session;
     },
     init,
+    setBackButton(handler) {
+      const button = app?.BackButton;
+      if (!button) return () => {};
+      if (handler) {
+        button.onClick(handler);
+        button.show();
+      } else button.hide();
+      return () => {
+        if (handler) button.offClick(handler);
+        button.hide();
+      };
+    },
     login() {
       return (pendingLogin ??= (async () => {
         await init();

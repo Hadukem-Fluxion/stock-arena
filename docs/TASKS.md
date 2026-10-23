@@ -4,18 +4,20 @@ One brief = one pull request. Paste the whole brief into Codex together with AGE
 
 ## Task Board updates — 2026-10-23
 
-| Task              | State / dependency                                                                    |
-| ----------------- | ------------------------------------------------------------------------------------- |
-| T14               | Superseded by T28–T30                                                                 |
-| T21 Daily Call    | CANCELLED — merged into T26                                                           |
-| T26               | Integrated via PR #20; post-deploy smoke test remains pending confirmation            |
-| T28               | Integrated via PR #23; real admin smoke test pending deployment                       |
-| Lightsail hosting | Integrated via PR #24; instance/DNS/cutover pending                                   |
-| T29               | Integrated via PR #25; post-deploy smoke test pending                                 |
-| T30               | Implemented on `t30-admin-game-controls`; review and post-deploy smoke test pending   |
-| T31               | Planned after T30 review/integration                                                  |
-| T27 mStocks Flyer | Hold-to-rise brief updated; planned after T26, T28, T29, T30 and T31; not implemented |
-| T32               | Settlement query optimization; required before T19 load test; not part of T26         |
+| Task              | State / dependency                                                            |
+| ----------------- | ----------------------------------------------------------------------------- |
+| T14               | Superseded by T28–T30                                                         |
+| T21 Daily Call    | CANCELLED — merged into T26                                                   |
+| T26               | Integrated via PR #20; post-deploy smoke test remains pending confirmation    |
+| T28               | Integrated via PR #23; real admin smoke test pending deployment               |
+| Lightsail hosting | Integrated via PR #24; instance/DNS/cutover pending                           |
+| T29               | Integrated via PR #25; post-deploy smoke test pending                         |
+| T30               | Integrated via PR #26; live smoke test pending                                |
+| T31               | Implemented in PR #27; review/integration and live migration pending          |
+| T33               | New home/screens implemented on `t33-home-redesign`; review pending           |
+| T34               | Referrals, after T33; not implemented                                         |
+| T27 mStocks Flyer | After T34; hold-to-rise with approved screen 4; not implemented               |
+| T32               | Settlement query optimization; required before T19 load test; not part of T26 |
 
 Campaign decision for Mantle (not code): accepted reward identifiers (Bybit UID,
 Mantle address or both) and manual delivery process. Keep both fields optional
@@ -243,6 +245,8 @@ list, and cache the rarely changing metadata. Do not change the oracle during T0
 ---
 
 ## T13 — Invite links and referrals
+
+**Superseded by T34.** Historical three-check-in qualification below is not the new referral brief.
 
 **Do**
 
@@ -555,7 +559,7 @@ pending after review/merge; no ledger rewrite or T31 feature is included.
 
 ## T27 — mStocks Flyer (hold-to-rise arcade)
 
-**Order**: implement only after T26, T28, T29, T30 and T31. One branch/PR, no merge by Codex.
+**Order**: after T31 → T33 → T34, implement T27. One branch/PR, no merge/deploy/live database changes by Codex.
 
 **Goal**: a quick skill game that keeps the stock theme: the pipes follow real price charts.
 
@@ -581,6 +585,8 @@ pending after review/merge; no ledger rewrite or T31 feature is included.
 - Own leaderboard (best score: today / week / season), ties to whoever reached it first. Points also count in the main leaderboards.
 - Admin (T29/T30): per-game pause switch includes Flyer; admin can view a player's sessions and void a session (ledger correction row).
 
+**Approved layout**: screen 4 of the shared T33/T34/T27 mockup: Back to home + "Best N", segment ticker and score above the central canvas, "Hold to rise" hint. Enable the home card only when this task is implemented. Include a short gameplay video/GIF, mobile/desktop captures and Discord/Telegram/browser e2e checks.
+
 **Copy (en.ts)**: "mStocks Flyer", "Hold to fly, release to fall", "Fly through real price charts", "New best!", "Daily points cap reached — keep playing for the leaderboard".
 
 **Acceptance (tests)**: deterministic press/release replay (same log → same score on client and server); invalid sequences (including starting with release), out-of-order/overlapping events and ticks beyond match end rejected; release outside the canvas clears held input and is captured in the replay; touch/mouse/Space controls and mobile long-press/selection/context-menu blocking; tampered log rejected; time-inconsistent log rejected; session expiry/reuse; daily cap and delta awards; course built from primary snapshots only, with missing data → that stock skipped; catalogs with 3 and 30 assets; mobile and desktop screenshots; performance check on a mid-range phone viewport. Update README and GAME_RULES.
@@ -604,3 +610,29 @@ pending after review/merge; no ledger rewrite or T31 feature is included.
 - Due work is processed and future-boundary/target work is skipped without changing gameplay.
 - Thousands of weekend predictions and idle/active runs demonstrate bounded candidate selection; pending runs do not expire as idle.
 - Regression tests preserve halt handling, delayed reopening, void deadlines and double-settlement protection. Document query plans and how the changes prepare T19.
+
+---
+
+## T33 — New home and dedicated screens
+
+**Scope**: frontend only; no API, database, dependencies or scoring changes.
+**Reference**: Hadukem-approved six-screen mockup: https://claude.ai/artifact/JMjJR4PjDSx3LysupiTTdN. Retain the DESIGN.md brand tokens and official assets. Queue: T31 → T33 → T34 → T27.
+
+- State/hash screens: home, quiz, higherLower, flyer, invite, markets, leaderboard, profile. Preserve platform launch parameters. Bottom navigation: Home · Markets · Ranks · Profile; no duplicate header navigation. Game screens have a 44px "Back to home" button and native Telegram BackButton support.
+- Fixed brand header with days/points pills; remove page intro and host label. Show connection status only while loading or on error.
+- Vertical Home: compact Stock of the Day (logo, symbol, name, price, change, one-line fact and check-in/done state); Daily Quiz and Higher or Lower cards with concise rules and remaining run count; disabled mStocks Flyer card with "Soon"; highlighted disabled Invite friends card, "+50 pts for each friend who checks in" and "Soon". No referral or Flyer mutations yet.
+- Today's top 3, caller row when outside the top three, "See all" → Ranks. Compact provider/Fluxion/Mantle footer and legal sheet with full approved notices.
+- Reuse QuizPanel and HigherLowerPanel on dedicated screens. Higher or Lower: three keyboard-accessible run tabs, 64px Up/Down buttons, countdown and "Safe to close the app.", rules in "How it works" details. Preserve maintenance, closed-market, void, daily limits and error handling.
+- Markets owns the existing catalog list, "Live · 24h" status when live, Fluxion link and provider price disclaimer. Informational pool price remains closed-market only.
+- All copy in en.ts, remove obsolete strings; 44px targets, visible focus, 4.5:1 text contrast. Test 3/30 assets, mobile/desktop, browser preview and simulated Discord/Telegram. Save 390px/desktop captures in docs/review/t33. No merge/deploy/real database changes.
+
+## T34 — Invite friends (referrals)
+
+**Dependency**: after T33, before T27. One branch/PR; no merge/deploy/live database changes. Use screen 5 of the approved mockup.
+
+- Each user has a fixed non-sequential invite code (for example ref_XXXXXX). New migration for referrals: inviter_id, unique invitee_id, code, platform, created_at and status pending/rewarded/void. Administrative voids append an admin_actions audit row.
+- Telegram deep link t.me/<bot>?startapp=ref_CODE: validate signed initData start_param on login. Discord SDK shareLink custom_id=ref_CODE: send launch customId on login and validate server-side. Manual "Got an invite code?" POST /api/referral/claim fallback only within the first 24 hours of account creation.
+- Only new accounts created from the link/code with no previous games qualify. No self-invite, one immutable inviter per invitee. First check-in awards inviter +50 and invitee +20, configured in GAME_CONFIG, through idempotent ledger reference ref:<inviteeId>. No multi-account detection in this task. Configure a daily inviter reward limit (initial product default 50), and add invite to the T30 game pause controls.
+- UI: "+50 pts" hero, invite link with Copy, Share invite (Telegram openTelegramLink share URL; Discord shareLink), Friends joined / Points earned counters, three steps and manual claim details.
+- Admin: filter referrals by inviter/invitee/status; void requires a note, never deletes a record. Update ADMIN_GUIDE and GAME_RULES.
+- Tests: validated platform entry/manual cutoff, new-account/no-games rule, self-invite and reassignment rejection, first check-in awards once, daily cap, pause behavior and audited void. Simulated Discord/Telegram/browser e2e and 390px/desktop screenshots in docs/review/t34.

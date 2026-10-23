@@ -6,6 +6,10 @@ test("keeps a pending prediction visible when another offer cannot be picked", a
   const fixture = await setupPrediction(page, 3);
   try {
     await page.goto("http://127.0.0.1:5174/#tgWebAppData=mock");
+    await page
+      .locator(".tabs-bottom")
+      .getByRole("button", { name: en.tabs.home, exact: true })
+      .click();
     await page.getByRole("button", { name: en.games.higherLower.name }).click();
     const panel = page.locator(".hl-panel");
     await panel.getByRole("button", { name: en.hl.start }).click();
@@ -13,11 +17,17 @@ test("keeps a pending prediction visible when another offer cannot be picked", a
     await expect(panel.getByText(en.hl.pending, { exact: true })).toBeVisible();
     fixture.includeUnavailableOffer();
     await page.reload();
+    await page
+      .locator(".tabs-bottom")
+      .getByRole("button", { name: en.tabs.home, exact: true })
+      .click();
     await page.getByRole("button", { name: en.games.higherLower.name }).click();
+    await panel.getByRole("tab").nth(1).click();
     await expect(panel.getByText(en.hl.offerUnavailable, { exact: true })).toBeVisible();
     await expect(panel.getByRole("button", { name: en.hl.up, exact: true })).toBeDisabled();
     await expect(panel.getByRole("button", { name: en.hl.down, exact: true })).toBeDisabled();
     await expect(panel.getByRole("button", { name: en.hl.start })).toHaveCount(0);
+    await panel.getByRole("tab").first().click();
     await expect(panel.getByText(en.hl.pending, { exact: true })).toBeVisible();
     await expect(panel.getByLabel(en.hl.countdown)).toBeVisible();
     await expect(panel.getByRole("alert")).toHaveCount(0);
@@ -35,6 +45,10 @@ for (const [change, displayed] of [
     const fixture = await setupPrediction(page, 3);
     try {
       await page.goto("http://127.0.0.1:5174/#tgWebAppData=mock");
+      await page
+        .locator(".tabs-bottom")
+        .getByRole("button", { name: en.tabs.home, exact: true })
+        .click();
       await page.getByRole("button", { name: en.games.higherLower.name }).click();
       const panel = page.locator(".hl-panel");
       await panel.getByRole("button", { name: en.hl.start }).click();
@@ -42,6 +56,10 @@ for (const [change, displayed] of [
       await expect(panel.getByText(en.hl.pending, { exact: true })).toBeVisible();
       fixture.resolve(change);
       await page.reload();
+      await page
+        .locator(".tabs-bottom")
+        .getByRole("button", { name: en.tabs.home, exact: true })
+        .click();
       await page.getByRole("button", { name: en.games.higherLower.name }).click();
       await expect(panel.getByText(`${en.hl.move}: ${displayed}`, { exact: true })).toBeVisible();
     } finally {
@@ -56,6 +74,10 @@ test("refreshes the balance on worker settlement even when older scored history 
   fixture.includeExpiringHistory();
   try {
     await page.goto("http://127.0.0.1:5174/#tgWebAppData=mock");
+    await page
+      .locator(".tabs-bottom")
+      .getByRole("button", { name: en.tabs.home, exact: true })
+      .click();
     await page.getByRole("button", { name: en.games.higherLower.name }).click();
     const panel = page.locator(".hl-panel");
     await panel.getByRole("button", { name: en.hl.start }).click();
@@ -78,6 +100,10 @@ for (const count of [3, 30])
       try {
         await page.setViewportSize({ width, height: 900 });
         await page.goto("http://127.0.0.1:5174/#tgWebAppData=mock");
+        await page
+          .locator(".tabs-bottom")
+          .getByRole("button", { name: en.tabs.home, exact: true })
+          .click();
         await page.getByRole("button", { name: en.games.higherLower.name }).click();
         const panel = page.locator(".hl-panel");
         await expect(panel.locator(".prediction-slot")).toHaveCount(3);
@@ -88,16 +114,29 @@ for (const count of [3, 30])
         await expect(panel.getByLabel(en.hl.countdown)).toBeVisible();
         expect(fixture.picks()).toBe(1);
         await page.reload();
+        await page
+          .locator(".tabs-bottom")
+          .getByRole("button", { name: en.tabs.home, exact: true })
+          .click();
         await page.getByRole("button", { name: en.games.higherLower.name }).click();
         await expect(panel.getByText(en.hl.pending, { exact: true })).toBeVisible();
+        await page
+          .locator(".tabs-bottom")
+          .getByRole("button", { name: en.tabs.markets, exact: true })
+          .click();
         await expect(page.locator(".price-row")).toHaveCount(count);
+        await page
+          .locator(".tabs-bottom")
+          .getByRole("button", { name: en.tabs.home, exact: true })
+          .click();
+        await page.getByRole("button", { name: en.games.higherLower.name }).click();
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
           true,
         );
         await page.evaluate(() => document.fonts.ready);
         if (width === 360)
           await page
-            .locator("#active-panel")
+            .locator(".game-screen")
             .evaluate((element) =>
               window.scrollTo(0, element.getBoundingClientRect().top + window.scrollY - 20),
             );
@@ -108,6 +147,10 @@ for (const count of [3, 30])
         });
         fixture.resolve();
         await page.reload();
+        await page
+          .locator(".tabs-bottom")
+          .getByRole("button", { name: en.tabs.home, exact: true })
+          .click();
         await page.getByRole("button", { name: en.games.higherLower.name }).click();
         await expect(panel.getByText(en.hl.results.won, { exact: true })).toBeVisible();
         await expect(panel.getByText("$101.00", { exact: false })).toBeVisible();
