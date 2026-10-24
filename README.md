@@ -92,7 +92,10 @@ docs/
 For the replacement Lightsail API/worker hosting, secret rotation and Vercel
 cutover, follow [docs/HOSTING_LIGHTSAIL.md](docs/HOSTING_LIGHTSAIL.md).
 Railway is blocked per Hadukem's incident report; its historical setup remains in
-[docs/DEPLOY.md](docs/DEPLOY.md). No live Lightsail deployment is claimed yet.
+[docs/DEPLOY.md](docs/DEPLOY.md). Hadukem reported the Ohio cutover complete at
+`9fe93dc`, with API/worker/Caddy online, 13 migrations and 60 quiz questions copied.
+The runbook also supports content copy and Telegram setup inside the server
+container, without local Node or PowerShell 7.
 The API uses the host's `PORT` when present and
 otherwise `API_PORT`. Migrations run only in the API's pre-deploy command.
 The worker retains every price sample for 48 hours, then the last sample of each
@@ -276,6 +279,9 @@ independent five-minute caches capped at `nextChangeAt`. Failed assets retry aft
 frozen-session data stays stored for closed-market display, not gameplay.
 Closed prices keep `Last price` and `Market closed`; the price panel may also show
 `On-chain · Fluxion pool` with its UTC time. Pool prices remain informational.
+With no stored primary quote in a closed market, Home and Markets show
+`Prices resume when the market opens`. Existing quotes remain visible; missing
+history never substitutes a pool price or changes game settlement.
 
 ### Environment variables
 

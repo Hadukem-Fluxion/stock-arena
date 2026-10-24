@@ -550,6 +550,7 @@ export const en = {
   },
   prices: {
     pool: "On-chain · Fluxion pool",
+    awaitingOpen: "Prices resume when the market opens",
     closed: "Market closed · showing last prices",
     live: "Live prices",
     reconnecting: "Reconnecting to prices… Last prices may be out of date.",
