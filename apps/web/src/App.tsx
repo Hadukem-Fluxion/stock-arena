@@ -1,3 +1,4 @@
+import { RewardProfile } from "./rewards/RewardProfile.js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { MouseEvent, ReactNode } from "react";
 import { ASSETS, GAME_CONFIG, assetTickers, gameDay, stockOfTheDay } from "@stock-arena/game-core";
@@ -360,6 +361,7 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
                 {login.state === "error" ? en.auth.errors[login.code] : en.auth.connecting}
               </p>
             )}
+            {login.state === "ready" && <RewardProfile platform={platform} />}
           </section>
         )}
       </main>

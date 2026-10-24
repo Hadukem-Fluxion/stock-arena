@@ -95,3 +95,22 @@ automatic price health checks.
 - You must be a member of the official Mantle Discord server or Telegram group to qualify for rewards.
 - Bots, scripts and exploited bugs lead to a ban. Found a bug? Report it to a mod and earn a thank-you, not a ban.
 - Points can be removed if an award turns out to be wrong, with a note in your history.
+
+## Reward registration and season review
+
+Profile optionally accepts a Bybit UID and/or Mantle address without connecting a
+wallet. Players review and confirm their own details; registration does not verify
+ownership or promise a reward. Changes have a masked history. Payout review can
+lock destinations; players cannot edit until every season lock is released.
+
+Rewards are reviewed by mods and paid manually according to the campaign terms.
+After a season ends, owners/admins explicitly freeze its top N using the same
+leaderboard score and first-attainment tie rules. The snapshot preserves names,
+platform IDs, window and prizes; later ledger/date/profile changes do not rewrite
+it. Approving/delivering/voiding prizes never changes game points. Eligibility
+still requires manual review until T18 is implemented. Destinations are current
+at export, so operators lock them during delivery review.
+
+Quiz maintenance preserves the original 30-second deadline. Replies are blocked
+while paused; a reply after resumption may time out on that original deadline.
+T31 verifies/documents this existing policy without changing points or timers.

@@ -41,8 +41,6 @@ pnpm exec playwright test --config apps/web/playwright.config.ts home-screens.sp
 ```
 
 Flyer and Invite cards remain disabled with Soon; only their waiting screens are
-present. T34 implements referrals; T27 implements and activates Flyer. T31 is a
-separate PR (#27), based on the same main: preserve its RewardProfile integration
-when bringing these two branches together after review. No API/schema/rules or
+present. T34 implements referrals; T27 implements and activates Flyer. T31 is integrated via PR #27; its RewardProfile, API/schema, operator guide and reward tests are preserved in this synchronized branch. No API/schema/rules or
 dependency changes belong to T33. Real Discord/Telegram device validation follows
 operator-approved deployment; simulated checks do not claim a live rollout.

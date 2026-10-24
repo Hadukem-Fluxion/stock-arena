@@ -5,8 +5,7 @@ Discord Activity and Telegram Mini App. Sign in with Discord. Use your own accou
 never share a session or application secret with another operator.
 
 The hub provides login, team management, audit, quiz bank, player profiles,
-point corrections, flags, game/ticker controls and seasons (T28–T30).
-Reward registration/export (T31) is not available yet.
+point corrections, flags, game/ticker controls, seasons and reward review (T28–T31).
 
 ## First owner
 
@@ -33,7 +32,7 @@ or restore revoked access. Use the Team screen for later changes.
 | Change a past season start (T30)                   | Yes   | No    | No        | No      |
 | Export full reward destinations (T31)              | Yes   | Yes   | No        | No      |
 
-Future capabilities are listed for planning; the server grants only explicitly
+The server grants only explicitly
 declared route permissions. Hiding a screen is not the access check. Revoked staff
 and inactive accounts cannot use existing sessions or sign in again.
 
@@ -272,3 +271,109 @@ the exact Discord redirect URI in [DEPLOY.md](DEPLOY.md#admin-hub-t28). Never pa
 cookies, OAuth codes or secrets into an issue or chat. A code rollback does not
 delete Staff or audit rows and does not undo the migration; do not deploy the
 pre-T28 API while depending on Staff authorization.
+
+## Reward destinations and payouts (T31)
+
+Rewards are reviewed by mods and paid manually according to the campaign terms.
+Registration does not verify ownership, guarantee eligibility or trigger a payment.
+There is no wallet connection, signature or automatic transfer.
+
+### Player registration
+
+Players open **Profile → Reward destinations**, optionally enter a Bybit UID
+(5–12 digits) and/or Mantle address, then **Review details**. Both may be empty.
+Mixed-case addresses must pass EIP-55 checksum validation; accepted addresses are
+stored in checksum form. Players review the exact values, check **I confirm these
+details are mine and correct**, and choose **Confirm and save**. Refresh never
+submits a change. Stale edits are rejected and reload the latest values.
+
+Players see only their own destinations and the latest 25 masked history rows.
+History stores old/new last-four values, time and actor (player/staff), never full
+past addresses or UIDs. Current full values are restricted to that player and
+owner/admin. Do not paste destinations into notes, audit reasons or screenshots.
+
+### Staff destination review
+
+Open **Reward destinations → Player destinations**. Search by display name and
+use pagination. Owner/admin see full current values; moderator/support see only
+last-four values. **View details** shows masked history. Only owner/admin can
+correct current values: review them with the player, provide a reason, confirm the
+correction and save. This records a staff history row and an audit event without
+copying raw destination values into the audit. Locked destinations reject staff
+corrections too; unlock explicitly first.
+
+### Prepare a season payout
+
+1. Review eligibility under campaign terms. T18 automation is not implemented:
+   every snapshot/CSV says `review_required`. This is not an eligibility approval.
+   Suspended/banned players cannot be approved or marked delivered.
+2. In **Seasons**, set an end and wait for that UTC instant to pass. Windows keep
+   the existing inclusive-start/exclusive-end leaderboard rules. No ledger rows
+   are edited. Returning to this screen never ends a season automatically.
+3. In **Reward destinations → Season rewards**, select the season. Enter a
+   required reason and add permanent **Prize bands** (first/last rank and English
+   description). Cover every rank from 1 through the intended **Top N players**.
+   Bands cannot overlap, be edited or be deleted; review carefully before adding.
+4. Choose N (1–10000) and **Freeze ranking snapshot**, then confirm. This is an
+   explicit, once-only operation after season end. It captures up to N ranked
+   active players using the existing point/tie rules, their display names,
+   Discord/Telegram identities, prizes and exact season window. Linked identities
+   do not duplicate points or recipients. Empty rankings freeze an empty snapshot.
+   Later points, names, links or season date edits never replace this snapshot.
+5. **Lock destinations for this season** before preparing delivery. Locks are
+   global safeguards for the single current destination per player: any locked
+   season prevents all player and staff destination edits. **Locked for payout
+   review** appears in Profile. Unlock every locked season to allow edits again.
+   Each lock/unlock has a required reason and audit event.
+6. **Review reward** for each recipient. Record the manual eligibility review and
+   approve a pending reward. Approved rewards may be marked delivered after the
+   external manual payment, with a delivery note/reference. Pending or approved
+   rewards may instead be voided, with a reason. Delivered/void are final. Every
+   transition appends an event and audit row; no record is erased. Concurrent or
+   stale submissions cannot apply the transition twice.
+
+Freezing/approving never credits or debits game points and never sends money.
+Moderators/support can read snapshots and status notes but cannot generate,
+change, lock, approve, deliver, void or export. The existing audit screen lists
+all reward writes and exports with actor/time. Status notes must not include
+secrets or full destination values.
+
+### Export safely
+
+Owner/admin choose **Export payout CSV** on a frozen snapshot. Each download
+request is authenticated, CSRF checked and audited with actor and row count.
+The file contains the frozen season ID, rank, points, display name and platform
+IDs; eligibility review marker, current account status, current Bybit UID/Mantle
+address and last-change time; frozen prize and latest reward status. Authentication,
+IP hashes, question-bank data and unrelated profile fields are excluded.
+
+Ranking/identities/prizes are frozen; destinations are current at export time.
+Use the season lock to hold those values stable while checking an export. Export
+again after an intentional unlock/correction/relock. The export is a review file,
+not a payment instruction sent to a provider. It includes pending/void records so
+operators can reconcile them; deliver only approved, eligible recipients.
+CSV cells are quoted and formula-like text is prefixed to prevent spreadsheet
+execution. Import UID/platform ID columns as text to preserve leading zeroes and
+long IDs. Store exports in restricted operator storage; do not commit or publish.
+
+### Quiz maintenance decision (checked in T31)
+
+The existing 30-second server deadline continues while Quiz is paused. A pause
+blocks replies but does not extend the served question; after resume, an already
+late answer times out. This policy is preserved and regression-tested in T31;
+there is no hidden refund or timer reset. Where possible pause between questions,
+warn players before planned maintenance and handle campaign disputes through
+reviewed, audited point corrections. A future change to pause-aware quiz timing
+needs its own agreed game-rule brief.
+
+### T31 rollout
+
+Apply `0012_rewards` before deploying the matching API and web. The migration
+creates empty reward tables/control, preserves seasons/ledger/audit and adds
+append-only triggers for history, prize bands, snapshots, recipient rows and
+status events. It does not generate a real snapshot or seed destination data.
+No worker change is required. Do not roll back the database or delete audit/award
+history. A code rollback must retain a compatible schema and payout records.
+After review/merge, test with synthetic recipients: registration, lock, masked
+support view, freeze, approval/void/delivery and export audit. Real campaign
+snapshots/payouts require explicit operator review; none are performed by this PR.

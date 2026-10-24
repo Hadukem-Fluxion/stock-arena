@@ -85,6 +85,13 @@
       "when": 1792694884896,
       "tag": "0011_admin-game-controls",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1792770704473,
+      "tag": "0012_rewards",
+      "breakpoints": true
     }
   ]
 }

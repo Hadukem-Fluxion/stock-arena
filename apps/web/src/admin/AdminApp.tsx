@@ -1,3 +1,4 @@
+import { Rewards } from "./Rewards.js";
 import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { en } from "../copy/en.js";
@@ -10,7 +11,16 @@ import { GameControls, TickerControls, Seasons } from "./Controls.js";
 const copy = en.admin;
 const client = createAdminClient();
 type Screen =
-  "overview" | "team" | "audit" | "quiz" | "players" | "flags" | "games" | "tickers" | "seasons";
+  | "overview"
+  | "team"
+  | "audit"
+  | "quiz"
+  | "players"
+  | "flags"
+  | "games"
+  | "tickers"
+  | "seasons"
+  | "rewards";
 function message(error: unknown): string {
   const code = error instanceof AdminClientError ? error.code : "generic";
   return Object.hasOwn(copy.error, code)
@@ -97,6 +107,7 @@ export function AdminApp() {
     ...(session?.permissions.includes("flags:read") ? ["flags"] : []),
     ...(session?.permissions.includes("games:write") ? ["games", "tickers"] : []),
     ...(session?.permissions.includes("seasons:write") ? ["seasons"] : []),
+    ...(session?.permissions.includes("rewards:read") ? ["rewards"] : []),
     "audit",
   ] as Screen[];
   return (
@@ -259,16 +270,16 @@ export function AdminApp() {
                     </div>
                   </section>
                 </div>
-                <h2 className="admin-section-title">{copy.planned}</h2>
-                <div className="admin-planned">
-                  {([[copy.rewards, copy.rewardsBody]] as const).map(([title, body]) => (
-                    <section className="admin-card" key={title}>
-                      <h3>{title}</h3>
-                      <p>{body}</p>
-                    </section>
-                  ))}
-                </div>
               </>
+            )}
+            {screen === "rewards" && (
+              <Rewards
+                session={session}
+                busy={busy}
+                revision={revision}
+                write={write}
+                onError={operationError}
+              />
             )}
             {screen === "team" && (
               <Team

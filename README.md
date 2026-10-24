@@ -36,7 +36,7 @@ Full rules and point values: `docs/GAME_RULES.md`, implemented in `packages/game
 ## Project status
 
 - Done: scaffold, game rules and scoring in `packages/game-core` (tested), TWAP and price health checks in `packages/fluxion-oracle` (tested).
-- T26 predictions and T28–T30 admin controls are integrated. T31 rewards are in PR #27 for review. Current queue: T31 → T33 (new home) → T34 (referrals) → T27 (Flyer). Track review and dependencies in `docs/TASKS.md`.
+- T26 predictions and T28–T30 admin controls are integrated. T31 rewards are integrated via PR #27. Current queue: T31 → T33 (new home) → T34 (referrals) → T27 (Flyer). Track review and dependencies in `docs/TASKS.md`.
 - T28 adds the standalone `/admin` hub: Discord web login, revocable 12-hour admin
   sessions, four staff roles, owner-managed team access and append-only audit.
   Setup is in [DEPLOY.md](docs/DEPLOY.md#admin-hub-t28); the English
@@ -49,7 +49,9 @@ Full rules and point values: `docs/GAME_RULES.md`, implemented in `packages/game
 - T30 adds per-game maintenance, manual ticker controls and database-backed
   seasons. Apply `0011_admin-game-controls` before API/worker startup. Locked
   predictions keep settling during game maintenance; new actions consume no limits.
-  T31 reward destinations remain pending.
+  T31 adds optional Profile reward destinations plus immutable season reward snapshots,
+  manual approval/delivery review and audited CSV exports. Apply `0012_rewards`
+  before the matching API; no payout is automatic. See the operator guide.
 
 ## Architecture
 

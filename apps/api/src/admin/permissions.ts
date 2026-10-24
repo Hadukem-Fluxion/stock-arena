@@ -72,7 +72,14 @@ export class AdminError extends Error {
       | "FLAG_CLOSED"
       | "SEASON_ORDER"
       | "SEASON_OVERLAP"
-      | "SEASON_EXISTS",
+      | "SEASON_EXISTS"
+      | "REWARDS_LOCKED"
+      | "REWARDS_FROZEN"
+      | "PRIZE_OVERLAP"
+      | "PRIZE_MISSING"
+      | "SEASON_NOT_ENDED"
+      | "REWARD_TRANSITION"
+      | "PLAYER_INACTIVE",
     public readonly statusCode = 409,
   ) {
     super(code);

@@ -1,3 +1,4 @@
+import { registerRewards } from "./rewards.js";
 import {
   adminActions,
   adminControl,
@@ -388,6 +389,7 @@ export function registerAdmin(
     return { entries: rows.slice(0, 50), page: input.page, hasMore: rows.length > 50 };
   });
   registerOperations(app, { database: options.database, now, context });
+  registerRewards(app, { database: options.database, now, context });
   registerControls(app, { database: options.database, now, context, catalog: options.catalog });
   return { requirePermission };
 }

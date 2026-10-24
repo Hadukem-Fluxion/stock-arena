@@ -1,3 +1,4 @@
+import { registerRewardProfile } from "./rewards.js";
 import { registerLeaderboard } from "./leaderboard.js";
 import { registerPrices } from "./prices.js";
 import type { PricesOptions } from "./prices.js";
@@ -70,6 +71,7 @@ export function buildServer(
     now: options.auth?.now,
   });
   registerPrices(app, { ...options.prices, database: auth.database, now: options.auth?.now });
+  registerRewardProfile(app, { database: auth.database, now: options.auth?.now });
   registerQuiz(app, { database: auth.database, now: options.auth?.now });
   registerHl(app, { ...options.higherLower, database: auth.database, now: options.auth?.now });
   registerDiscordInteractions(

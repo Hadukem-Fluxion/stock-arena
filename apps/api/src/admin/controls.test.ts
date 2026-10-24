@@ -241,6 +241,19 @@ describe("T30 maintenance gates", () => {
     expect(await db.db.select().from(quizAttempts).where(eq(quizAttempts.userId, p.id))).toEqual(
       before,
     );
+    // T31 explicitly documents the existing policy: maintenance does not reset
+    // the original quiz clock, and resuming after its deadline records expiry.
+    now = new Date(now.getTime() + 60000);
+    const paused = (await app.inject({ url: "/api/quiz", headers: p.headers })).json();
+    expect(paused.question.deadline).toBe(started.question.deadline);
+    await post(a.headers, "admin/games", {
+      game: "quiz",
+      paused: false,
+      reason: "Synthetic resumed",
+    });
+    const late = await post(p.headers, "quiz/answer", answer);
+    expect(late.statusCode).toBe(200);
+    expect(late.json().feedback).toMatchObject({ timedOut: true, correct: false });
   });
   it("keeps pending predictions visible and settling; blocks picks/next and preserves the offer", async () => {
     const a = await actor(),
