@@ -15,7 +15,7 @@ export function validateOhioEnvironment(env) {
   const filled = (value) =>
     typeof value === "string" &&
     value.length > 0 &&
-    !/CHANGE_ME|GENERATE_WITH|SUA.SENHA|PLACEHOLDER/i.test(value);
+    !/^(?:CHANGE_ME|GENERATE_WITH_ROTATE_SECRETS|SUA[-_ ]SENHA|PLACEHOLDER)$/i.test(value);
   if (
     database.hostname !== "aws-0-us-east-2.pooler.supabase.com" ||
     database.username !== "postgres.fhslaelrgoiibblgfinu" ||

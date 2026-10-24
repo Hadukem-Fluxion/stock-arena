@@ -110,7 +110,9 @@ export function gameContentUrls(env: Record<string, string | undefined>) {
         url.port !== "5432" ||
         url.pathname !== "/postgres" ||
         !url.password ||
-        /SENHA|PLACEHOLDER|CHANGE_ME/i.test(decodeURIComponent(url.password)) ||
+        /^(?:SENHA|<SENHA>|SUA[-_ ]SENHA|PLACEHOLDER|CHANGE_ME)$/i.test(
+          decodeURIComponent(url.password),
+        ) ||
         url.searchParams.get("sslmode") !== "require"
       )
         throw new Error();

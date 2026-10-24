@@ -124,6 +124,12 @@ describe("Ohio operator game-content copy", () => {
         "postgresql://postgres.fhslaelrgoiibblgfinu:synthetic@aws-0-us-east-2.pooler.supabase.com:5432/postgres?sslmode=require",
     };
     expect(gameContentUrls(env)).toHaveLength(2);
+    expect(
+      gameContentUrls({
+        ...env,
+        NEW_DATABASE_URL: env.NEW_DATABASE_URL.replace(":synthetic@", ":syntheticSenhaMarker@"),
+      }),
+    ).toHaveLength(2);
     for (const invalid of [
       {},
       { ...env, NEW_DATABASE_URL: env.OLD_DATABASE_URL },
