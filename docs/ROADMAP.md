@@ -74,3 +74,7 @@ change PR #20's status.
 - Final product name and art direction.
 - Confirmar com o admin da Mantle se a campanha é de mStocks (Bybit), xStocks ou ambos; brand kit, aviso legal e endereços dos mStocks na Mantle.
 - Datas oficiais da Season 1 (início/fim) — confirmar com a Mantle.
+
+T31 follow-up on `t31-snapshot-lock`: freeze and destination lock are atomic and
+audited; CSV flags changes after the frozen snapshot. Integrated via PR #29, no new
+migration or live operation. Ohio hosting preparation precedes T34.

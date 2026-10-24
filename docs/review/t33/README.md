@@ -10,9 +10,11 @@ are involved. The test browser is Microsoft Edge on Windows. Widths are 390px
 | Screen                | Mobile                                                                         | Desktop                                                                          |
 | --------------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
 | Home                  | [3 assets](home-mobile-3.png), [30 assets](home-mobile-30.png)                 | [3 assets](home-desktop-3.png), [30 assets](home-desktop-30.png)                 |
+| Home end (viewport)   | [Mobile](home-end-mobile-3.png)                                                | [Desktop](home-end-desktop-3.png)                                                |
 | Quiz                  | [3 assets](quiz-mobile-3.png), [30 assets](quiz-mobile-30.png)                 | [3 assets](quiz-desktop-3.png), [30 assets](quiz-desktop-30.png)                 |
 | Higher or Lower       | [3 assets](higher-lower-mobile-3.png), [30 assets](higher-lower-mobile-30.png) | [3 assets](higher-lower-desktop-3.png), [30 assets](higher-lower-desktop-30.png) |
 | Pending prediction    | [Mobile](prediction-pending-mobile-3.png)                                      | [Desktop](prediction-pending-desktop-3.png)                                      |
+| Empty run tab         | [Mobile](empty-run-mobile-3.png)                                               | [Desktop](empty-run-desktop-3.png)                                               |
 | Markets               | [3 assets](markets-mobile-3.png), [30 assets](markets-mobile-30.png)           | [3 assets](markets-desktop-3.png), [30 assets](markets-desktop-30.png)           |
 | Legal dialog          | [Mobile](legal-mobile-3.png)                                                   | [Desktop](legal-desktop-3.png)                                                   |
 | Flyer waiting screen  | [Mobile](flyer-soon-mobile-3.png)                                              | [Desktop](flyer-soon-desktop-3.png)                                              |
@@ -44,3 +46,5 @@ Flyer and Invite cards remain disabled with Soon; only their waiting screens are
 present. T34 implements referrals; T27 implements and activates Flyer. T31 is integrated via PR #27; its RewardProfile, API/schema, operator guide and reward tests are preserved in this synchronized branch. No API/schema/rules or
 dependency changes belong to T33. Real Discord/Telegram device validation follows
 operator-approved deployment; simulated checks do not claim a live rollout.
+
+Review follow-up: redundant run counters/date/progress removed from the active card; Start a run is rendered only inside the selected empty tab. Regression checks start three independent pending runs through their empty tabs. Home bottom clearance equals the fixed navigation height plus safe-area inset, measured at 0/24px simulated insets for both viewport widths and catalog sizes.

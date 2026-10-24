@@ -2,6 +2,61 @@ import { expect, test } from "@playwright/test";
 import { en } from "../src/copy/en.js";
 import { setupPrediction } from "./prediction-fixture.js";
 
+test("start belongs only to the selected empty tab and active/pending runs stay separate", async ({
+  page,
+}) => {
+  const fixture = await setupPrediction(page, 3);
+  try {
+    await page.goto("http://127.0.0.1:5174/#tgWebAppData=mock&screen=higherLower");
+    const panel = page.locator(".hl-panel"),
+      tabs = panel.getByRole("tab"),
+      start = panel.getByRole("button", { name: en.hl.start, exact: true });
+    for (let index = 0; index < 3; index++) {
+      await tabs.nth(index).click();
+      await expect(start).toBeVisible();
+      await expect(panel.getByRole("button", { name: en.hl.up, exact: true })).toHaveCount(0);
+      await start.click();
+      await expect(tabs.nth(index)).toHaveAttribute("aria-selected", "true");
+      await expect(start).toHaveCount(0);
+      await expect(panel.getByRole("button", { name: en.hl.up, exact: true })).toBeVisible();
+      await panel.getByRole("button", { name: en.hl.up, exact: true }).click();
+      await expect(
+        panel.getByRole("tabpanel").getByText(en.hl.pending, { exact: true }),
+      ).toBeVisible();
+      await expect(start).toHaveCount(0);
+    }
+    await tabs.first().click();
+    await expect(
+      panel.getByRole("tabpanel").getByText(en.hl.pending, { exact: true }),
+    ).toBeVisible();
+    expect(fixture.picks()).toBe(3);
+  } finally {
+    await fixture.close();
+  }
+});
+
+test("completed history cannot occupy the only slot for an available new run", async ({ page }) => {
+  const fixture = await setupPrediction(page, 3);
+  fixture.includeExpiringHistory(3);
+  fixture.includeExpiringHistory(2);
+  try {
+    await page.goto("http://127.0.0.1:5174/#tgWebAppData=mock&screen=higherLower");
+    const panel = page.locator(".hl-panel"),
+      tabs = panel.getByRole("tab");
+    for (let index = 0; index < 2; index++) {
+      await tabs.nth(2).click();
+      await panel.getByRole("button", { name: en.hl.start, exact: true }).click();
+      await panel.getByRole("button", { name: en.hl.up, exact: true }).click();
+      await expect(
+        panel.getByRole("tabpanel").getByText(en.hl.pending, { exact: true }),
+      ).toBeVisible();
+    }
+    expect(fixture.picks()).toBe(2);
+  } finally {
+    await fixture.close();
+  }
+});
+
 test("keeps a pending prediction visible when another offer cannot be picked", async ({ page }) => {
   const fixture = await setupPrediction(page, 3);
   try {
@@ -80,6 +135,7 @@ test("refreshes the balance on worker settlement even when older scored history 
       .click();
     await page.getByRole("button", { name: en.games.higherLower.name }).click();
     const panel = page.locator(".hl-panel");
+    await panel.getByRole("tab").nth(1).click();
     await panel.getByRole("button", { name: en.hl.start }).click();
     await panel.getByRole("button", { name: en.hl.up, exact: true }).click();
     await expect(panel.getByText(en.hl.pending, { exact: true })).toBeVisible();

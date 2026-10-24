@@ -1,7 +1,9 @@
 /* Dedicated screens share the approved brand tokens and never change game state. */
 .shell {
+  --bottom-nav-height: 66px;
+  --bottom-nav-safe-area: env(safe-area-inset-bottom, 0px);
   padding-top: calc(78px + env(safe-area-inset-top, 0px));
-  padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--bottom-nav-height) + var(--bottom-nav-safe-area));
 }
 .shell .app-header {
   position: fixed;
@@ -212,7 +214,8 @@
   border: 1px solid var(--line);
   border-bottom: 0;
   border-radius: 18px 18px 0 0;
-  padding: 5px 8px max(8px, env(safe-area-inset-bottom, 0px));
+  height: calc(var(--bottom-nav-height) + var(--bottom-nav-safe-area));
+  padding: 5px 8px calc(8px + var(--bottom-nav-safe-area));
   z-index: 40;
   background: var(--nav-bg);
 }
@@ -332,6 +335,9 @@
   gap: 8px;
   margin: 12px 0 20px;
 }
+.run-score {
+  justify-content: flex-end;
+}
 .run-tabs button {
   min-height: 58px;
   border: 1px solid var(--line);
@@ -400,4 +406,8 @@
 }
 .shell .prediction-slot[hidden] {
   display: none;
+}
+.shell .empty-slot {
+  display: grid;
+  gap: 16px;
 }

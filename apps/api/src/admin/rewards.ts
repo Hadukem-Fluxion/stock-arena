@@ -219,6 +219,23 @@ export function registerRewards(
           createdAt: ctx.now,
           createdBy: ctx.actor.userId,
         });
+        const [previousLock] = await tx
+          .select()
+          .from(rewardLocks)
+          .where(eq(rewardLocks.seasonId, season.id));
+        await tx
+          .insert(rewardLocks)
+          .values({ seasonId: season.id, locked: true, updatedAt: ctx.now })
+          .onConflictDoUpdate({
+            target: rewardLocks.seasonId,
+            set: { locked: true, updatedAt: ctx.now },
+          });
+        await event(tx, ctx, "reward.destinations_locked", "season", season.id, null, {
+          before: previousLock?.locked ?? false,
+          after: true,
+          reason: input.reason,
+          source: "snapshot",
+        });
         const recipients = result.rows.map((row) => {
           const points = Number(row.score),
             rank = Number(row.rank);
@@ -463,6 +480,7 @@ export function registerRewards(
           "bybit_uid",
           "mantle_address",
           "destination_changed_at",
+          "changed_after_snapshot",
           "prize",
           "reward_status",
         ];
@@ -491,6 +509,7 @@ export function registerRewards(
                 d?.bybitUid,
                 d?.mantleAddress,
                 d?.changedAt.toISOString(),
+                Boolean(d && d.changedAt > snapshot.createdAt),
                 row.prizeDescription,
                 row.event.status,
               ]

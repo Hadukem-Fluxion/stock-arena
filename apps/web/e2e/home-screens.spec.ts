@@ -51,16 +51,16 @@ async function quiz(page: Page) {
     });
   });
 }
-async function capture(page: Page, info: TestInfo, name: string) {
-  await page.evaluate(() => {
+async function capture(page: Page, info: TestInfo, name: string, atEnd = false) {
+  await page.evaluate((end) => {
     (document.activeElement as HTMLElement | null)?.blur();
-    window.scrollTo(0, 0);
-  });
+    window.scrollTo(0, end ? document.documentElement.scrollHeight : 0);
+  }, atEnd);
   const path = info.outputPath(name);
-  await page.screenshot({ path, fullPage: true });
+  await page.screenshot({ path, fullPage: !atEnd });
   await info.attach(name, { path, contentType: "image/png" });
   if (process.env.T33_REVIEW_CAPTURES === "1")
-    await page.screenshot({ path: resolve("docs/review/t33", name), fullPage: true });
+    await page.screenshot({ path: resolve("docs/review/t33", name), fullPage: !atEnd });
 }
 async function accessibleTargets(page: Page) {
   for (const target of await page.locator("button:visible, a:visible, summary:visible").all()) {
@@ -148,8 +148,32 @@ for (const width of [390, 1440])
           });
         });
         for (const contrast of contrasts) expect(contrast).toBeGreaterThanOrEqual(4.5);
+        for (const safeArea of [0, 24]) {
+          const clearance = await page.evaluate((inset) => {
+            const shell = document.querySelector<HTMLElement>(".shell")!;
+            shell.style.setProperty("--bottom-nav-safe-area", `${inset}px`);
+            window.scrollTo(0, document.documentElement.scrollHeight);
+            const nav = document.querySelector(".tabs-bottom")!.getBoundingClientRect();
+            return {
+              padding: parseFloat(getComputedStyle(shell).paddingBottom),
+              navHeight: nav.height,
+              navTop: nav.top,
+              legalBottom: document.querySelector(".legal-link")!.getBoundingClientRect().bottom,
+              callerBottom: document.querySelector(".home-caller")!.getBoundingClientRect().bottom,
+            };
+          }, safeArea);
+          expect(clearance.padding).toBe(clearance.navHeight);
+          expect(clearance.legalBottom).toBeLessThanOrEqual(clearance.navTop);
+          expect(clearance.callerBottom).toBeLessThanOrEqual(clearance.navTop);
+        }
+        await page.evaluate(() =>
+          document
+            .querySelector<HTMLElement>(".shell")!
+            .style.removeProperty("--bottom-nav-safe-area"),
+        );
         const suffix = `${width === 390 ? "mobile" : "desktop"}-${count}.png`;
         await capture(page, info, `home-${suffix}`);
+        if (count === 3) await capture(page, info, `home-end-${suffix}`, true);
         await page.getByRole("button", { name: en.games.quiz.name }).click();
         await expect(page.locator(".quiz-panel h3")).toContainText("fictional interface test");
         await accessibleTargets(page);
@@ -166,6 +190,10 @@ for (const width of [390, 1440])
         await page.getByRole("button", { name: en.hl.start, exact: true }).click();
         const up = page.getByRole("button", { name: en.hl.up, exact: true });
         await expect(up).toBeEnabled();
+        await expect(page.getByRole("button", { name: en.hl.start, exact: true })).toHaveCount(0);
+        await expect(page.locator(".hl-panel")).not.toContainText("Runs used today");
+        await expect(page.locator(".hl-panel")).not.toContainText("3 run slots");
+        await expect(page.locator(".hl-panel")).not.toContainText("Correct picks:");
         expect((await up.boundingBox())!.height).toBeGreaterThanOrEqual(64);
         await accessibleTargets(page);
         await capture(page, info, `higher-lower-${suffix}`);
@@ -179,6 +207,9 @@ for (const width of [390, 1440])
         await expect(
           page.getByRole("tabpanel").getByText(en.hl.emptySlot, { exact: true }),
         ).toBeVisible();
+        await expect(page.getByRole("button", { name: en.hl.start, exact: true })).toBeVisible();
+        if (count === 3) await capture(page, info, `empty-run-${suffix}`);
+        await page.getByRole("tab").nth(1).focus();
         await page.keyboard.press("Home");
         await expect(page.getByText(en.hl.pending, { exact: true })).toBeVisible();
         await page.locator("summary").click();

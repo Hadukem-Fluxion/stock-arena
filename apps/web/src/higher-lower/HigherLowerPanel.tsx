@@ -104,6 +104,12 @@ export function HigherLowerPanel({
         )
         .slice(0, view.runsLimit)
     : [];
+  // When a prior-day run ends, leave a slot for today's remaining starts.
+  // Keep the selected completed result until the player leaves that tab.
+  if (view?.canStart && visible.length === view.runsLimit) {
+    const completed = visible.find((entry) => entry.endedAt && entry.id !== selectedRun);
+    if (completed) visible.splice(visible.indexOf(completed), 1);
+  }
   const keys = Array.from(
     { length: view?.runsLimit ?? 3 },
     (_, i) => visible[i]?.id ?? `empty-${i}`,
@@ -116,15 +122,6 @@ export function HigherLowerPanel({
       {error && <p role="alert">{error === "session" ? en.quiz.sessionError : en.hl.error}</p>}
       {view && (
         <>
-          <div className="section-heading">
-            <span>
-              {en.hl.runs}:{" "}
-              <span className="number">
-                {view.runsUsed}/{view.runsLimit}
-              </span>
-            </span>
-            <span className="caption muted">{en.hl.parallel}</span>
-          </div>
           <div className="run-tabs" role="tablist" aria-label={en.navigation.runTabs}>
             {keys.map((key, index) => (
               <button
@@ -183,16 +180,11 @@ export function HigherLowerPanel({
                   hidden={active !== entry.id}
                   aria-label={en.hl.slot(entry.number, entry.day)}
                 >
-                  <div className="section-heading">
-                    <strong>{en.hl.runNumber(entry.number)}</strong>
+                  <div className="section-heading run-score">
                     <span className="number accent">
                       {entry.score} {en.labels.points}
                     </span>
                   </div>
-                  <p className="caption muted">
-                    {en.hl.correctPicks}: {entry.correctCount}/{view.maxCorrect} · {entry.day}{" "}
-                    {en.labels.utc}
-                  </p>
                   {round && (
                     <>
                       <div className="prediction-stock">
@@ -324,7 +316,7 @@ export function HigherLowerPanel({
                 </section>
               );
             })}
-            {Array.from({ length: Math.max(0, view.runsLimit - view.runs.length) }, (_, i) => (
+            {Array.from({ length: Math.max(0, view.runsLimit - visible.length) }, (_, i) => (
               <div
                 className="prediction-slot empty-slot"
                 key={`empty-${i}`}
@@ -334,19 +326,19 @@ export function HigherLowerPanel({
                 hidden={active !== `empty-${visible.length + i}`}
               >
                 <strong>{en.hl.emptySlot}</strong>
+                {view.canStart && (
+                  <button
+                    className="primary-button"
+                    type="button"
+                    disabled={busy || !!error}
+                    onClick={() => void run("start")}
+                  >
+                    {en.hl.start}
+                  </button>
+                )}
               </div>
             ))}
           </div>
-          {view.canStart && (
-            <button
-              className="primary-button"
-              type="button"
-              disabled={busy || !!error}
-              onClick={() => void run("start")}
-            >
-              {en.hl.start}
-            </button>
-          )}
           {!view.canStart && view.runs.length === 0 && (
             <p className="muted" role="status">
               {en.hl.unavailable}

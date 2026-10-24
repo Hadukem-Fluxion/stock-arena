@@ -13,7 +13,7 @@ One brief = one pull request. Paste the whole brief into Codex together with AGE
 | Lightsail hosting | Integrated via PR #24; instance/DNS/cutover pending                           |
 | T29               | Integrated via PR #25; post-deploy smoke test pending                         |
 | T30               | Integrated via PR #26; live smoke test pending                                |
-| T31               | Integrated via PR #27; live migration/smoke test pending                      |
+| T31               | Integrated via PRs #27/#29; live migration/smoke test pending                 |
 | T33               | New home/screens implemented on `t33-home-redesign`; review pending           |
 | T34               | Referrals, after T33; not implemented                                         |
 | T27 mStocks Flyer | After T34; hold-to-rise with approved screen 4; not implemented               |
@@ -643,3 +643,7 @@ Implementation branch: `t31-rewards`. No merge, deploy or real database writes b
 - UI: "+50 pts" hero, invite link with Copy, Share invite (Telegram openTelegramLink share URL; Discord shareLink), Friends joined / Points earned counters, three steps and manual claim details.
 - Admin: filter referrals by inviter/invitee/status; void requires a note, never deletes a record. Update ADMIN_GUIDE and GAME_RULES.
 - Tests: validated platform entry/manual cutoff, new-account/no-games rule, self-invite and reassignment rejection, first check-in awards once, daily cap, pause behavior and audited void. Simulated Discord/Telegram/browser e2e and 390px/desktop screenshots in docs/review/t34.
+
+### T31 follow-up — atomic snapshot locks and CSV change marker
+
+Freeze automatically upserts the season reward lock to true in the snapshot transaction and audits the prior/new lock state. CSV includes changed_after_snapshot (strictly later than snapshot.created_at, false when equal/missing). Preserve ledger/audit append-only rules. Test initial/already-held locks, empty rankings, rollback on audit failure, concurrent freeze and CSV time boundaries. Integrated via PR #29; no new migration or real database operation.

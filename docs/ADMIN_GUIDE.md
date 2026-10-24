@@ -320,7 +320,10 @@ corrections too; unlock explicitly first.
    Discord/Telegram identities, prizes and exact season window. Linked identities
    do not duplicate points or recipients. Empty rankings freeze an empty snapshot.
    Later points, names, links or season date edits never replace this snapshot.
-5. **Lock destinations for this season** before preparing delivery. Locks are
+5. Freezing automatically **locks destinations for this season** in the same
+   transaction, with a separate audit event. If any part fails, neither the snapshot
+   nor the lock is saved. This includes empty rankings and already-locked seasons.
+   Locks are
    global safeguards for the single current destination per player: any locked
    season prevents all player and staff destination edits. **Locked for payout
    review** appears in Profile. Unlock every locked season to allow edits again.
@@ -344,12 +347,16 @@ Owner/admin choose **Export payout CSV** on a frozen snapshot. Each download
 request is authenticated, CSRF checked and audited with actor and row count.
 The file contains the frozen season ID, rank, points, display name and platform
 IDs; eligibility review marker, current account status, current Bybit UID/Mantle
-address and last-change time; frozen prize and latest reward status. Authentication,
+address and last-change time; `changed_after_snapshot` is true only when the
+current destination changed strictly after the snapshot creation time (false for
+unchanged/equal timestamps or absent destinations); frozen prize and latest reward status. Authentication,
 IP hashes, question-bank data and unrelated profile fields are excluded.
 
 Ranking/identities/prizes are frozen; destinations are current at export time.
 Use the season lock to hold those values stable while checking an export. Export
-again after an intentional unlock/correction/relock. The export is a review file,
+again after an intentional unlock/correction/relock. Review every
+`changed_after_snapshot=true` row before delivery; the flag identifies a change,
+not an approval or an ownership verification. The export is a review file,
 not a payment instruction sent to a provider. It includes pending/void records so
 operators can reconcile them; deliver only approved, eligible recipients.
 CSV cells are quoted and formula-like text is prefixed to prevent spreadsheet

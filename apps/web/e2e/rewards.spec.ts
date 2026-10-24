@@ -37,7 +37,10 @@ async function mockAdmin(page: Page, role = "owner", frozen = true) {
       expect(req.headers()["x-admin-csrf"]).toBe("synthetic-csrf");
       const body = req.postDataJSON() as Record<string, unknown>;
       writes.push({ path, body });
-      if (path.endsWith("/freeze")) frozen = true;
+      if (path.endsWith("/freeze")) {
+        frozen = true;
+        locked = true;
+      }
       if (path.endsWith("/lock")) locked = Boolean(body.locked);
       if (path.endsWith("/status")) {
         status = body.status as typeof status;
@@ -170,9 +173,8 @@ test("admin freezes, locks, approves/delivers with note and exports via CSRF POS
   await page.getByLabel(r.topN, { exact: true }).fill("3");
   await page.getByRole("button", { name: r.freeze, exact: true }).click();
   await expect(page.getByText(r.frozen, { exact: true })).toBeVisible();
-  await page.getByLabel(c.ops.reason, { exact: true }).fill("Synthetic lock before delivery");
-  await page.getByRole("button", { name: r.lock, exact: true }).click();
   await expect(page.getByText(p.locked, { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: r.unlock, exact: true })).toBeVisible();
   await page.getByRole("button", { name: r.manage, exact: true }).first().click();
   await page.getByLabel(r.note).fill("Synthetic recipient verified");
   await page.getByRole("button", { name: c.confirm, exact: true }).click();
@@ -190,13 +192,12 @@ test("admin freezes, locks, approves/delivers with note and exports via CSRF POS
   expect((await download).suggestedFilename()).toBe("rewards.csv");
   expect(writes.map((w) => w.path.split("/").pop())).toEqual([
     "freeze",
-    "lock",
     "status",
     "status",
     "export",
   ]);
-  expect(writes[2]!.body).toMatchObject({ status: "approved", version: 0 });
-  expect(writes[3]!.body).toMatchObject({ status: "delivered", version: 1 });
+  expect(writes[1]!.body).toMatchObject({ status: "approved", version: 0 });
+  expect(writes[2]!.body).toMatchObject({ status: "delivered", version: 1 });
 });
 test("support sees only masked destinations and cannot approve, export or change locks", async ({
   page,
