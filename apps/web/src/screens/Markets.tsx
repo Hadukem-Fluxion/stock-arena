@@ -19,6 +19,7 @@ export function Markets({
   const marketClosed = Boolean(
     prices.view?.prices.length && prices.view.prices.every((p) => p.reason === "closed"),
   );
+  const awaitingOpen = marketClosed && prices.view!.prices.every((p) => p.priceUsd === null);
   return (
     <section className="card prices-card" aria-labelledby="prices-title">
       <div className="section-heading">
@@ -95,7 +96,9 @@ export function Markets({
             ? en.prices.reconnecting
             : prices.view
               ? marketClosed
-                ? en.prices.closed
+                ? awaitingOpen
+                  ? en.prices.awaitingOpen
+                  : en.prices.closed
                 : en.prices.live
               : en.status.pricesPending}
       </p>

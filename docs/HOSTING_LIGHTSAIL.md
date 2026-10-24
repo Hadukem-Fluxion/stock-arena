@@ -1,6 +1,9 @@
 # Virada para Ohio — roteiro do Hadukem
 
-Atualizado em **24/10/2026**. Recursos criados pelo Hadukem; deploy ainda pendente.
+Atualizado em **24/10/2026**. Hadukem informou a virada concluída no SHA
+`9fe93dcbcd1867a6ebee67102e08607376d8924b`: API/worker/Caddy no ar, 13 migrations,
+60 perguntas copiadas, Telegram setup e API_ORIGIN na Vercel configurados.
+As correções deste follow-up exigem um novo SHA aprovado após revisão/merge.
 Este PR não executa deploy, acesso a banco real, rotação real nem mudanças de painel.
 Execute só depois de revisão/merge e escolha de um SHA completo aprovado.
 
@@ -26,9 +29,11 @@ Cada bloco tem um comando. Pare no primeiro erro. Não usar transcrição de ter
 set -x, docker inspect completo, compose config sem --quiet, screenshots de segredos
 ou cat .env solto. Hadukem digita valores diretamente; Claude acompanha painéis.
 
-## 1. Windows: PowerShell 7 e ACL da chave
+## 1. Windows: PowerShell e ACL da chave
 
-Esperado: versão 7.x. Se não, abra PowerShell 7 antes de seguir.
+Confira a versão. Acesso SSH/ACL e as alternativas de container no servidor
+funcionam com Windows PowerShell 5.1 ou PowerShell 7, sem Node/pnpm no Windows.
+As alternativas locais de cópia/setup exigem PowerShell 7 e Node/pnpm.
 
 ```powershell
 $PSVersionTable.PSVersion
@@ -145,11 +150,11 @@ hospedagem e web compatível). Não usar PR não revisado.
 sudo git checkout --detach SHA_COMPLETO_APROVADO
 ```
 
-Guarde o SHA na sessão para comandos Compose; esperado: sem saída. Se abrir outra
-sessão SSH, entre em /opt/mstocks-arena e repita este comando.
+Confira o SHA selecionado; esperado: o SHA completo aprovado. Os comandos Compose
+abaixo passam APP_RELEASE explicitamente ao sudo, que descarta exports da sessão.
 
 ```bash
-export APP_RELEASE=$(sudo git rev-parse HEAD)
+sudo git rev-parse HEAD
 ```
 
 O bootstrap usa o [repositório oficial Docker para Ubuntu](https://docs.docker.com/engine/install/ubuntu/),
@@ -157,6 +162,7 @@ cria swap 2 GB, configura UFW, copia os arquivos SSH/unattended-upgrades já
 versionados. **Mantenha esta conexão aberta.** Esperado: Compose instalado,
 swap ~2 GiB e regras UFW 22/80/443 abertas. Se apt falhar, resolva antes de repetir.
 Swap existente inativa exige revisão manual; o script não a reformata.
+O bootstrap cria /run/sshd antes de sshd -t, inclusive com socket activation no Ubuntu 24.04.
 
 ```bash
 sudo bash deploy/lightsail/bootstrap.sh
@@ -267,7 +273,15 @@ Valide sem conectar a serviços. Esperado: Hosting environment valid; no values
 displayed. Falha: revise placeholders, região/pooler, chaves e bot no editor.
 
 ```bash
-sudo docker run --rm --network none --entrypoint node -v /etc/mstocks-arena:/secrets:ro "mstocks-arena:$(sudo git rev-parse HEAD)" scripts/lightsail/validate-env.mjs api --file /secrets/.env
+sudo docker run --rm --user 0 --network none --entrypoint node -v /etc/mstocks-arena:/secrets:ro "mstocks-arena:$(sudo git rev-parse HEAD)" scripts/lightsail/validate-env.mjs api --file /secrets/.env
+```
+
+O arquivo root/600 exige --user 0 nesses containers temporários. API/worker
+continuam com o usuário node. Se a validação disser invalid, primeiro confira
+permissões com stat acima e este diagnóstico, que só testa leitura:
+
+```bash
+sudo docker run --rm --user 0 --network none --entrypoint node -v /etc/mstocks-arena:/secrets:ro "mstocks-arena:$(sudo git rev-parse HEAD)" -e 'const fs = require("node:fs"); try { fs.accessSync("/secrets/.env", fs.constants.R_OK); console.log("Environment file readable; no values displayed."); } catch { console.error("Environment file unreadable; check mount and permissions."); process.exitCode = 1; }'
 ```
 
 ## 5. Schema novo com API/worker ainda parados
@@ -293,7 +307,7 @@ revisão com 0000–0012; versões futuras seguem seu próprio journal. Confira 
 select count(*) as applied_migrations from drizzle.__drizzle_migrations;
 ```
 
-## 6. Cópia de conteúdo no PowerShell local
+## 6. Cópia de conteúdo: container no servidor ou PowerShell local
 
 Não faça login ainda. O script recusa destino com jogadores, staff, flags,
 ledger ou recompensas; valida os dois projetos aprovados e usa CA verificada.
@@ -304,6 +318,63 @@ Não copia sets diários, contas, temporadas antigas, preços ou sessões. Orige
 read-only; destino escrito/verificado numa transação. Não gera dump/JSON nem
 imprime perguntas. Repetição antes do primeiro login é idempotente; falha desfaz
 tudo. Não apagar jogadores para forçar o script a passar.
+
+**Na virada inicial, Hadukem executou a cópia pelo container no servidor.**
+Escolha apenas uma das alternativas. Em ambiente já aberto a jogadores, não
+repita a cópia: a proteção de destino vazio continuará recusando esse banco.
+
+### 6a. Alternativa oficial no servidor (sem Node/PowerShell 7 no Windows)
+
+No SSH, dentro de /opt/mstocks-arena, com a imagem aprovada construída e o env
+root/600 preenchido. Renove o sudo antes de enviar stdin; o pipeline usa sudo -n
+para impedir que um prompt de senha consuma os dados. Esperado: sucesso.
+
+```bash
+sudo -v
+```
+
+Digite apenas a senha da origem antiga no prompt silencioso. O valor fica em uma
+variável não exportada da sessão e não entra no histórico. Não usar set -x.
+
+```bash
+read -rsp 'Senha da origem temporária: ' arenaSourcePassword
+```
+
+Quebre a linha sem exibir a senha.
+
+```bash
+printf '\n'
+```
+
+Dry-run: senha por stdin, percent-encoding dentro do container; URL nova vem do
+DATABASE_URL do arquivo privado. Nenhum valor entra nos argumentos/env do Docker.
+Esperado: somente contagens, 60 quiz_questions e 1 quiz_bank_control. Se divergir,
+pare e revise. A origem é somente leitura e o destino permanece sem alterações.
+
+```bash
+printf '%s' "$arenaSourcePassword" | sudo -n docker run --rm -i --user 0 --entrypoint node -v /etc/mstocks-arena:/secrets:ro "mstocks-arena:$(sudo git rev-parse HEAD)" --env-file=/secrets/.env --import tsx --input-type=module -e 'import { readFileSync } from "node:fs"; process.env.OLD_DATABASE_URL = `postgresql://postgres.djlyrllwnvvljxexusbw:${encodeURIComponent(readFileSync(0, "utf8"))}@aws-1-sa-east-1.pooler.supabase.com:5432/postgres?sslmode=require`; process.env.NEW_DATABASE_URL = process.env.DATABASE_URL; process.argv = [process.execPath, "packages/db/src/copy-game-content.ts", "--dry-run"]; await import("./packages/db/src/copy-game-content.ts");'
+```
+
+Depois de validar as contagens, renove sudo; esperado: sucesso.
+
+```bash
+sudo -v
+```
+
+Cópia transacional pelo mesmo script e mesma imagem, somente contagens na saída.
+Se falhar, pare; não contorne a proteção contra jogadores/dados já existentes.
+
+```bash
+printf '%s' "$arenaSourcePassword" | sudo -n docker run --rm -i --user 0 --entrypoint node -v /etc/mstocks-arena:/secrets:ro "mstocks-arena:$(sudo git rev-parse HEAD)" --env-file=/secrets/.env --import tsx --input-type=module -e 'import { readFileSync } from "node:fs"; process.env.OLD_DATABASE_URL = `postgresql://postgres.djlyrllwnvvljxexusbw:${encodeURIComponent(readFileSync(0, "utf8"))}@aws-1-sa-east-1.pooler.supabase.com:5432/postgres?sslmode=require`; process.env.NEW_DATABASE_URL = process.env.DATABASE_URL; process.argv = [process.execPath, "packages/db/src/copy-game-content.ts"]; await import("./packages/db/src/copy-game-content.ts");'
+```
+
+Remova a senha da sessão ao terminar, inclusive em caso de erro. Sem saída.
+
+```bash
+unset arenaSourcePassword
+```
+
+### 6b. Alternativa local (PowerShell 7 + Node/pnpm)
 
 No Windows, use checkout aprovado/limpo. Esperado: pull sem conflito; se houver
 mudanças locais, pare em vez de sobrescrevê-las.
@@ -382,12 +453,14 @@ sudo bash deploy/lightsail/deploy.sh deploy
 Esperado: API healthy, worker/Caddy running. Se não, não vire a Vercel ainda.
 
 ```bash
-sudo docker compose --env-file /etc/mstocks-arena/public.env -f deploy/lightsail/compose.yml ps
+sudo APP_RELEASE=$(sudo git rev-parse HEAD) docker compose --env-file /etc/mstocks-arena/public.env -f deploy/lightsail/compose.yml ps
 ```
 
 Use **somente --live**: GET health local e HTTPS público, ok:true, sem tocar em
 dados/serviços. Esperado: Live health checks passed. Modo sem argumentos é de
 CI isolado; não configurar CI=true no servidor para contornar a proteção.
+O check HTTPS aguarda até cerca de 60 segundos pela emissão inicial ACME,
+repetindo falhas TLS/HTTP/JSON sem exibir body ou traceback. TLS continua verificado.
 
 ```bash
 sudo bash deploy/lightsail/smoke-test.sh --live
@@ -402,14 +475,21 @@ Esperado nos logs: snapshots primários para todo o catálogo e conferências do
 pools configurados. Não publicar logs sem revisar; nada de tokens/payloads de login.
 
 ```bash
-sudo docker compose --env-file /etc/mstocks-arena/public.env -f deploy/lightsail/compose.yml logs --tail 60 worker
+sudo APP_RELEASE=$(sudo git rev-parse HEAD) docker compose --env-file /etc/mstocks-arena/public.env -f deploy/lightsail/compose.yml logs --tail 60 worker
 ```
 
 Para Caddy troque worker por caddy; para migration, por migrate. O Caddy versionado
 não registra query strings de OAuth/initData. Não habilite access/debug logging
 que capture dados privados. Logs Docker têm rotação de 10 MB × 3 por serviço.
+O Caddyfile é versionado no formato de caddy fmt e conferido no CI.
 
-## 8. .env local, sem imprimir conteúdo
+Em banco novo sem snapshots primários, um fim de semana pode ter quote null na
+fonte: Home/Markets mostram "Prices resume when the market opens" quando o estado
+é fechado. Sem preço salvo, não há último preço a recuperar. Pool segue apenas
+informativo. Histórico existente continua visível; falha de conexão/stale mantém
+seu aviso de indisponibilidade. Não trate ausência de preços como falha do deploy.
+
+## 8. .env local opcional, sem imprimir conteúdo
 
 **PowerShell 7 na raiz do repo**: copie o env privado por SSH diretamente para
 arquivo ignorado. Confira antes que esta cópia local pode ser substituída. A chave
@@ -458,6 +538,19 @@ No Windows, esperado: ok True pelo domínio web. Se falhar, não rode setup Tele
 ```powershell
 Invoke-RestMethod https://mstocks-arena.vercel.app/api/health
 ```
+
+### Telegram pelo container no servidor (alternativa oficial usada na virada)
+
+Depois do HTTPS saudável e do rebuild Vercel, no SSH em /opt/mstocks-arena.
+Lê token/segredo/webhook do env privado root/600, usando --user 0 só no container
+temporário. Não exige copiar segredos para o Windows nem instalar Node lá.
+Esperado: Telegram setup complete: 3 settings applied. A API já deve estar no ar.
+
+```bash
+sudo docker run --rm --user 0 --entrypoint node -v /etc/mstocks-arena:/secrets:ro "mstocks-arena:$(sudo git rev-parse HEAD)" --env-file=/secrets/.env --import tsx apps/api/src/telegram/setup-cli.ts
+```
+
+### Telegram pelo Windows (alternativa com ferramentas locais)
 
 Com .env local já atualizado, execute uma vez. Esperado: três configurações
 confirmadas, sem token na saída. Webhook usa Ohio diretamente; menu/Play continuam
@@ -512,7 +605,7 @@ implantação não existe release anterior seguro: manter web indisponível/manu
 e parar o writer enquanto corrige, sem voltar à Railway ou ao banco exposto.
 
 ```bash
-sudo docker compose --env-file /etc/mstocks-arena/public.env -f deploy/lightsail/compose.yml stop worker api
+sudo APP_RELEASE=$(sudo git rev-parse HEAD) docker compose --env-file /etc/mstocks-arena/public.env -f deploy/lightsail/compose.yml stop worker api
 ```
 
 Web: fazer **novo build da revisão anterior compatível com API_ORIGIN Ohio**.

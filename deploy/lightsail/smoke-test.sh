@@ -3,9 +3,25 @@ set -euo pipefail
 if [[ ${1:-} == --live ]]; then
   [[ $# == 1 ]] || { echo "Usage: smoke-test.sh --live" >&2; exit 1; }
   # Read-only checks: never use Compose down/up, migration tools or provider APIs.
-  for url in http://127.0.0.1:8787/api/health https://77-114-44-78.sslip.io/api/health; do
-    curl --proto '=http,https' --fail --silent --show-error --max-time 20 "$url" | \
-      python3 -c 'import json,sys; assert json.load(sys.stdin)["ok"] is True'
+  check_health() {
+    local body
+    body=$(curl --proto '=http,https' --fail --silent --show-error --max-time "$2" "$1" 2>/dev/null) || return 1
+    python3 -c 'import json,sys; assert json.load(sys.stdin)["ok"] is True' <<< "$body" >/dev/null 2>&1
+  }
+  check_health http://127.0.0.1:8787/api/health 5 || {
+    echo "Local API health check failed; check service status." >&2; exit 1;
+  }
+  # Caddy may still be obtaining its first ACME certificate after the API is healthy.
+  deadline=$((SECONDS + 60))
+  while true; do
+    remaining=$((deadline - SECONDS))
+    if ((remaining <= 0)); then
+      echo "HTTPS health check failed after 60 seconds; check DNS, firewall and Caddy logs." >&2; exit 1
+    fi
+    timeout=$((remaining < 5 ? remaining : 5))
+    if check_health https://77-114-44-78.sslip.io/api/health "$timeout"; then break; fi
+    remaining=$((deadline - SECONDS))
+    if ((remaining > 0)); then sleep "$((remaining < 2 ? remaining : 2))"; fi
   done
   echo "Live health checks passed; no services or data changed."
   exit 0
@@ -34,6 +50,7 @@ assert services['api']['ports'][0]['host_ip'] == '127.0.0.1'
 assert services['api']['depends_on']['migrate']['condition'] == 'service_completed_successfully'
 assert services['worker']['depends_on']['api']['condition'] == 'service_healthy'
 PY
+"${compose[@]}" run --rm --no-deps --entrypoint caddy caddy fmt --diff /etc/caddy/Caddyfile
 "${compose[@]}" run --rm --no-deps --entrypoint caddy caddy validate --config /etc/caddy/Caddyfile
 # The production entrypoint must reject a missing DB rather than silently create PGlite.
 if docker run --rm -e DATABASE_URL= mstocks-arena:ci migrate; then

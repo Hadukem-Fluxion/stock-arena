@@ -4,21 +4,21 @@ One brief = one pull request. Paste the whole brief into Codex together with AGE
 
 ## Task Board updates — 2026-10-24
 
-| Task              | State / dependency                                                                              |
-| ----------------- | ----------------------------------------------------------------------------------------------- |
-| T14               | Superseded by T28–T30                                                                           |
-| T21 Daily Call    | CANCELLED — merged into T26                                                                     |
-| T26               | Integrated via PR #20; post-deploy smoke test remains pending confirmation                      |
-| T28               | Integrated via PR #23; real admin smoke test pending deployment                                 |
-| Lightsail hosting | Base integrated via PR #24; Ohio PR #30 approved, synchronized with main; merge/cutover pending |
-| T29               | Integrated via PR #25; post-deploy smoke test pending                                           |
-| T30               | Integrated via PR #26; post-deploy smoke test pending                                           |
-| T31               | Integrated via PR #27; live smoke test pending                                                  |
-| T31 follow-up     | Integrated via PR #29: atomic snapshot lock and CSV marker                                      |
-| T33               | Integrated via PR #28; dedicated home/screens and review adjustments; live smoke test pending   |
-| T34               | Referrals, after Ohio hosting preparation and integrated T33; not started                       |
-| T27 mStocks Flyer | After T34; hold-to-rise with approved screen 4; not started                                     |
-| T32               | Settlement query optimization; required before T19 load test; not part of T26                   |
+| Task              | State / dependency                                                                                  |
+| ----------------- | --------------------------------------------------------------------------------------------------- |
+| T14               | Superseded by T28–T30                                                                               |
+| T21 Daily Call    | CANCELLED — merged into T26                                                                         |
+| T26               | Integrated via PR #20; post-deploy smoke test remains pending confirmation                          |
+| T28               | Integrated via PR #23; real admin smoke test pending deployment                                     |
+| Lightsail hosting | Integrated via PRs #24/#30; Ohio cutover reported complete at 9fe93dc; operator follow-up in review |
+| T29               | Integrated via PR #25; post-deploy smoke test pending                                               |
+| T30               | Integrated via PR #26; post-deploy smoke test pending                                               |
+| T31               | Integrated via PR #27; live smoke test pending                                                      |
+| T31 follow-up     | Integrated via PR #29: atomic snapshot lock and CSV marker                                          |
+| T33               | Integrated via PR #28; dedicated home/screens and review adjustments; live smoke test pending       |
+| T34               | Referrals, after Ohio hosting preparation and integrated T33; not started                           |
+| T27 mStocks Flyer | After T34; hold-to-rise with approved screen 4; not started                                         |
+| T32               | Settlement query optimization; required before T19 load test; not part of T26                       |
 
 Campaign decision for Mantle (not code): accepted reward identifiers (Bybit UID,
 Mantle address or both) and manual delivery process. Keep both fields optional
@@ -27,6 +27,25 @@ until confirmed. This table records the official task status changes.
 ## Operational priority — Ohio cutover (2026-10-24)
 
 After synchronizing T33 with merged T31 and the separate T31 lock/CSV follow-up, prepare one PR on chore-lightsail-ohio, before T34. Resources were created by Hadukem: mstocks-arena Lightsail/Ohio, 77.114.44.78, and fresh Supabase mstocks-arenaUS/fhslaelrgoiibblgfinu. Include Portuguese one-command-per-block PowerShell/SSH runbook, templates, official Docker/swap/hardening, secret rotation/validation, explicit migrations 0000–0012, local content-only quiz copy with counts, API_ORIGIN legacy compatibility, direct Ohio Telegram webhook, safe live smoke checks, manual Activity/Mini App/admin checklist and rollback/retirement. No merge, deploy, credentials, private question content or real database access by Codex. Old player/points/admin/reward data are intentionally not copied. Tests use isolated PGlite and mocked providers. Review adjustment: host UFW opens 22/80/443 without IP pinning; SSH stays key-only. Optional SSH source restrictions belong only in the browser-editable Lightsail firewall; explicitly open 443 there. Bootstrap firewall tests use mocked ufw on Linux, without provisioning.
+
+### Follow-up — Ohio cutover fixes (2026-10-24)
+
+Hadukem reports cutover complete at 9fe93dc: API/worker/Caddy online, 13 migrations,
+60 questions copied, Telegram setup and Vercel API_ORIGIN configured. Prepare one
+small PR without merge/deployment/live database access:
+
+- Create /run/sshd (755) before sshd -t on Ubuntu 24.04 socket activation.
+- Root/600 env validation/diagnostics use docker run --user 0; manual Compose
+  commands pass APP_RELEASE explicitly through sudo.
+- Live HTTPS smoke retries for about 60 seconds for first ACME issuance, with
+  verified TLS and concise errors instead of empty-JSON tracebacks.
+- Format Caddyfile with caddy fmt and check formatting in container CI.
+- Document content copy (read -s + stdin) and Telegram setup in the server container
+  as official alternatives to local PowerShell 7/Node tools. No secret echo/argv.
+- Home/Markets explicitly say "Prices resume when the market opens" for closed
+  assets without a stored primary quote. Keep existing last prices and informational
+  pools; do not change price sources/game rules. Test missing-history and outage
+  states, catalogs of 3/30 assets, mobile/desktop, and mocked HTTPS retries.
 
 ### Operational brief — Lightsail replacement hosting (2026-10-22)
 

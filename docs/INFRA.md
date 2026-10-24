@@ -23,15 +23,15 @@ Todas as contas pertencem ao Hadukem. O Claude configura os painéis pelo navega
 
 ## Estado atual
 
-| Serviço                  | Estado                                                                         | Endereço                                                                                        |
-| ------------------------ | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
-| GitHub                   | Configurado                                                                    | https://github.com/Hadukem-Fluxion/stock-arena (público)                                        |
-| Supabase                 | Criado pelo Hadukem; migrations/cópia pendentes                                | mstocks-arenaUS, fhslaelrgoiibblgfinu, us-east-2 (Ohio), Free, Data API desligada               |
-| Discord Developer Portal | Configurado (Activities ligado: Web/iOS/Android)                               | mStocks Arena, Client ID `1560368721216938175`                                                  |
-| Telegram BotFather       | Bot existente; rotação e webhook Ohio pendentes                                | @mStocksArenaBot                                                                                |
-| Vercel                   | Configurado (Hobby)                                                            | https://mstocks-arena.vercel.app                                                                |
-| Railway                  | Bloqueado — incidente informado pelo Hadukem em 21/10; configuração preservada | https://stock-arenaapi-production.up.railway.app (endereço histórico)                           |
-| AWS Lightsail            | Instância criada pelo Hadukem; deploy/testes pendentes                         | mstocks-arena, Ohio/zona A, StaticIp-1 77.114.44.78, API prevista https://77-114-44-78.sslip.io |
+| Serviço                  | Estado                                                                         | Endereço                                                                               |
+| ------------------------ | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| GitHub                   | Configurado                                                                    | https://github.com/Hadukem-Fluxion/stock-arena (público)                               |
+| Supabase                 | Configurado; 13 migrations e 60 perguntas copiadas, conforme Hadukem           | mstocks-arenaUS, fhslaelrgoiibblgfinu, us-east-2 (Ohio), Free, Data API desligada      |
+| Discord Developer Portal | Configurado (Activities ligado: Web/iOS/Android)                               | mStocks Arena, Client ID `1560368721216938175`                                         |
+| Telegram BotFather       | Setup concluído com webhook Ohio, conforme Hadukem                             | @mStocksArenaBot                                                                       |
+| Vercel                   | Configurado (Hobby); API_ORIGIN aponta para Ohio, conforme Hadukem             | https://mstocks-arena.vercel.app                                                       |
+| Railway                  | Bloqueado — incidente informado pelo Hadukem em 21/10; configuração preservada | https://stock-arenaapi-production.up.railway.app (endereço histórico)                  |
+| AWS Lightsail            | API/worker/Caddy no ar no SHA 9fe93dc, conforme Hadukem                        | mstocks-arena, Ohio/zona A, StaticIp-1 77.114.44.78, API https://77-114-44-78.sslip.io |
 
 O Claude informa as mudanças e o Codex atualiza esta tabela.
 
@@ -42,11 +42,18 @@ aws-0-us-east-2.pooler.supabase.com:5432, sslmode=require, CA verificada.
 API/worker usam os procedimentos de HOSTING_LIGHTSAIL.md; env privados root/600.
 Nenhum deploy, acesso a banco real, cópia ou rotação real foi executado pelo Codex.
 
+Hadukem confirmou a virada no SHA `9fe93dcbcd1867a6ebee67102e08607376d8924b`:
+13 migrations (0000 + 0001–0012), 60 perguntas copiadas pelo container no servidor,
+Telegram setup no container e Vercel API_ORIGIN configurados. Testes manuais dos
+jogos/admin e retirada dos recursos antigos seguem o checklist do roteiro;
+o informe de infraestrutura não confirma esses testes ou encerramentos.
+
 Copiar apenas conteúdo do quiz; contas, pontos, equipe, flags e recompensas
 começam do zero. O owner público 1225988280596824094 é recriado no primeiro login.
 Vercel passa a usar API_ORIGIN; RAILWAY_API_URL é fallback histórico, temporariamente
 com a mesma origem Ohio. Webhook Telegram vai para a API Ohio; Mini App, Activity,
-Interactions e callback admin ficam na Vercel. Setup/smoke tests reais pendentes.
+Interactions e callback admin ficam na Vercel. Setup concluído conforme informe acima;
+registrar os resultados dos testes manuais separadamente.
 
 Projeto antigo djlyrllwnvvljxexusbw será pausado somente após checklist verde e
 aprovação do Hadukem; serviços/variáveis Railway serão retirados pelos operadores.
