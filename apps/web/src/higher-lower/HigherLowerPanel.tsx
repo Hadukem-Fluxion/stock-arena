@@ -27,6 +27,7 @@ export function HigherLowerPanel({
   const [busy, setBusy] = useState(false),
     [error, setError] = useState<"session" | "network" | null>(null);
   const [clock, setClock] = useState(0);
+  const [selectedRun, setSelectedRun] = useState<string | null>(null);
   const pending = useRef(false),
     generation = useRef(0),
     lastScores = useRef(new Map<string, number>()),
@@ -48,6 +49,10 @@ export function HigherLowerPanel({
         if (id !== generation.current) return;
         if (result.runs.some((entry) => entry.score > (lastScores.current.get(entry.id) ?? 0)))
           notify.current();
+        if (action === "start")
+          setSelectedRun(
+            result.runs.find((entry) => !lastScores.current.has(entry.id))?.id ?? null,
+          );
         lastScores.current = new Map(result.runs.map((entry) => [entry.id, entry.score]));
         receivedAt.current = Date.now();
         setClock(0);
@@ -68,6 +73,7 @@ export function HigherLowerPanel({
     const id = ++generation.current;
     pending.current = false;
     lastScores.current = new Map();
+    setSelectedRun(null);
     setView(null);
     void run("read");
     return () => {
@@ -88,203 +94,251 @@ export function HigherLowerPanel({
       document.removeEventListener("visibilitychange", refresh);
     };
   }, [allowed, run]);
+  const visible = view
+    ? [...view.runs]
+        .sort(
+          (a, b) =>
+            Number(!!a.endedAt) - Number(!!b.endedAt) ||
+            a.day.localeCompare(b.day) ||
+            a.number - b.number,
+        )
+        .slice(0, view.runsLimit)
+    : [];
+  // When a prior-day run ends, leave a slot for today's remaining starts.
+  // Keep the selected completed result until the player leaves that tab.
+  if (view?.canStart && visible.length === view.runsLimit) {
+    const completed = visible.find((entry) => entry.endedAt && entry.id !== selectedRun);
+    if (completed) visible.splice(visible.indexOf(completed), 1);
+  }
+  const keys = Array.from(
+    { length: view?.runsLimit ?? 3 },
+    (_, i) => visible[i]?.id ?? `empty-${i}`,
+  );
+  const active = selectedRun && keys.includes(selectedRun) ? selectedRun : keys[0];
   if (!allowed) return <p className="muted">{en.hl.preview}</p>;
   return (
     <div className="hl-panel" aria-busy={busy}>
-      <p className="body-copy">{en.hl.predictionIntro}</p>
       {view?.maintenance && <p role="status">{en.maintenance}</p>}
-      <p className="caption muted">{en.hl.predictionRules}</p>
       {error && <p role="alert">{error === "session" ? en.quiz.sessionError : en.hl.error}</p>}
       {view && (
         <>
-          <div className="section-heading">
-            <span>
-              {en.hl.runs}:{" "}
-              <span className="number">
-                {view.runsUsed}/{view.runsLimit}
-              </span>
-            </span>
-            <span className="caption muted">{en.hl.parallel}</span>
+          <div className="run-tabs" role="tablist" aria-label={en.navigation.runTabs}>
+            {keys.map((key, index) => (
+              <button
+                key={key}
+                id={`hl-tab-${key}`}
+                role="tab"
+                aria-selected={active === key}
+                aria-controls={`hl-panel-${key}`}
+                tabIndex={active === key ? 0 : -1}
+                onClick={() => setSelectedRun(key)}
+                onKeyDown={(e) => {
+                  const move = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+                  const next = move
+                    ? (index + move + keys.length) % keys.length
+                    : e.key === "Home"
+                      ? 0
+                      : e.key === "End"
+                        ? keys.length - 1
+                        : -1;
+                  if (next >= 0) {
+                    e.preventDefault();
+                    setSelectedRun(keys[next]!);
+                    document.getElementById(`hl-tab-${keys[next]}`)?.focus();
+                  }
+                }}
+              >
+                {en.hl.runNumber(visible[index]?.number ?? index + 1)}
+                <small>
+                  {visible[index]
+                    ? `${visible[index]!.correctCount}/${view.maxCorrect}`
+                    : en.navigation.notStarted}
+                </small>
+              </button>
+            ))}
           </div>
           <div className="prediction-slots">
-            {[...view.runs]
-              .sort((a, b) => Number(!!a.endedAt) - Number(!!b.endedAt))
-              .slice(0, view.runsLimit)
-              .map((entry) => {
-                const round = entry.round;
-                const waiting =
-                  round && ["waiting_open", "waiting_start", "pending"].includes(round.state);
-                const seconds = round?.targetAt
-                  ? Math.max(
-                      0,
-                      Math.ceil(
-                        (Date.parse(round.targetAt) - Date.parse(view.serverTime) - clock) / 1000,
-                      ),
-                    )
-                  : 0;
-                return (
-                  <section
-                    className="prediction-slot"
-                    key={entry.id}
-                    aria-label={en.hl.slot(entry.number, entry.day)}
-                  >
-                    <div className="section-heading">
-                      <strong>{en.hl.runNumber(entry.number)}</strong>
-                      <span className="number accent">
-                        {entry.score} {en.labels.points}
-                      </span>
-                    </div>
-                    <p className="caption muted">
-                      {en.hl.correctPicks}: {entry.correctCount}/{view.maxCorrect} · {entry.day}{" "}
-                      {en.labels.utc}
-                    </p>
-                    {round && (
-                      <>
-                        <div className="prediction-stock">
-                          <AssetLogo
-                            ticker={round.ticker}
-                            asset={round.asset}
-                            size={56}
-                            discord={platform.host === "discord"}
-                          />
-                          <div>
-                            <strong>{round.asset.symbol}</strong>
-                            <p className="caption muted">{round.asset.name}</p>
-                          </div>
+            {visible.map((entry) => {
+              const round = entry.round;
+              const waiting =
+                round && ["waiting_open", "waiting_start", "pending"].includes(round.state);
+              const seconds = round?.targetAt
+                ? Math.max(
+                    0,
+                    Math.ceil(
+                      (Date.parse(round.targetAt) - Date.parse(view.serverTime) - clock) / 1000,
+                    ),
+                  )
+                : 0;
+              return (
+                <section
+                  className="prediction-slot"
+                  key={entry.id}
+                  id={`hl-panel-${entry.id}`}
+                  role="tabpanel"
+                  aria-labelledby={`hl-tab-${entry.id}`}
+                  hidden={active !== entry.id}
+                  aria-label={en.hl.slot(entry.number, entry.day)}
+                >
+                  <div className="section-heading run-score">
+                    <span className="number accent">
+                      {entry.score} {en.labels.points}
+                    </span>
+                  </div>
+                  {round && (
+                    <>
+                      <div className="prediction-stock">
+                        <AssetLogo
+                          ticker={round.ticker}
+                          asset={round.asset}
+                          size={56}
+                          discord={platform.host === "discord"}
+                        />
+                        <div>
+                          <strong>{round.asset.symbol}</strong>
+                          <p className="caption muted">{round.asset.name}</p>
                         </div>
-                        <h3>{en.hl.question(round.asset.symbol)}</h3>
-                        {round.state === "offered" && !entry.endedAt && !entry.canPick && (
-                          <p className="caption muted" role="status">
-                            {en.hl.offerUnavailable}
-                          </p>
-                        )}
-                        {round.state === "offered" && !entry.endedAt && (
-                          <div className="prediction-choices">
-                            {(["up", "down"] as const).map((direction) => (
-                              <button
-                                key={direction}
-                                type="button"
-                                className="primary-button"
-                                disabled={busy || !!error || !entry.canPick}
-                                onClick={() =>
-                                  void run("pick", {
-                                    runId: entry.id,
-                                    roundId: round.id,
-                                    direction,
-                                  })
-                                }
-                              >
-                                {en.hl[direction]}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                        {waiting && (
-                          <div className="hl-pause" role="status">
-                            <strong>
-                              {round.state === "waiting_open"
-                                ? en.hl.waitingOpen
-                                : round.state === "waiting_start"
-                                  ? en.hl.waitingStart
-                                  : en.hl.pending}
-                            </strong>
-                            <p>
-                              {en.hl.choice}:{" "}
-                              {round.direction ? en.hl[round.direction] : en.labels.unknown}
-                            </p>
-                            {round.state === "waiting_open" && round.scheduledOpenAt && (
-                              <p className="caption">
-                                {en.hl.scheduledOpen}:{" "}
-                                {new Date(round.scheduledOpenAt)
-                                  .toISOString()
-                                  .slice(0, 16)
-                                  .replace("T", " ")}{" "}
-                                {en.labels.utc}
-                              </p>
-                            )}
-                            {round.targetAt && (
-                              <p className="number" aria-label={en.hl.countdown}>
-                                {seconds
-                                  ? `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`
-                                  : en.hl.settling}
-                              </p>
-                            )}
-                            <p className="caption muted">{en.hl.canLeave}</p>
-                          </div>
-                        )}
-                        {round.settledAt && (
-                          <div className="prediction-result" role="status">
-                            <strong
-                              className={
-                                round.state === "won"
-                                  ? "accent"
-                                  : round.state === "lost"
-                                    ? "down"
-                                    : "muted"
+                      </div>
+                      <h3>{en.hl.question(round.asset.symbol)}</h3>
+                      {round.state === "offered" && !entry.endedAt && !entry.canPick && (
+                        <p className="caption muted" role="status">
+                          {en.hl.offerUnavailable}
+                        </p>
+                      )}
+                      {round.state === "offered" && !entry.endedAt && (
+                        <div className="prediction-choices">
+                          {(["up", "down"] as const).map((direction) => (
+                            <button
+                              key={direction}
+                              type="button"
+                              className="primary-button"
+                              disabled={busy || !!error || !entry.canPick}
+                              onClick={() =>
+                                void run("pick", {
+                                  runId: entry.id,
+                                  roundId: round.id,
+                                  direction,
+                                })
                               }
                             >
-                              {en.hl.results[round.state as "won" | "lost" | "equal" | "void"]}
-                            </strong>
-                            {round.startPrice && (
-                              <p>
-                                {en.hl.startPrice}:{" "}
-                                <span className="number">{money(round.startPrice)}</span>
-                              </p>
-                            )}
-                            {round.endPrice && (
-                              <p>
-                                {en.hl.endPrice}:{" "}
-                                <span className="number">{money(round.endPrice)}</span>
-                              </p>
-                            )}
-                            {round.changePct !== null && (
-                              <p>
-                                {en.hl.move}:{" "}
-                                <span className="number">
-                                  {Number(round.changePct).toLocaleString("en-US", {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2,
-                                    signDisplay: "exceptZero",
-                                    useGrouping: false,
-                                  })}
-                                  %
-                                </span>
-                              </p>
-                            )}
-                          </div>
-                        )}
-                        {round.settledAt && !entry.endedAt && (
-                          <button
-                            className="primary-button"
-                            type="button"
-                            disabled={busy || !!error || view.maintenance}
-                            onClick={() => void run("next", { runId: entry.id })}
+                              {en.hl[direction]}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {waiting && (
+                        <div className="hl-pause" role="status">
+                          <strong>
+                            {round.state === "waiting_open"
+                              ? en.hl.waitingOpen
+                              : round.state === "waiting_start"
+                                ? en.hl.waitingStart
+                                : en.hl.pending}
+                          </strong>
+                          <p>
+                            {en.hl.choice}:{" "}
+                            {round.direction ? en.hl[round.direction] : en.labels.unknown}
+                          </p>
+                          {round.state === "waiting_open" && round.scheduledOpenAt && (
+                            <p className="caption">
+                              {en.hl.scheduledOpen}:{" "}
+                              {new Date(round.scheduledOpenAt)
+                                .toISOString()
+                                .slice(0, 16)
+                                .replace("T", " ")}{" "}
+                              {en.labels.utc}
+                            </p>
+                          )}
+                          {round.targetAt && (
+                            <p className="number" aria-label={en.hl.countdown}>
+                              {seconds
+                                ? `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`
+                                : en.hl.settling}
+                            </p>
+                          )}
+                          <p className="caption muted">{en.navigation.closedApp}</p>
+                        </div>
+                      )}
+                      {round.settledAt && (
+                        <div className="prediction-result" role="status">
+                          <strong
+                            className={
+                              round.state === "won"
+                                ? "accent"
+                                : round.state === "lost"
+                                  ? "down"
+                                  : "muted"
+                            }
                           >
-                            {en.hl.nextPrediction}
-                          </button>
-                        )}
-                      </>
-                    )}
-                    {entry.endedAt && <p className="caption muted">{en.hl.completed}</p>}
-                  </section>
-                );
-              })}
-            {Array.from({ length: Math.max(0, view.runsLimit - view.runs.length) }, (_, i) => (
-              <div className="prediction-slot empty-slot" key={`empty-${i}`}>
+                            {en.hl.results[round.state as "won" | "lost" | "equal" | "void"]}
+                          </strong>
+                          {round.startPrice && (
+                            <p>
+                              {en.hl.startPrice}:{" "}
+                              <span className="number">{money(round.startPrice)}</span>
+                            </p>
+                          )}
+                          {round.endPrice && (
+                            <p>
+                              {en.hl.endPrice}:{" "}
+                              <span className="number">{money(round.endPrice)}</span>
+                            </p>
+                          )}
+                          {round.changePct !== null && (
+                            <p>
+                              {en.hl.move}:{" "}
+                              <span className="number">
+                                {Number(round.changePct).toLocaleString("en-US", {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2,
+                                  signDisplay: "exceptZero",
+                                  useGrouping: false,
+                                })}
+                                %
+                              </span>
+                            </p>
+                          )}
+                        </div>
+                      )}
+                      {round.settledAt && !entry.endedAt && (
+                        <button
+                          className="primary-button"
+                          type="button"
+                          disabled={busy || !!error || view.maintenance}
+                          onClick={() => void run("next", { runId: entry.id })}
+                        >
+                          {en.hl.nextPrediction}
+                        </button>
+                      )}
+                    </>
+                  )}
+                  {entry.endedAt && <p className="caption muted">{en.hl.completed}</p>}
+                </section>
+              );
+            })}
+            {Array.from({ length: Math.max(0, view.runsLimit - visible.length) }, (_, i) => (
+              <div
+                className="prediction-slot empty-slot"
+                key={`empty-${i}`}
+                id={`hl-panel-empty-${visible.length + i}`}
+                role="tabpanel"
+                aria-labelledby={`hl-tab-empty-${visible.length + i}`}
+                hidden={active !== `empty-${visible.length + i}`}
+              >
                 <strong>{en.hl.emptySlot}</strong>
+                {view.canStart && (
+                  <button
+                    className="primary-button"
+                    type="button"
+                    disabled={busy || !!error}
+                    onClick={() => void run("start")}
+                  >
+                    {en.hl.start}
+                  </button>
+                )}
               </div>
             ))}
           </div>
-          {view.canStart && (
-            <button
-              className="primary-button"
-              type="button"
-              disabled={busy || !!error}
-              onClick={() => void run("start")}
-            >
-              {en.hl.start}
-            </button>
-          )}
           {!view.canStart && view.runs.length === 0 && (
             <p className="muted" role="status">
               {en.hl.unavailable}
@@ -304,6 +358,10 @@ export function HigherLowerPanel({
         </button>
       )}
       {busy && <p className="caption muted">{en.hl.loading}</p>}
+      <details className="hl-rules">
+        <summary>{en.navigation.how}</summary>
+        <p className="caption muted">{en.hl.predictionRules}</p>
+      </details>
     </div>
   );
 }

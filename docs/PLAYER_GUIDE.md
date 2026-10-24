@@ -21,15 +21,25 @@ Playing in a voice channel lets friends join the same screen and play together.
 
 Turn on the daily reminder in Settings if you want a nudge when your quiz is ready.
 
+## Navigation
+
+Home has the daily stock, check-in, games and today's top three. Markets shows
+catalog prices; Ranks opens the full leaderboard; Profile shows your account.
+Each game opens its own screen. Use Back to home (or Telegram's native back
+button) to leave it. Higher or Lower predictions remain saved when the app closes.
+Flyer and Invite friends show Soon until their releases. Full notices are under
+Not financial advice · Legal in the footer.
+
 ## Your first day
 
 - Check in and read the Stock of the Day.
 - Take the Daily Quiz: three questions, 30 seconds each, one attempt.
 - Play up to three runs of Higher or Lower.
-- Copy your invite link from your Profile and share it.
-- See where you rank on the Daily tab of the leaderboard.
+- See where you rank under Ranks → Today.
 
-Every stock card has a View on Fluxion button that opens the real xStock on Fluxion. Trading there is optional and separate from the game; xStocks are not available in the United States and some other regions.
+Markets and the footer have a Trade on Fluxion link. Trading there is optional
+and separate from the game. xStocks are not available in the U.S. or to U.S.
+persons. Geo restrictions apply.
 
 In Higher or Lower, the server chooses one stock; pick Up or Down for its next
 15 minutes. You can keep three runs active with one pending pick each. A correct

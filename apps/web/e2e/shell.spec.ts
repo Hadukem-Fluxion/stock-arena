@@ -13,51 +13,54 @@ for (const width of [360, 768, 1024, 1440]) {
       if (new URL(request.url()).pathname.startsWith("/api/")) apiRequests.push(request.url());
     });
     await page.goto("/");
-    await expect(page.locator(".connection")).toHaveText(en.auth.preview);
-    await expect(page.locator(".host-label")).toHaveText(en.host.browserDevelopment);
+    await expect(page.locator(".shell")).toHaveAttribute("data-host", "browser");
+    await expect(page.locator(".connection")).toHaveCount(0);
+    await expect(page.locator(".host-label")).toHaveCount(0);
+    await expect(page.locator(".tabs-header")).toHaveCount(0);
     await expect(page.locator(".skip-link")).toHaveText(en.labels.skipToContent);
     await page.evaluate(() => document.fonts.ready);
-    expect(
-      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
-    ).toBe(true);
-    const columns = await page
-      .locator(".arena-grid")
-      .evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(" ").length);
-    expect(columns).toBe(width >= 1024 ? 3 : width >= 768 ? 2 : 1);
-    const nav = page.locator(width >= 1024 ? ".tabs-header" : ".tabs-bottom");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    const nav = page.locator(".tabs-bottom");
     await expect(nav).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath(`shell-${width}.png`), fullPage: true });
     await nav.getByRole("button", { name: en.tabs.leaderboard, exact: true }).click();
-    await expect(page.getByRole("heading", { name: en.leaderboard.title, level: 1 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: en.tabs.leaderboard, level: 1 })).toBeVisible();
     await expect(page.getByText(en.leaderboard.empty)).toBeVisible();
     await nav.getByRole("button", { name: en.tabs.profile, exact: true }).click();
     await expect(page.getByRole("heading", { name: en.auth.previewPlayer })).toBeVisible();
-    await nav.getByRole("button", { name: en.tabs.play, exact: true }).click();
+    await nav.getByRole("button", { name: en.tabs.home, exact: true }).click();
+    await page
+      .locator(".tabs-bottom")
+      .getByRole("button", { name: en.tabs.home, exact: true })
+      .click();
     await page.getByRole("button", { name: en.games.quiz.name }).click();
-    await expect(page.locator("#active-title")).toHaveText(en.games.quiz.name);
-    await expect(page.locator(".legal-notice")).toHaveText(en.regionNotice);
-    await expect(page.locator(".legal-notice")).toHaveAttribute(
+    await expect(page.getByRole("heading", { name: en.games.quiz.name, level: 1 })).toBeVisible();
+    await page.getByRole("button", { name: en.navigation.back, exact: true }).click();
+    await page.getByRole("button", { name: en.navigation.legal, exact: true }).click();
+    await expect(page.getByRole("dialog").getByRole("link")).toHaveText(en.regionNotice);
+    await expect(page.getByRole("dialog").getByRole("link")).toHaveAttribute(
       "href",
       "https://assets.backed.fi/legal-documentation",
     );
-    expect(await page.locator(".stock-logo-badge").count()).toBe(assetTickers(ASSETS).length + 1);
+    await page.getByRole("button", { name: en.navigation.closeLegal }).click();
+    await nav.getByRole("button", { name: en.tabs.markets, exact: true }).click();
+    expect(await page.locator(".stock-logo-badge").count()).toBe(assetTickers(ASSETS).length);
     expect(errors).toEqual([]);
     expect(apiRequests).toEqual([]);
   });
 }
 
-test("production disables the local user and game buttons", async ({ page }) => {
+test("production browser permits navigation but cannot award or start games", async ({ page }) => {
   await page.goto("http://127.0.0.1:5174/");
-  await expect(page.locator(".host-label")).toHaveText("Running in a browser");
   await expect(page.locator(".connection")).toHaveText(en.auth.errors.BROWSER_DISABLED);
-  await expect(page.getByRole("button", { name: en.games.quiz.name })).toBeDisabled();
-  await expect(page.getByText(en.auth.preview)).toHaveCount(0);
-  await expect(page.locator(".legal-notice")).toHaveAttribute(
-    "href",
-    "https://assets.backed.fi/legal-documentation",
-  );
+  await expect(page.locator(".host-label")).toHaveCount(0);
+  await expect(page.locator(".checkin-action button").first()).toBeDisabled();
+  await page.getByRole("button", { name: en.games.quiz.name }).click();
+  await expect(page.getByText(en.quiz.preview)).toBeVisible();
+  await expect(page.getByRole("button", { name: en.quiz.start })).toHaveCount(0);
 });
-
 async function telegramPage(page: Page) {
   await page.route("**/api/checkin", (route) =>
     route.fulfill({ status: 503, json: { error: { code: "INTERNAL_ERROR" } } }),
@@ -123,7 +126,8 @@ test("Telegram production login uses the relative API and host links", async ({ 
     await route.fulfill({ json: { session: session("Telegram test player") } });
   });
   await page.goto("http://127.0.0.1:5174/#tgWebAppData=mock");
-  await expect(page.locator(".connection")).toContainText("Telegram test player");
+  await expect(page.locator(".shell")).toHaveAttribute("data-host", "telegram");
+  await expect(page.locator(".connection")).toHaveCount(0);
   const palette = {
     "--bg": "#0b0e11",
     "--surface": "#151a1f",
@@ -157,7 +161,7 @@ test("Telegram production login uses the relative API and host links", async ({ 
     "header:#0b0e11",
     "background:#0b0e11",
   ]);
-  await page.locator(".featured-card").getByRole("link", { name: en.labels.viewOnFluxion }).click();
+  await page.locator(".compact-partners").getByRole("link", { name: en.navigation.trade }).click();
   expect(await page.evaluate(() => Reflect.get(window, "bridgeCalls"))).toEqual([
     "ready",
     "expand",
@@ -180,6 +184,6 @@ test("login errors show safe copy and a retry succeeds", async ({ page }) => {
   await page.goto("/#tgWebAppData=mock");
   await expect(page.locator(".connection")).toContainText(en.auth.errors.CONFIGURATION_REQUIRED);
   await page.getByRole("button", { name: en.auth.retry }).click();
-  await expect(page.locator(".connection")).toContainText("Retry player");
+  await expect(page.locator(".connection")).toHaveCount(0);
   expect(attempts).toBe(2);
 });

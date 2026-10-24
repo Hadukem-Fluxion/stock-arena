@@ -82,6 +82,10 @@ async function setup(page: Page) {
 }
 async function openQuiz(page: Page) {
   await page.goto("http://127.0.0.1:5174/#tgWebAppData=mock");
+  await page
+    .locator(".tabs-bottom")
+    .getByRole("button", { name: en.tabs.home, exact: true })
+    .click();
   await page.getByRole("button", { name: en.games.quiz.name }).click();
 }
 for (const width of [360, 1440])
@@ -153,7 +157,11 @@ for (const width of [360, 1440])
     await expect(panel.locator(".quiz-result")).toContainText("75 pts");
     await expect(panel).toContainText(en.quiz.tomorrow);
     expect(answers).toBe(3);
-    await page.getByRole("button", { name: en.games.invite.name }).click();
+    await page.getByRole("button", { name: en.navigation.back, exact: true }).click();
+    await page
+      .locator(".tabs-bottom")
+      .getByRole("button", { name: en.tabs.home, exact: true })
+      .click();
     await page.getByRole("button", { name: en.games.quiz.name }).click();
     await expect(page.locator(".quiz-result")).toContainText("75 pts");
     await expect(page.getByRole("button", { name: en.quiz.start })).toHaveCount(0);
@@ -190,7 +198,11 @@ test("quiz preserves the server deadline after remount and records expiry withou
   });
   await openQuiz(page);
   await expect(page.locator(".quiz-panel")).toContainText("1 s left");
-  await page.getByRole("button", { name: en.games.invite.name }).click();
+  await page.getByRole("button", { name: en.navigation.back, exact: true }).click();
+  await page
+    .locator(".tabs-bottom")
+    .getByRole("button", { name: en.tabs.home, exact: true })
+    .click();
   await page.getByRole("button", { name: en.games.quiz.name }).click();
   await expect(page.locator(".quiz-panel").getByRole("status")).toContainText(en.quiz.expired);
   expect(posted).toBe(1);

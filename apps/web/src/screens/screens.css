@@ -1,0 +1,413 @@
+/* Dedicated screens share the approved brand tokens and never change game state. */
+.shell {
+  --bottom-nav-height: 66px;
+  --bottom-nav-safe-area: env(safe-area-inset-bottom, 0px);
+  padding-top: calc(78px + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(var(--bottom-nav-height) + var(--bottom-nav-safe-area));
+}
+.shell .app-header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 30;
+  background: var(--bg);
+  padding: max(12px, env(safe-area-inset-top, 0px)) 16px 12px;
+}
+.shell .header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1000px;
+  margin: auto;
+  gap: 12px;
+}
+.shell .app-brand {
+  font-size: 18px;
+  gap: 8px;
+  min-width: 0;
+}
+.shell .app-brand span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.shell .app-brand img {
+  flex: 0 0 28px;
+}
+.shell .player-stats {
+  flex-wrap: nowrap;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.shell .pill {
+  gap: 4px;
+  padding: 5px 8px;
+  font-size: 12px;
+}
+.shell .main-content {
+  max-width: 800px;
+  padding: 8px 16px 24px;
+}
+.shell .card {
+  border-radius: 20px;
+  padding: 18px;
+}
+.home-screen,
+.home-games {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.home-games {
+  gap: 10px;
+}
+.shell .featured-card .eyebrow {
+  margin-bottom: 0;
+}
+.shell .featured-card {
+  gap: 12px;
+}
+.shell .stock-card-content .body-copy {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 13px;
+  margin-top: 0;
+}
+.shell .stock-card-content {
+  gap: 10px;
+}
+.shell .featured-stock {
+  margin: 0;
+  gap: 10px;
+}
+.shell .featured-stock h2 {
+  font-size: 18px;
+}
+.shell .featured-stock .stock-price {
+  margin-left: auto;
+}
+.shell .stock-price strong {
+  font-size: 19px;
+}
+.shell .featured-stock .stock-provider {
+  display: none;
+}
+.shell .checkin-action {
+  margin-top: 0;
+}
+.shell .checkin-action .primary-button {
+  width: 100%;
+}
+.shell .game-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+.shell .game-tile {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  padding: 14px;
+  gap: 12px;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  min-height: 80px;
+}
+.shell .game-tile:disabled {
+  opacity: 0.75;
+}
+.shell .invite-tile {
+  border-color: var(--accent-text);
+  background: var(--accent-tint);
+}
+.game-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  color: var(--accent-text);
+  background: var(--surface-2);
+  flex-shrink: 0;
+  font-size: 20px;
+}
+.game-description {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.shell .game-name {
+  font-size: 16px;
+}
+.game-badge {
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--accent-text);
+  margin-left: auto;
+  background: var(--accent-tint);
+  border-radius: 20px;
+  padding: 3px 8px;
+}
+.shell .ranking-card h2 {
+  margin: 0;
+}
+.text-button {
+  border: 0;
+  background: none;
+  color: var(--accent-text);
+  padding: 10px 0 10px 12px;
+  min-height: 44px;
+}
+.home-caller {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+  margin-top: 10px;
+}
+.shell .leaderboard-row {
+  padding: 10px 0;
+}
+.shell .leaderboard-list {
+  margin: 0;
+}
+.shell .app-footer {
+  margin-top: 0;
+  padding: 0 12px 12px;
+  border: 0;
+  text-align: center;
+}
+.compact-partners {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  font-size: 11px;
+}
+.compact-partners a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--muted);
+  text-decoration: none;
+}
+.legal-link {
+  min-height: 44px;
+  background: none;
+  color: var(--muted);
+  border: 0;
+  padding: 8px;
+  font-size: 12px;
+  text-decoration: underline;
+}
+.shell .tabs-bottom {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  position: fixed;
+  inset: auto 0 0;
+  width: 100%;
+  max-width: 680px;
+  margin: auto;
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  border-radius: 18px 18px 0 0;
+  height: calc(var(--bottom-nav-height) + var(--bottom-nav-safe-area));
+  padding: 5px 8px calc(8px + var(--bottom-nav-safe-area));
+  z-index: 40;
+  background: var(--nav-bg);
+}
+.shell .tabs-bottom button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 52px;
+  padding: 5px;
+  min-width: 0;
+  border: 0;
+  background: none;
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.shell .tabs-bottom button[aria-current="page"] {
+  background: var(--accent-tint);
+  color: var(--accent-text);
+}
+.game-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0 16px;
+}
+.game-heading h1 {
+  font-size: 22px;
+  margin: 0;
+}
+.back-button {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  font-size: 24px;
+}
+.game-screen {
+  min-height: calc(100svh - 250px);
+}
+.shell .trade-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  margin-top: 20px;
+}
+.market-note {
+  text-align: center;
+  margin-top: 12px;
+}
+.shell .price-list {
+  margin-top: 20px;
+}
+.shell .price-row {
+  min-height: 76px;
+}
+.shell .price-row .stock-name {
+  flex: 1;
+}
+.shell .price-row .stock-name > * {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.shell .live-price-value {
+  margin-left: auto;
+}
+.shell .prices-card h1 {
+  margin-bottom: 0;
+}
+.legal-dialog {
+  width: min(92vw, 600px);
+  max-height: 85svh;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 22px;
+}
+.legal-dialog::backdrop {
+  background: #000b;
+}
+.legal-dialog p {
+  margin-top: 20px;
+}
+.legal-dialog button {
+  min-height: 44px;
+  min-width: 44px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.shell a:focus-visible,
+.shell button:focus-visible,
+.shell summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.run-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0 20px;
+}
+.run-score {
+  justify-content: flex-end;
+}
+.run-tabs button {
+  min-height: 58px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  border-radius: 12px;
+  color: var(--muted);
+  padding: 8px;
+}
+.run-tabs button[aria-selected="true"] {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+  color: var(--accent-text);
+}
+.run-tabs button small {
+  display: block;
+  font-size: 11px;
+}
+.shell .prediction-slots {
+  display: block;
+}
+.shell .prediction-slot {
+  border: 0;
+  padding: 0;
+}
+.shell .prediction-choices button {
+  min-height: 64px;
+  font-size: 20px;
+}
+.shell .prediction-choices button:last-child {
+  background: var(--down-tint);
+  color: var(--down);
+  border: 1px solid var(--down);
+}
+.hl-rules {
+  margin-top: 24px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0 12px;
+}
+.hl-rules summary {
+  min-height: 44px;
+  padding: 10px 0;
+  cursor: pointer;
+}
+.hl-rules p {
+  margin-bottom: 12px;
+}
+@media (min-width: 900px) {
+  .shell .main-content {
+    padding-top: 20px;
+  }
+  .shell .app-brand {
+    font-size: 21px;
+  }
+  .shell .home-screen {
+    gap: 20px;
+  }
+  .shell .card {
+    padding: 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shell * {
+    scroll-behavior: auto;
+  }
+}
+.shell .prediction-slot[hidden] {
+  display: none;
+}
+.shell .empty-slot {
+  display: grid;
+  gap: 16px;
+}

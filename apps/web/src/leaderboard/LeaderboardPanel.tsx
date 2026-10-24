@@ -89,20 +89,26 @@ function RankingRows({ rows, callerId }: { rows: LeaderboardEntry[]; callerId?: 
     </ol>
   );
 }
-export function TodayTopFive({
+export function TodayTopThree({
   platform,
   enabled,
+  onSeeAll,
 }: {
   platform: PlatformAdapter;
   enabled: boolean;
+  onSeeAll: () => void;
 }) {
   const state = useLeaderboard(platform, enabled, "day", "all");
   return (
     <>
-      <p className="eyebrow">{state.view?.season.name ?? en.labels.season}</p>
-      <h2>{en.labels.topFive}</h2>
+      <div className="section-heading">
+        <h2>{en.labels.topThree}</h2>
+        <button className="text-button" onClick={onSeeAll}>
+          {en.navigation.seeAll}
+        </button>
+      </div>
       {state.view?.top.length ? (
-        <RankingRows rows={state.view.top.slice(0, 5)} callerId={state.view.caller?.userId} />
+        <RankingRows rows={state.view.top.slice(0, 3)} callerId={state.view.caller?.userId} />
       ) : (
         <p className="muted empty-state">
           {state.error
@@ -114,6 +120,16 @@ export function TodayTopFive({
               : en.leaderboard.preview}
         </p>
       )}
+      {state.view &&
+        !state.view.top.slice(0, 3).some((row) => row.userId === state.view!.caller?.userId) && (
+          <div className="home-caller" aria-label={en.leaderboard.yourRank}>
+            {state.view.caller ? (
+              <RankingRows rows={[state.view.caller]} callerId={state.view.caller.userId} />
+            ) : (
+              <p className="caption muted">{en.leaderboard.unranked}</p>
+            )}
+          </div>
+        )}
     </>
   );
 }
