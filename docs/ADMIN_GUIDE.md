@@ -94,6 +94,12 @@ Pages show 25 questions. **Add question** creates a question with a unique impor
 slug, topic, four options, a correct option and explanation. **Edit question**
 opens the same fields. Only owners/admins can see these answer keys.
 
+The bank keeps its original alternative order and answer key. Players receive a
+stable personal permutation for each day/question; the API maps their choice
+back to the original index for scoring and attempt history. Do not reorder the
+bank or reimport it to enable this feature. Newly frozen daily sets use it;
+pre-update sets keep their original presentation until the UTC day ends.
+
 **Frozen today** marks a question in the shared UTC-day selection. It cannot be
 edited, rescheduled or overwritten by import. **Open** shows it read-only. You
 can **Deactivate** it for future selections; today's frozen content and existing

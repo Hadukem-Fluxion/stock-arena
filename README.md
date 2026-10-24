@@ -559,6 +559,16 @@ after reading feedback. The existing `quizAnswerInTime` enforces 30 seconds plus
 2 seconds network grace, using server timestamps; refresh and request replay never
 extend the deadline. Expired replies store `-1` as an unanswered/expired marker.
 
+Alternatives are permuted on the server for each player, UTC day and question.
+New frozen daily sets store private HMAC-derived seed metadata in their existing
+JSON, using the configured session secret; no new environment variable or migration
+is required. Seeds and index mappings never leave the API. Reads, retries, API
+restarts and key rotation keep that frozen order. Submitted display indices are
+mapped back to original bank indices for storage/scoring; feedback maps them to
+the player's displayed order. The question bank, timers and points are unchanged.
+Rollout starts with newly frozen daily sets: pre-update sets keep their original
+order for the rest of that UTC day, preserving open questions and stored answers.
+
 `quizPoints` computes the unchanged 20-per-correct score and 15-point perfect
 bonus. Points are inserted into the ledger once, when all three replies are
 recorded, in the same transaction as the final reply. A zero score has no award

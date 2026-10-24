@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, createHmac } from "node:crypto";
 import { and, asc, eq, isNull, or } from "drizzle-orm";
 import { z } from "zod";
 import type { FastifyInstance } from "fastify";
@@ -29,8 +29,35 @@ export class QuizError extends Error {
 type Answer = { day: string; questionId: string; position: number; choice: number | null };
 type Action = { type: "read" | "start" | "next" } | { type: "answer"; answer: Answer };
 
+function presentOptions(question: QuizQuestionSnapshot, userId: string, day: string) {
+  // Private metadata in the existing frozen JSON survives restarts/key rotation.
+  // Unmarked pre-update sets retain their original order for in-flight clients.
+  const seed = (question as QuizQuestionSnapshot & { optionOrderSeed?: string }).optionOrderSeed;
+  if (seed !== undefined && (typeof seed !== "string" || !/^[a-f0-9]{64}$/.test(seed)))
+    throw new Error("Invalid quiz presentation state.");
+  const order = [0, 1, 2, 3];
+  if (seed) {
+    const rank = (index: number) =>
+      createHmac("sha256", seed)
+        .update(JSON.stringify(["quiz-options-v1", userId, day, question.id, index]))
+        .digest();
+    const ranks = order.map(rank);
+    order.sort((a, b) => Buffer.compare(ranks[a]!, ranks[b]!) || a - b);
+  }
+  return {
+    order,
+    // A validated question always has exactly four options.
+    options: order.map((index) => question.options[index]!) as [string, string, string, string],
+  };
+}
+
 /** Global UTC-day selection is frozen once, so edits to the seed cannot change it. */
-export function createQuizStore(connection: DatabaseConnection, now = () => new Date()) {
+export function createQuizStore(
+  connection: DatabaseConnection,
+  optionOrderSecret: string,
+  now = () => new Date(),
+) {
+  if (Buffer.byteLength(optionOrderSecret) < 32) throw new AuthError("AUTH_UNAVAILABLE", 503);
   return async (userId: string, action: Action): Promise<QuizView> =>
     connection.db.transaction(async (tx) => {
       const [user] = await tx.select().from(users).where(eq(users.id, userId)).for("update");
@@ -78,6 +105,9 @@ export function createQuizStore(connection: DatabaseConnection, now = () => new 
               options,
               answerIndex,
               explanation,
+              optionOrderSeed: createHmac("sha256", optionOrderSecret)
+                .update(JSON.stringify(["quiz-option-seed-v1", day, id]))
+                .digest("hex"),
             }));
           await tx.insert(quizDailySets).values({ day, questions }).onConflictDoNothing();
           // Concurrent players converge on the same committed winner of the daily PK.
@@ -113,19 +143,21 @@ export function createQuizStore(connection: DatabaseConnection, now = () => new 
       }
       if (!daily || daily.questions.length !== total) throw new QuizError("QUIZ_UNAVAILABLE", 503);
       const questions = daily.questions;
+      const presented = questions.map((question) => presentOptions(question, userId, day));
       const feedback = (index: number): QuizFeedback => {
         const question = questions[index];
         const choice = attempt!.answers[index];
         if (!question || choice === undefined) throw new Error("Invalid quiz state.");
+        const presentation = presented[index]!;
         return {
           prompt: question.prompt,
-          options: question.options,
+          options: presentation.options,
           questionId: question.id,
           position: index,
-          choice: choice < 0 ? null : choice,
+          choice: choice < 0 ? null : presentation.order.indexOf(choice),
           correct: choice === question.answerIndex,
           timedOut: choice < 0,
-          correctOption: question.answerIndex,
+          correctOption: presentation.order.indexOf(question.answerIndex),
           explanation: question.explanation,
         };
       };
@@ -164,7 +196,11 @@ export function createQuizStore(connection: DatabaseConnection, now = () => new 
         const inTime = quizAnswerInTime(servedAt, instant);
         // A null choice records expiry only after the full server window, including grace.
         if (choice === null && inTime) throw new QuizError("QUIZ_OUT_OF_ORDER");
-        const answers = [...attempt.answers, inTime && choice !== null ? choice : -1];
+        // Persist original bank indices, preserving historical answers/admin reads.
+        const answers = [
+          ...attempt.answers,
+          inTime && choice !== null ? presented[position]!.order[choice]! : -1,
+        ];
         const correctCount = answers.filter(
           (answer, index) => answer === questions[index]?.answerIndex,
         ).length;
@@ -193,7 +229,7 @@ export function createQuizStore(connection: DatabaseConnection, now = () => new 
               position: answered,
               topic: question.topic,
               prompt: question.prompt,
-              options: question.options,
+              options: presented[answered]!.options,
               servedAt: servedAt.toISOString(),
               deadline: new Date(
                 servedAt.getTime() + GAME_CONFIG.quiz.secondsPerQuestion * 1000,
@@ -216,7 +252,7 @@ export function createQuizStore(connection: DatabaseConnection, now = () => new 
 
 export function registerQuiz(
   app: FastifyInstance,
-  options: { database: () => DatabaseConnection; now?: () => Date },
+  options: { database: () => DatabaseConnection; now?: () => Date; optionOrderSecret: string },
 ) {
   let store: ReturnType<typeof createQuizStore> | undefined;
   const empty = z.object({}).strict();
@@ -240,7 +276,7 @@ export function registerQuiz(
         reply.header("Cache-Control", "no-store");
         if (!empty.safeParse(request.query).success) throw new AuthError("INVALID_INPUT", 400);
         if (!request.user) throw new AuthError("UNAUTHORIZED", 401);
-        store ??= createQuizStore(options.database(), options.now);
+        store ??= createQuizStore(options.database(), options.optionOrderSecret, options.now);
         if (action === "answer") {
           const parsed = body.safeParse(request.body);
           if (!parsed.success) throw new AuthError("INVALID_INPUT", 400);

@@ -10,15 +10,19 @@ The MVP runs on Discord and Telegram by Nov 20, closed beta follows, and public 
 | 3 · Launch and Season 1 | From Dec 8      | Public launch on both platforms; Season 1 leaderboard and rewards; Weekly Fantasy Portfolio; account linking                                                                                  | —                                                            |
 | 4 · Season 2            | January 2027    | Stock Card collection, Dividend Farm, more xStocks as they list on Fluxion                                                                                                                    | —                                                            |
 
-Ohio status (24/10): PR #30 is integrated. Hadukem reports cutover complete at 9fe93dc: Lightsail API/worker/Caddy online, 13 migrations and 60 questions copied to Supabase mstocks-arenaUS, Telegram setup and Vercel API_ORIGIN configured. A small operator follow-up fixes SSH runtime directory creation, root/600 container commands, explicit APP_RELEASE through sudo, ACME smoke retries, Caddy formatting and container-only copy/setup instructions. Closed markets without primary history get a clear waiting-for-open message. Codex has not performed any live operation. Manual gameplay/admin acceptance and retirement of old resources remain separate operator checks.
+Ohio status (24/10): PRs #30/#31 are integrated. Hadukem reports cutover complete at 9fe93dc: Lightsail API/worker/Caddy online, 13 migrations and 60 questions copied to Supabase mstocks-arenaUS, Telegram setup and Vercel API_ORIGIN configured. The operator follow-up fixes SSH runtime directory creation, root/600 container commands, explicit APP_RELEASE through sudo, ACME smoke retries, Caddy formatting and container-only copy/setup instructions. Closed markets without primary history get a clear waiting-for-open message. Codex has not performed any live operation. Manual gameplay/admin acceptance and retirement of old resources remain separate operator checks.
 
 ## Who does what
 
-Priority update (24/10): PR #32 quiz option ordering is synchronized with main/#31
-and has green CI; review remains pending. Next is **T35 public stats → T34 → T27**,
-one branch/PR at a time. T35 publishes only anonymous aggregates for Mantle Synch,
-with a 60-second cache, exact-origin CORS and an IP quota. It is implemented on
-t35-public-stats for review, with no live database, merge or deployment by Codex.
+Priority update (24/10): PR #32 quiz option ordering is integrated. It keeps
+bank/schema/rules unchanged: new frozen sets use a private seed and stable
+per-player/day/question presentation; existing sets retain their old order for
+safe rollout. Next is **T35 public stats → T34 → T27**, one branch/PR at a time.
+T35 publishes only anonymous aggregates for Mantle Synch, with a 60-second cache,
+exact-origin CORS and an IP quota. PR #33 on t35-public-stats is synchronized with
+main/#32 for review. Ohio cutover was reported complete by Hadukem at 9fe93dc;
+operator fixes are integrated via PR #31. Codex performs no live database,
+merge or deployment operations.
 
 Hosting priority (22/10/2026): prepare the API/worker move to Lightsail in
 `chore-lightsail-hosting`, following Hadukem's report that Railway is blocked after

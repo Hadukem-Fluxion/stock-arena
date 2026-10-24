@@ -78,7 +78,11 @@ export function buildServer(
   });
   registerPrices(app, { ...options.prices, database: auth.database, now: options.auth?.now });
   registerRewardProfile(app, { database: auth.database, now: options.auth?.now });
-  registerQuiz(app, { database: auth.database, now: options.auth?.now });
+  registerQuiz(app, {
+    database: auth.database,
+    now: options.auth?.now,
+    optionOrderSecret: (options.auth?.env ?? process.env).SESSION_SECRET ?? "",
+  });
   registerHl(app, { ...options.higherLower, database: auth.database, now: options.auth?.now });
   registerDiscordInteractions(
     app,
