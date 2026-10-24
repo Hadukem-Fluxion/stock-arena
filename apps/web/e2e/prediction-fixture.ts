@@ -137,22 +137,27 @@ export async function setupPrediction(page: Page, count: number, closed = false)
   );
   await page.route("**/api/hl{,/**}", (route) => {
     const path = new URL(route.request().url()).pathname;
-    if (path.endsWith("/start"))
+    if (path.endsWith("/start")) {
+      const number = view.runsUsed + 1;
       view = {
         ...view,
-        runsUsed: 1,
+        runsUsed: number,
+        canStart: number < view.runsLimit,
         runs: [
           {
-            id,
+            id: number === 1 ? id : `80000000-0000-4000-8000-${String(number).padStart(12, "0")}`,
             day,
-            number: 1,
+            number,
             correctCount: 0,
             score: 0,
             canPick: true,
             endedAt: null,
             expiresAt: "2026-10-21T12:00:00.000Z",
             round: {
-              id: roundId,
+              id:
+                number === 1
+                  ? roundId
+                  : `81000000-0000-4000-8000-${String(number).padStart(12, "0")}`,
               ticker: "STOCK_0",
               asset: catalog.STOCK_0!,
               state: "offered",
@@ -171,13 +176,16 @@ export async function setupPrediction(page: Page, count: number, closed = false)
           ...view.runs,
         ],
       };
+    }
     if (path.endsWith("/pick")) {
       picks++;
-      view.runs[0]!.canPick = false;
-      const round = view.runs[0]!.round!;
+      const input = route.request().postDataJSON() as { runId: string; direction: "up" | "down" };
+      const entry = view.runs.find((run) => run.id === input.runId)!;
+      entry.canPick = false;
+      const round = entry.round!;
       Object.assign(round, {
         state: closed ? "waiting_open" : "pending",
-        direction: "up",
+        direction: input.direction,
         lockedAt: serverTime,
         scheduledOpenAt: closed ? "2026-10-21T00:00:00.000Z" : null,
         startPrice: closed ? null : "100",
@@ -225,11 +233,11 @@ export async function setupPrediction(page: Page, count: number, closed = false)
         },
       });
     },
-    includeExpiringHistory() {
+    includeExpiringHistory(number = 3) {
       view.runs.push({
-        id: "90000000-0000-4000-8000-000000000001",
+        id: `90000000-0000-4000-8000-${String(number).padStart(12, "0")}`,
         day: "2026-10-19",
-        number: 3,
+        number,
         correctCount: 10,
         score: 50,
         canPick: false,

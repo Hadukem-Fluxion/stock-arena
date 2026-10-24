@@ -273,7 +273,7 @@ for (const width of [360, 1440])
       try {
         await page.goto("http://127.0.0.1:5174/#tgWebAppData=mock");
         await page
-          .locator(width === 360 ? ".tabs-bottom" : ".tabs-header")
+          .locator(".tabs-bottom")
           .getByRole("button", { name: en.tabs.profile, exact: true })
           .click();
         const panel = page.getByRole("region", { name: p.title, exact: true });
@@ -294,7 +294,7 @@ for (const width of [360, 1440])
         locked = true;
         await page.reload();
         await page
-          .locator(width === 360 ? ".tabs-bottom" : ".tabs-header")
+          .locator(".tabs-bottom")
           .getByRole("button", { name: en.tabs.profile, exact: true })
           .click();
         await expect(panel.getByText(p.locked, { exact: true })).toBeVisible();

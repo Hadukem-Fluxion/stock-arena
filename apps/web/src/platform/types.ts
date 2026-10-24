@@ -27,6 +27,7 @@ export interface PlatformAdapter {
   init(): Promise<void>;
   login(): Promise<PlatformUser>;
   openExternal(url: string): Promise<void>;
+  setBackButton?(handler: (() => void) | null): () => void;
 }
 
 export type PlatformErrorCode =

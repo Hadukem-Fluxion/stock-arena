@@ -1,6 +1,6 @@
 /**
  * Every player-facing string lives here. English only.
- * Keep the tone short, friendly and plain. No price predictions or advice.
+ * Keep the tone short, friendly and plain. No investment advice.
  */
 const providers = {
   xstocks: {
@@ -15,6 +15,30 @@ const providers = {
 
 export const en = {
   maintenance: "Paused for maintenance",
+  navigation: {
+    back: "Back to home",
+    days: "days",
+    play: "Play",
+    seeAll: "See all",
+    liveWindow: "Live · 24h",
+    trade: "Trade on Fluxion",
+    builtOn: "Built on Mantle",
+    pricesBy: (provider: string) => `Prices by ${provider}`,
+    priceNote: (provider: string) => `Prices by ${provider}. Not financial advice.`,
+    legal: "Not financial advice · Legal",
+    legalTitle: "Legal & notices",
+    closeLegal: "Close legal notices",
+    checkin: (points: number) => `Check in · +${points}`,
+    checkedIn: (points: number) => `Done · +${points} pts · back tomorrow`,
+    runsLeft: (runs: number) => `${runs} ${runs === 1 ? "run" : "runs"}`,
+    how: "How it works",
+    notStarted: "Not started",
+    closedApp: "Safe to close the app.",
+    runTabs: "Runs",
+    soon: "Soon",
+    flyerPending: "mStocks Flyer is coming soon.",
+    invitePending: "Invites are coming soon.",
+  },
   rewards: {
     title: "Reward destinations",
     intro:
@@ -399,80 +423,43 @@ export const en = {
     "For entertainment and education only. Not financial advice. Points have no cash value.",
   regionNotice: providers.xstocks.legalNotice,
   footer: {
-    partners: "Partners",
-    prices: "Prices ·",
-    tradeOn: "Trade on",
-    builtOn: "Built on",
-    xstocks: providers.xstocks.name,
-    fluxion: "Fluxion",
     mantle: "Mantle",
   },
-  host: {
-    discord: "Running in Discord",
-    telegram: "Running in Telegram",
-    browser: "Running in a browser",
-    browserDevelopment: "Running in a browser (development mode)",
-  },
   tabs: {
-    play: "Play",
-    leaderboard: "Leaderboard",
+    home: "Home",
+    markets: "Markets",
+    leaderboard: "Ranks",
     profile: "Profile",
   },
   labels: {
     skipToContent: "Skip to content",
     stockOfTheDay: "Stock of the Day",
-    launchSet: "Launch set",
     navigation: "Main navigation",
-    games: "Your daily games",
-    magnificent: "Magnificent 7",
-    stocks: "Stocks",
-    topFive: "Today's top 5",
-    daily: "Every day, a new round.",
-    playTitle: "Make your next move",
-    playIntro: "Learn the stocks. Play the games. Build your streak.",
-    streak: "day streak",
+    games: "Games",
+    topThree: "Today's top 3",
     points: "pts",
-    unavailable: "Not available yet",
-    priceWindow: "24h",
     unknown: "—",
     utc: "UTC",
-    viewOnFluxion: "View on Fluxion →",
-    profile: "Your arena profile",
-    connected: "Connected account",
     playerId: "Player ID",
     platform: "Platform",
-    signedIn: "You're signed in",
-    season: "Season",
   },
   games: {
-    checkin: {
-      name: "Daily Check-in",
-      rule: "Meet the Stock of the Day.",
-      detail: "Come back each UTC day to build your streak.",
-    },
     quiz: {
       name: "Daily Quiz",
       rule: "3 questions · 30 s each",
-      detail: "Test what you know about stocks and xStocks.",
     },
     higherLower: {
       name: "Higher or Lower",
-      rule: "Predict Up or Down in 15 minutes",
-      detail: "Compare two stocks and keep your run going.",
+      rule: "Up or down in 15 min",
     },
     invite: {
       name: "Invite friends",
-      rule: "Bring your friends to the arena.",
-      detail: "Play together and climb the leaderboard.",
+      rule: "+50 pts for each friend who checks in",
     },
-    pending: "This game is getting ready. Check back soon.",
+    flyer: { name: "mStocks Flyer", rule: "Hold to fly through real charts" },
   },
   checkin: {
-    action: "Check in",
     saving: "Checking in…",
-    loading: "Loading today's stock…",
-    done: "Checked in · see you tomorrow",
-    awarded: "Earned today",
     factPending: "More about this stock soon.",
     priceUnavailable: "Price unavailable",
     paused: "Price paused",
@@ -508,10 +495,8 @@ export const en = {
     unavailable: "Today's quiz is being prepared. Please try again later.",
   },
   hl: {
-    predictionIntro: "Predict a stock's next move. Your result arrives after 15 minutes.",
     predictionRules:
       "Up to 3 parallel runs per UTC day. +5 points per correct pick; the first miss ends a run. Complete 10 correct picks to finish.",
-    parallel: "3 run slots",
     question: (ticker: string) => `Will ${ticker} go up or down in the next 15 minutes?`,
     up: "Up",
     down: "Down",
@@ -522,7 +507,6 @@ export const en = {
     scheduledOpen: "Scheduled opening",
     countdown: "Time until settlement",
     settling: "Confirming result…",
-    canLeave: "You can leave the app. Your prediction is saved on the server.",
     results: {
       won: "Correct! +5 points",
       lost: "Incorrect — run ended",
@@ -538,25 +522,10 @@ export const en = {
     offerUnavailable: "This stock is temporarily unavailable. Your run is safe.",
     slot: (number: number, day: string) => `Run ${number} · ${day}`,
     runNumber: (number: number) => `Run ${number}`,
-    lastSession: "Last session",
-    lastSessionQuestion: "Which stock moved more in the last trading session?",
-    lastSessionRule:
-      "Pick the bigger absolute move in the last session. A fall counts as a move, too.",
-    sessionHiddenChange: "Session move revealed after your pick",
     preview: "Open in Discord or Telegram to play Higher or Lower.",
-    rule: "Pick the bigger absolute 24h move. A fall counts as a move, too.",
-    runs: "Runs used today",
-    correctPicks: "Correct picks",
     start: "Start a run",
-    next: "Next pair",
-    hiddenChange: "24h move revealed after your pick",
-    biggerMove: "Bigger move",
-    correct: "Correct! Keep your run going.",
-    wrong: "Not quite. This run has ended.",
     completed: "Run complete",
     limit: "You've played all your runs. Come back tomorrow (UTC).",
-    paused:
-      "Waiting for two live stocks with enough 24h history and different moves. Your run and points are safe.",
     closed: "Back when the market reopens.",
     closedWithTime: (time: string) => `Back when the market reopens. Next opening: ${time}.`,
     retry: "Check availability",
@@ -564,8 +533,6 @@ export const en = {
     error: "We couldn't confirm your run. Reload before continuing.",
   },
   leaderboard: {
-    title: "Leaderboard",
-    intro: "The arena's top players, all in one place.",
     empty: "No points in this period yet. Be the first to play.",
     periods: { day: "Today", week: "This week", season: "Season" },
     platforms: { all: "All platforms", discord: "Discord", telegram: "Telegram" },
@@ -588,13 +555,8 @@ export const en = {
     reconnecting: "Reconnecting to prices… Last prices may be out of date.",
     session: "Reopen the app to reconnect to live prices.",
   },
-  profile: {
-    intro: "Your progress across the arena.",
-    pending: "Points and streaks will appear here once games open.",
-  },
   auth: {
     previewPlayer: "Local player",
-    preview: "Local preview · no points are awarded",
     connecting: "Connecting to your account…",
     retry: "Try again",
     errors: {
@@ -609,8 +571,6 @@ export const en = {
     },
   },
   status: {
-    pricesPaused: "Price games are paused while we check price data. Check-in and quiz still work.",
-    comingSoon: "Coming soon",
     marketClosed: "Market closed",
     pricesPending: "Prices will appear here when the live feed connects.",
   },
