@@ -10,6 +10,8 @@ The MVP runs on Discord and Telegram by Nov 20, closed beta follows, and public 
 | 3 · Launch and Season 1 | From Dec 8      | Public launch on both platforms; Season 1 leaderboard and rewards; Weekly Fantasy Portfolio; account linking                                                                                  | —                                                            |
 | 4 · Season 2            | January 2027    | Stock Card collection, Dividend Farm, more xStocks as they list on Fluxion                                                                                                                    | —                                                            |
 
+Ohio priority (24/10): Hadukem created Lightsail mstocks-arena/77.114.44.78 and Supabase mstocks-arenaUS/fhslaelrgoiibblgfinu in us-east-2. Prepare the operator runbook/content-only copy/secret rotation/cutover in chore-lightsail-ohio before T34, after T33 synchronization and the T31 follow-up. Actual migrations, copy, deployment and manual tests remain operator actions. Pre-launch accounts/ledger/staff/rewards restart in the new database. No live operation is claimed.
+
 ## Who does what
 
 Hosting priority (22/10/2026): prepare the API/worker move to Lightsail in
@@ -19,7 +21,7 @@ review and integrated via PR #24; instance, DNS, new provider credentials and li
 smoke tests remain pending. Railway resources/configuration are retained.
 T28, T29 and T30 are integrated via PRs #23, #25 and #26. T31 reward registration and frozen payout snapshots are integrated via PR #27; live migration/smoke tests pending. No real database change or deployment is claimed.
 
-Current queue: **T31 → T33 → T34 → T27**, one branch/PR per task, no merge/deploy/live database changes by Codex. T33 implements the new dedicated screens and home on t33-home-redesign, with Flyer/Invite cards disabled as Soon. T34 replaces the historical T13 referral brief: first-check-in qualification and inviter/invitee rewards will be implemented in that task. T27 then activates hold-to-rise Flyer with deterministic press/release replay, using screen 4 of the approved six-screen mockup. T14 remains superseded by T28–T30 and T21 cancelled into T26. These dependencies do not confirm launch dates.
+Current queue: **Ohio hosting preparation → T34 → T27**, one branch/PR per task, no merge/deploy/live database changes by Codex. T31 and its follow-up are integrated via PRs #27/#29; T33 is integrated via PR #28 with dedicated screens, the new home and Flyer/Invite cards disabled as Soon. Ohio PR #30 is approved and synchronized with main; merge and operator cutover remain pending. T34 replaces the historical T13 referral brief: first-check-in qualification and inviter/invitee rewards will be implemented in that task. T27 then activates hold-to-rise/release-to-fall Flyer with deterministic 60 Hz press/release replay, outside-canvas release and mobile gesture blocking, using screen 4 of the approved six-screen mockup. T14 remains superseded by T28–T30 and T21 cancelled into T26. These dependencies do not confirm launch dates.
 
 T28's admin foundation is integrated via PR #23:
 standalone Discord web login, revocable admin sessions, four Staff roles,

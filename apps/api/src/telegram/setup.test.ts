@@ -9,6 +9,36 @@ const env = {
 };
 
 describe("Telegram operator setup", () => {
+  it("treats an empty optional webhook override like an absent setting", async () => {
+    const request = vi.fn<typeof fetch>(async () => Response.json({ ok: true, result: true }));
+    await setupTelegram({ ...env, TELEGRAM_WEBHOOK_URL: "" }, request);
+    expect(JSON.parse(String(request.mock.calls[0]![1]!.body)).url).toBe(telegramWebhookUrl);
+  });
+  it("switches only the webhook to Ohio, keeping the Mini App on Vercel", async () => {
+    const request = vi.fn<typeof fetch>(async () => Response.json({ ok: true, result: true }));
+    await setupTelegram(
+      { ...env, TELEGRAM_WEBHOOK_URL: "https://77-114-44-78.sslip.io/api/telegram/webhook" },
+      request,
+    );
+    expect(JSON.parse(String(request.mock.calls[0]![1]!.body)).url).toBe(
+      "https://77-114-44-78.sslip.io/api/telegram/webhook",
+    );
+    expect(JSON.parse(String(request.mock.calls[2]![1]!.body)).menu_button.web_app.url).toBe(
+      telegramWebAppUrl,
+    );
+  });
+  it.each([
+    "http://api.example/api/telegram/webhook",
+    "https://secret@example.com/api/telegram/webhook",
+    "https://api.example/wrong",
+    "https://api.example/api/telegram/webhook?token=synthetic",
+  ])("rejects unsafe webhook override before contacting Telegram: %s", async (url) => {
+    const request = vi.fn<typeof fetch>();
+    await expect(setupTelegram({ ...env, TELEGRAM_WEBHOOK_URL: url }, request)).rejects.toThrow(
+      "Telegram setup failed.",
+    );
+    expect(request).not.toHaveBeenCalled();
+  });
   it("sets the webhook, commands and default Play menu using mocked Telegram requests", async () => {
     const request = vi
       .fn<typeof fetch>()

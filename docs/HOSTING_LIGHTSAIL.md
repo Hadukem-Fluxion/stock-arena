@@ -1,403 +1,537 @@
-# API e worker no AWS Lightsail
+# Virada para Ohio — roteiro do Hadukem
 
-Plano de substituição da hospedagem, preparado em 22/10/2026. O Hadukem informou
-um vazamento de variáveis na Railway em 21/10 e o bloqueio continuado do serviço.
-**Não removemos serviços, configurações ou documentos da Railway.** Este guia é
-para uma instância nova; nenhum servidor foi criado nem segredo real alterado por
-este PR. T28 está integrada no PR #23; seu teste real continua pendente.
+Atualizado em **24/10/2026**. Recursos criados pelo Hadukem; deploy ainda pendente.
+Este PR não executa deploy, acesso a banco real, rotação real nem mudanças de painel.
+Execute só depois de revisão/merge e escolha de um SHA completo aprovado.
 
-O Hadukem cria a instância e administra os segredos. O Claude pode orientar os
-painéis com a conta do Hadukem; o Codex prepara o código. Nunca enviar chaves,
-tokens, `.env` ou strings de conexão pelo chat, issues ou PRs.
+| Recurso                     | Configuração                                                                           |
+| --------------------------- | -------------------------------------------------------------------------------------- |
+| Lightsail                   | mstocks-arena, us-east-2 (Ohio), zona A; Ubuntu 24.04 LTS                              |
+| Plano                       | 1 GB RAM / 2 vCPU / 40 GB SSD, dual-stack; swap 2 GB                                   |
+| StaticIp-1                  | 77.114.44.78                                                                           |
+| API_HOST                    | 77-114-44-78.sslip.io                                                                  |
+| API HTTPS                   | https://77-114-44-78.sslip.io                                                          |
+| Web/Activity/Mini App/admin | https://mstocks-arena.vercel.app                                                       |
+| Supabase novo               | mstocks-arenaUS, fhslaelrgoiibblgfinu, Hadukem-Fluxion, Ohio, Free, Data API desligada |
+| Pooler novo                 | aws-0-us-east-2.pooler.supabase.com:5432, session mode, sslmode=require                |
+| Usuário/banco               | postgres.fhslaelrgoiibblgfinu / postgres                                               |
+| Chave local                 | %USERPROFILE%\.ssh\lightsail-mstocks.pem; nunca ler/copiar/imprimir/commitar           |
 
-## O que vai rodar
+Railway está bloqueada após o incidente informado pelo Hadukem. Não enviar segredos
+novos para lá. O banco anterior é apenas origem temporária de conteúdo. **Contas,
+identidades, pontos, ledger, equipe, flags e recompensas começam do zero**, por
+decisão de pré-lançamento. Não executar dump/restauração integral.
 
-- Web continua na Vercel: `https://mstocks-arena.vercel.app`.
-- Um Lightsail Ubuntu **24.04 LTS, 64 bits, 1 GB**, com IPv4 público e IP estático.
-  Selecionar São Paulo se disponível para a conta, perto do Supabase existente.
-- Docker Compose: API, worker, migration temporária e Caddy **2.11.7**.
-- Mesma imagem da aplicação: **Node 24.19.0**, pnpm **10.28.0**, instalação com
-  `pnpm install --frozen-lockfile`, verificações de tipos da API/worker e runtime
-  `tsx` pelos comandos existentes `pnpm start:api` / `pnpm start:worker`.
-- Postgres continua no Supabase com CA verificada; nenhum banco local no servidor.
-  O entrypoint de produção recusa `DATABASE_URL` vazio, impedindo fallback PGlite.
-- Caddy faz HTTPS e proxy de `/api/*` para `api:8787`, com healthcheck ativo em
-  `/api/health` e flush imediato para SSE. O restante responde 404.
-- Só Caddy publica 80/443 TCP. API publica 8787 **apenas em 127.0.0.1**, para
-  diagnóstico local. Worker e migration não publicam portas. HTTP/3 fica desligado,
-  portanto não é necessário abrir 443 UDP. O admin do Caddy não é publicado.
+Cada bloco tem um comando. Pare no primeiro erro. Não usar transcrição de terminal,
+set -x, docker inspect completo, compose config sem --quiet, screenshots de segredos
+ou cat .env solto. Hadukem digita valores diretamente; Claude acompanha painéis.
 
-A configuração fica em `deploy/lightsail/`. O deploy para o writer antigo local,
-aplica `pnpm db:migrate`, espera a API saudável e só depois inicia worker/Caddy.
-Uma migration que falha impede a API e o worker de iniciar. Não subir o stack com
-comandos improvisados que ignorem as dependências.
+## 1. Windows: PowerShell 7 e ACL da chave
 
-## 1. Trocar as credenciais nos provedores
-
-Antes de ligar o servidor, o Hadukem deve trocar a senha do banco no Supabase,
-resetar o Discord Client Secret no Developer Portal e revogar/gerar um novo token
-do Telegram pelo BotFather. Se houver outros segredos anteriormente guardados na
-Railway (por exemplo bot token Discord), trocá-los também no provedor que os emitiu.
-Não reutilizar os valores antigos nem copiar os novos para a Railway bloqueada.
-
-Confirmar que o worker antigo está parado antes de habilitar o novo: não manter
-dois workers ativos em hosts diferentes. Se não for possível controlar a Railway,
-coordenar no Supabase a retirada das conexões antigas identificadas; trocar a
-senha não deve ser tratado como prova de encerramento de uma conexão já aberta.
-Não executar encerramento indiscriminado de sessões do banco.
-
-O banco e seus dados são os mesmos. Não recriar tabelas, não importar o quiz
-novamente e não alterar o ledger por causa desta migração de hospedagem.
-
-## 2. Criar a instância e reservar o IP
-
-No [console do Lightsail](https://lightsail.aws.amazon.com/), criar instância
-Linux/Unix, **OS Only → Ubuntu 24.04 LTS**, plano com **1 GB e IPv4 público**.
-Não escolher um blueprint de aplicação nem um plano somente IPv6. Criar ou
-selecionar uma chave SSH da região e guardar o arquivo privado no computador do
-Hadukem, fora do repositório. Nome sugerido: `mstocks-arena-staging`.
-
-Em **Networking → Create static IP**, escolher a mesma região e anexar o IP à
-instância. Nome sugerido: `mstocks-arena-api`. O IPv4 dinâmico muda em stop/start;
-o [IP estático](https://docs.aws.amazon.com/lightsail/latest/userguide/lightsail-create-static-ip.html)
-mantém o destino do DNS. Instância, IP e domínio reais ainda precisam ser definidos.
-
-No firewall da instância, IPv4 e IPv6 quando habilitado:
-
-| Entrada | Origem                                                                     |
-| ------- | -------------------------------------------------------------------------- |
-| TCP 22  | Apenas IPv4 público atual do Hadukem (`/32`); IPv6 pessoal `/128` se usado |
-| TCP 80  | Internet, para redirect e emissão/renovação do certificado                 |
-| TCP 443 | Internet, para HTTPS                                                       |
-
-Remover outras regras de entrada **apenas desta instância nova**. Não abrir 8787,
-5432, 2019 nem portas do Docker. Se não usar IPv6, desabilitá-lo no Lightsail em
-vez de deixar seu firewall sem revisão. O botão de SSH no navegador pode exigir
-uma regra própria da AWS; este guia usa a chave local e não libera SSH global.
-
-Isso limita **entrada**. As saídas precisam de DNS, HTTPS e da porta 5432 do
-session pooler Supabase. A
-[documentação de firewall do Lightsail](https://docs.aws.amazon.com/lightsail/latest/userguide/understanding-firewall-and-port-mappings-in-amazon-lightsail.html)
-explica os dois conjuntos de regras.
-
-## 3. Entrar por chave, instalar Docker e preparar RAM
-
-No PowerShell, substituindo os caminhos/IP pelos reais:
+Esperado: versão 7.x. Se não, abra PowerShell 7 antes de seguir.
 
 ```powershell
-ssh -i "$env:USERPROFILE\.ssh\lightsail-mstocks.pem" ubuntu@IP_ESTATICO
+$PSVersionTable.PSVersion
 ```
 
-Não desabilitar a checagem da chave do host. Conferir a identidade do servidor na
-primeira conexão. No Ubuntu, instalar os pacotes e o repositório oficial Docker:
+Entre no workspace; se não existir, ajuste o caminho, sem copiar a chave ao projeto.
+
+```powershell
+Set-Location "$env:USERPROFILE\Documents\projetos\mStocks-miniApp"
+```
+
+Defina somente o caminho; não há saída nem leitura de conteúdo.
+
+```powershell
+$arenaPem = "$env:USERPROFILE\.ssh\lightsail-mstocks.pem"
+```
+
+Esperado: True. Se False, localize a chave baixada pelo Hadukem; nunca envie a terceiros.
+
+```powershell
+Test-Path -LiteralPath $arenaPem
+```
+
+Remova a herança **apenas desse arquivo**. Esperado: sucesso; se negar acesso,
+confira proprietário pelo Explorer. Nunca dar acesso a Everyone.
+
+```powershell
+icacls $arenaPem /inheritance:r
+```
+
+Conceda leitura ao usuário atual; o comando mostra ACL, nunca a chave.
+
+```powershell
+icacls $arenaPem /grant:r "$([System.Security.Principal.WindowsIdentity]::GetCurrent().Name):(R)"
+```
+
+Confira que nenhum outro usuário/grupo tem grant explícito. Se tiver, retire-o
+em Explorer → Segurança → Avançado antes de conectar. [Referência icacls](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/icacls).
+
+```powershell
+icacls $arenaPem
+```
+
+## 2. Firewall Lightsail e primeira conexão
+
+Abra [Networking da instância](https://lightsail.aws.amazon.com/ls/webapp/us-east-2/instances/mstocks-arena/networking).
+Se redirecionar, escolha Ohio → Instances → mstocks-arena → Networking.
+Confira StaticIp-1 anexado, endereço 77.114.44.78. Em **IPv4 e IPv6**:
+
+- TCP 80 e 443 públicos para Caddy; não precisa liberar UDP 443. **Adicionar 443
+  explicitamente**: por padrão, a instância vem apenas com 22 e 80 abertos.
+- TCP 22 habilitado para SSH. No **UFW do host**, 22, 80 e 443 ficam abertos sem
+  restrição por IP. O SSH usa somente chave via 00-mstocks-ssh.conf. Não fixar o
+  IP residencial dinâmico nem os IPs AWS do SSH pelo navegador no UFW.
+- Se desejar restringir a origem do SSH, faça isso **somente no firewall Lightsail
+  deste painel**, que pode ser corrigido pelo navegador quando o IP mudar. Mantenha
+  a opção de SSH pelo navegador habilitada e teste esse acesso antes de restringir.
+- Não abrir 5432 ou 8787; worker não publica porta. O hostname inicial usa IPv4.
+
+[Guia oficial do firewall](https://docs.aws.amazon.com/lightsail/latest/userguide/amazon-lightsail-editing-firewall-rules.html).
+No Windows, esperado: TcpTestSucceeded True. Se False, confira IP/origem/regras;
+corrija a regra no console; não volte a fixar IP no UFW.
+
+```powershell
+Test-NetConnection 77.114.44.78 -Port 22
+```
+
+Na primeira conexão, compare o fingerprint com a instância pelo console antes
+de aceitar. Não desabilite host-key checking. Esperado: prompt ubuntu@...; em
+Permission denied, confira chave padrão us-east-2 e ACL, sem ativar senha SSH.
+
+```powershell
+ssh -i $arenaPem ubuntu@77.114.44.78
+```
+
+## 3. Dentro do SSH: Ubuntu, Docker, swap e hardening
+
+**Blocos bash rodam no Ubuntu pelo SSH, não no PowerShell.** Esperado: atualização
+sem erros de rede/assinatura. Em erro, pare antes do próximo comando.
 
 ```bash
 sudo apt-get update
-sudo apt-get upgrade -y
-sudo apt-get install -y ca-certificates curl git ufw unattended-upgrades
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-sudo tee /etc/apt/sources.list.d/docker.sources >/dev/null <<EOF
-Types: deb
-URIs: https://download.docker.com/linux/ubuntu
-Suites: $(. /etc/os-release && echo "$VERSION_CODENAME")
-Components: stable
-Signed-By: /etc/apt/keyrings/docker.asc
-EOF
-sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-sudo systemctl enable --now docker
-sudo docker compose version
 ```
 
-Comandos baseados na [instalação oficial para Ubuntu](https://docs.docker.com/engine/install/ubuntu/).
-Em uma máquina nova não devem existir pacotes Docker concorrentes. Usar `sudo`;
-não adicionar usuários comuns ao grupo Docker, que dá controle equivalente a root.
-
-No plano de 1 GB, criar **2 GB de swap** uma vez, se `/swapfile` ainda não existir:
+Instale Git; esperado: pacote instalado. Node não precisa estar no host.
 
 ```bash
-sudo fallocate -l 2G /swapfile
-sudo chmod 600 /swapfile
-sudo mkswap /swapfile
-sudo swapon /swapfile
-echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab >/dev/null
-free -h
+sudo apt-get install -y git
 ```
 
-Antes de repetir, verificar `swapon --show` e `/etc/fstab`; não reformatar swap em
-uso nem duplicar a linha. API tem limite de 320 MB, worker de 384 MB e Caddy de
-96 MB; são limites máximos, não RAM reservada. O build verifica tipos em sequência
-e usa heap de 512 MB por processo de TypeScript (ajustado na T30 após o limite
-anterior de 384 MB ser esgotado no CI). Isso não muda os limites de runtime.
-Manter o swap configurado e não fazer build/testes completos em paralelo nesse host.
-1 GB serve como alvo inicial de staging, **não há teste de carga que comprove
-capacidade de lançamento**. Se houver OOM, swap constante ou latência, ampliar o
-plano antes de aumentar tráfego. Logs Docker têm rotação de 10 MB × 3 por serviço.
-
-## 4. Baixar somente uma revisão aprovada
-
-Depois da revisão/merge deste PR, no servidor:
+Clone só se /opt/mstocks-arena ainda não existe. Se existe, revise checkout e
+mudanças; não sobrescreva nem apague a pasta para continuar.
 
 ```bash
 sudo git clone https://github.com/Hadukem-Fluxion/stock-arena.git /opt/mstocks-arena
-cd /opt/mstocks-arena
-sudo git fetch origin
-sudo git checkout --detach COMMIT_COMPLETO_APROVADO
-release_sha=$(sudo git rev-parse HEAD)
-sudo docker build --pull -f deploy/lightsail/Dockerfile -t "mstocks-arena:$release_sha" .
 ```
 
-O checkout é de root, para o deploy com sudo usar somente arquivos aprovados.
-Não há Node necessário no host: a versão fixa fica na imagem. Não rodar `pnpm dev`
-nem usar watch. `.dockerignore` exclui `.env`, `.corepack`, `.git`, bancos locais,
-chaves privadas e o banco privado de perguntas do contexto de build.
-
-## 5. SSH somente por chave e atualizações de segurança
-
-Na sessão SSH ainda aberta, instalar os arquivos versionados:
+Esperado: entrar no checkout de root.
 
 ```bash
-sudo install -m 644 deploy/lightsail/00-mstocks-ssh.conf /etc/ssh/sshd_config.d/00-mstocks.conf
-sudo sshd -t
+cd /opt/mstocks-arena
+```
+
+Atualize referências públicas; esperado: sucesso.
+
+```bash
+sudo git fetch origin
+```
+
+Substitua pelo SHA aprovado depois dos merges necessários (T31/follow-up,
+hospedagem e web compatível). Não usar PR não revisado.
+
+```bash
+sudo git checkout --detach SHA_COMPLETO_APROVADO
+```
+
+Guarde o SHA na sessão para comandos Compose; esperado: sem saída. Se abrir outra
+sessão SSH, entre em /opt/mstocks-arena e repita este comando.
+
+```bash
+export APP_RELEASE=$(sudo git rev-parse HEAD)
+```
+
+O bootstrap usa o [repositório oficial Docker para Ubuntu](https://docs.docker.com/engine/install/ubuntu/),
+cria swap 2 GB, configura UFW, copia os arquivos SSH/unattended-upgrades já
+versionados. **Mantenha esta conexão aberta.** Esperado: Compose instalado,
+swap ~2 GiB e regras UFW 22/80/443 abertas. Se apt falhar, resolva antes de repetir.
+Swap existente inativa exige revisão manual; o script não a reformata.
+
+```bash
+sudo bash deploy/lightsail/bootstrap.sh
+```
+
+Confira valores efetivos: publickey yes; password/kbdinteractive no;
+authenticationmethods publickey; permitrootlogin no. Se diferente, não recarregue.
+
+```bash
 sudo sshd -T | grep -E '^(pubkeyauthentication|passwordauthentication|kbdinteractiveauthentication|authenticationmethods|permitrootlogin) '
+```
+
+Se corretos, recarregue. Não feche a sessão original ainda.
+
+```bash
 sudo systemctl reload ssh
 ```
 
-Os valores efetivos devem mostrar publickey habilitado, senha/interativo
-desabilitados, `authenticationmethods publickey` e root login `no`. Abrir **outra
-sessão com a chave e testar sudo antes de fechar a original**. O prefixo `00-`
-antecipa os snippets padrão do cloud-init; conferir o resultado efetivo, não só o
-texto do arquivo. Referência: [OpenSSH no Ubuntu](https://ubuntu.com/server/docs/how-to/security/openssh-server/).
+Abra **outra janela PowerShell**, conecte e teste sudo -v dentro dela. Só feche
+a original após a segunda funcionar. Se falhar, corrija pela original/console.
 
-Aplicar também UFW, substituindo o endereço abaixo pelo IP público real do Hadukem:
+```powershell
+ssh -i "$env:USERPROFILE\.ssh\lightsail-mstocks.pem" ubuntu@77.114.44.78
+```
+
+No SSH, confira atualizações automáticas. Esperado: simulação sem erros; reboot
+é manual. Verifique /var/run/reboot-required e agende manutenção quando necessário.
 
 ```bash
-sudo ufw default deny incoming
-sudo ufw default allow outgoing
-sudo ufw allow from IP_PUBLICO_DO_HADUKEM/32 to any port 22 proto tcp
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-sudo ufw enable
-sudo ufw status numbered
-sudo install -m 644 deploy/lightsail/20auto-upgrades /etc/apt/apt.conf.d/20auto-upgrades
-sudo install -m 644 deploy/lightsail/52mstocks-security /etc/apt/apt.conf.d/52mstocks-security
-sudo systemctl enable --now apt-daily.timer apt-daily-upgrade.timer
 sudo unattended-upgrade --dry-run
 ```
 
-Adicionar a origem IPv6 pessoal se for usar SSH por IPv6. Se o IP residencial
-mudar, atualizar a regra restrita no Lightsail **e** no UFW. Não liberar 22 para
-`0.0.0.0/0` como solução permanente. O firewall Lightsail continua obrigatório:
-portas publicadas pelo Docker podem contornar UFW; a API é limitada explicitamente
-a loopback e somente Caddy é publicado para a Internet.
+Docker pode contornar UFW em portas publicadas: o firewall Lightsail também é
+obrigatório. API só em loopback, apenas Caddy público. Não dar grupo Docker ao
+usuário comum. Fail2ban é opcional e não é instalado/configurado por este bootstrap. Limites: API 320 MB, worker 384 MB, Caddy 96 MB; typecheck de build
+sequencial usa heap 512 MB. 1 GB é staging, sem prova de capacidade de lançamento.
+OOM/swap constante exigem ampliar o plano antes de liberar tráfego. Logs têm rotação.
 
-Os arquivos habilitam atualizações automáticas dos canais de segurança Ubuntu/ESM
-(ESM apenas se disponível) e mantêm reboot manual. Verificar `/var/run/reboot-required`
-e agendar os reboots necessários. `unattended-upgrades` **não atualiza imagens
-Docker nem o Node fixado**. Atualizar Docker Engine pelo apt em manutenção; novas
-imagens/versões de Node/Caddy passam por revisão e redeploy. Fontes:
-[atualizações automáticas Ubuntu](https://ubuntu.com/server/docs/how-to/software/automatic-updates/)
-e [limitações de firewall Docker](https://docs.docker.com/engine/install/ubuntu/#firewall-limitations).
+## 4. Arquivos root/600 e rotação de segredos
 
-## 6. Preparar o `.env` local e transferir sem exibir valores
-
-No Windows, na raiz do workspace, editar o `.env` existente pelo Bloco de Notas.
-Se ainda não existir, copiar `.env.example`. Não substituir um `.env` preenchido
-com o template nem enviar o arquivo ao Git. Gerar os dois segredos novos:
-
-```powershell
-node scripts/lightsail/rotate-secrets.mjs --file .env
-notepad .env
-```
-
-O script escreve diretamente no arquivo, troca **ambos** os valores e não imprime
-seus conteúdos. Cada um usa 36 bytes aleatórios criptográficos codificados em
-base64url: **48 caracteres de `[A-Za-z0-9_-]`**. Cada execução é uma nova rotação,
-portanto não rodar de novo depois de sincronizar sem repetir o envio e o setup
-Telegram. No Linux grava atomicamente com modo `600`; no Windows manter o arquivo
-na conta do Hadukem, sem compartilhamento. O arquivo deve conter:
-
-| Variável                                       | Preencher onde/como                                                                                                                                                         |
-| ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`                                 | Session pooler Supabase, usuário `postgres.djlyrllwnvvljxexusbw`, host `aws-1-sa-east-1.pooler.supabase.com`, porta 5432, banco postgres, `sslmode=require`, **senha nova** |
-| `DATABASE_SSL_CA`                              | `packages/db/certs/supabase-ca.crt`, já incluída na imagem; TLS continua verificado                                                                                         |
-| `SESSION_SECRET`, `TELEGRAM_WEBHOOK_SECRET`    | Geradas pelo script; não inventar nem copiar as antigas                                                                                                                     |
-| `DISCORD_CLIENT_ID`, `VITE_DISCORD_CLIENT_ID`  | `1560368721216938175` (público)                                                                                                                                             |
-| `DISCORD_CLIENT_SECRET`                        | Valor novo após reset no Discord; somente API/`.env`                                                                                                                        |
-| `DISCORD_PUBLIC_KEY`                           | Chave pública atual do app no Developer Portal                                                                                                                              |
-| `DISCORD_BOT_TOKEN`                            | Novo token se esse segredo existia no ambiente exposto e for usado; deixar vazio se não utilizado                                                                           |
-| `DISCORD_GUILD_ID`                             | ID público do servidor de teste, quando necessário                                                                                                                          |
-| `TELEGRAM_BOT_TOKEN`                           | Novo token gerado/revogado no BotFather                                                                                                                                     |
-| `TELEGRAM_BOT_USERNAME`                        | `mStocksArenaBot`                                                                                                                                                           |
-| `TELEGRAM_GROUP_ID`                            | ID do grupo, se utilizado                                                                                                                                                   |
-| `ADMIN_WEB_ORIGIN`                             | `https://mstocks-arena.vercel.app`                                                                                                                                          |
-| `OWNER_DISCORD_ID`                             | `1225988280596824094` (usuário do Hadukem, não Client ID)                                                                                                                   |
-| `API_PORT`                                     | 8787; Compose fixa `PORT=8787` no container                                                                                                                                 |
-| `XSTOCKS_API_BASE`                             | `https://api.backed.fi/api/v2`                                                                                                                                              |
-| `MANTLE_RPC_URL`                               | `https://rpc.mantle.xyz`, ou RPC aprovado                                                                                                                                   |
-| `FLUXION_POOLS_JSON`                           | Vazio usa os pools públicos do catálogo; preservar override aprovado, se existir                                                                                            |
-| `PRICE_DIVERGENCE_PCT`, `PRICE_JUMP_LIMIT_PCT` | Manter a configuração já aprovada (template: 3 e 5), sem mudar regras nesta migração                                                                                        |
-| `RAILWAY_API_URL`                              | Nova origem HTTPS do Lightsail; chave histórica usada pelo build Vercel                                                                                                     |
-
-Codificar caracteres especiais da senha no componente de senha da URL antes de
-montá-la (percent-encoding); não colar a conexão em ferramentas online. Não incluir
-credenciais de Supabase/Discord/Telegram em variáveis `VITE_*`. Não copiar o quiz
-privado ao servidor; as perguntas já estão no banco.
-
-No servidor, preparar o diretório fora do checkout:
+Crie o diretório privado fora do checkout. Esperado: sucesso sem saída.
 
 ```bash
 sudo install -d -m 700 /etc/mstocks-arena
-sudo install -m 600 /dev/null /etc/mstocks-arena/.env
-sudo install -m 600 /dev/null /etc/mstocks-arena/public.env
-sudo nano /etc/mstocks-arena/public.env
 ```
 
-Em `public.env`, colocar só `API_HOST=DOMINIO_REAL_DA_API`, sem `https://`, caminho
-ou porta. Apesar do nome, manter também esse arquivo root/600 para o deploy. Ele
-é o único env entregue ao Caddy; os segredos da aplicação não vão ao proxy.
+Instale o template **só se não houver .env**. Se já existir, o comando para:
+edite o existente, sem sobrescrever valores preenchidos.
 
-No PowerShell **7**, enviar o `.env` local pela conexão SSH criptografada, sem echo:
+```bash
+sudo test ! -e /etc/mstocks-arena/.env && sudo install -o root -g root -m 600 deploy/lightsail/server.env.example /etc/mstocks-arena/.env
+```
+
+Instale a configuração pública com a mesma proteção.
+
+```bash
+sudo test ! -e /etc/mstocks-arena/public.env && sudo install -o root -g root -m 600 deploy/lightsail/public.env.example /etc/mstocks-arena/public.env
+```
+
+Esperado: duas linhas 600 root. Em diferença, corrija proprietário/permissão.
+
+```bash
+sudo stat -c '%a %U' /etc/mstocks-arena/.env /etc/mstocks-arena/public.env
+```
+
+Hadukem preenche no editor, um segredo por vez, sem screenshots/transcrição.
+Salvar Ctrl+O/Enter, sair Ctrl+X. Nunca enviar valores ao Claude/Codex.
+
+```bash
+sudo nano /etc/mstocks-arena/.env
+```
+
+1. [Supabase novo → Database](https://supabase.com/dashboard/project/fhslaelrgoiibblgfinu/settings/database):
+   preencha a senha nova no DATABASE_URL do template, com percent-encoding
+   **somente da senha**, feito localmente; nunca ferramenta online. Manter
+   sslmode=require e DATABASE_SSL_CA versionada. TLS verifica CA/hostname,
+   rejectUnauthorized nunca é false. Não usar senha exposta ou service-role key.
+2. [@BotFather](https://t.me/BotFather) → /mybots → @mStocksArenaBot → API Token
+   → Revoke current token. Cole o token novo em TELEGRAM_BOT_TOKEN. Revogado não
+   volta a funcionar no rollback.
+3. [Discord OAuth2](https://discord.com/developers/applications/1560368721216938175/oauth2)
+   → Reset Secret. Cole em DISCORD_CLIENT_SECRET. Em [General Information](https://discord.com/developers/applications/1560368721216938175/information),
+   copie a chave pública em DISCORD_PUBLIC_KEY. Revogue também outros tokens
+   que estavam expostos, no provedor emissor; não enviá-los à Railway.
+4. Preserve ADMIN_WEB_ORIGIN=https://mstocks-arena.vercel.app,
+   OWNER_DISCORD_ID=1225988280596824094, Client ID público do template e
+   TELEGRAM_WEBHOOK_URL=https://77-114-44-78.sslip.io/api/telegram/webhook.
+   O banco vazio recria o owner no primeiro login; não copie staff antigo.
+   RPC/pools/limites ficam nos valores aprovados, sem publicar antifraude privado.
+
+Construa a imagem do SHA aprovado. Esperado: build concluído, Node 24.19.0/pnpm
+10.28.0; .dockerignore exclui env/chaves/quiz privado. Se OOM, confira swap;
+não execute builds em paralelo. Instalação usa pnpm install --frozen-lockfile.
+
+```bash
+sudo docker build --pull -f deploy/lightsail/Dockerfile -t "mstocks-arena:$(sudo git rev-parse HEAD)" .
+```
+
+Gere SESSION_SECRET e TELEGRAM_WEBHOOK_SECRET novos, cada um 48 caracteres
+URL-safe, direto no arquivo, sem rede nem eco. Esperado: mensagem sem valores.
+Cada execução troca ambos; não repetir depois de sincronizar o local.
+
+```bash
+sudo docker run --rm --user 0 --network none --entrypoint node -v /etc/mstocks-arena:/secrets "mstocks-arena:$(sudo git rev-parse HEAD)" scripts/lightsail/rotate-secrets.mjs --file /secrets/.env
+```
+
+Valide sem conectar a serviços. Esperado: Hosting environment valid; no values
+displayed. Falha: revise placeholders, região/pooler, chaves e bot no editor.
+
+```bash
+sudo docker run --rm --network none --entrypoint node -v /etc/mstocks-arena:/secrets:ro "mstocks-arena:$(sudo git rev-parse HEAD)" scripts/lightsail/validate-env.mjs api --file /secrets/.env
+```
+
+## 5. Schema novo com API/worker ainda parados
+
+Confirme que o worker antigo está parado. Senha revogada não comprova que uma
+conexão já aberta foi encerrada; eventual encerramento é ação dirigida do operador
+no banco antigo, nunca um comando indiscriminado para matar todas as sessões.
+
+Prepare: aplica pnpm db:migrate pelo journal completo, **0000 bootstrap e
+0001–0012**; não pule 0000 nem edite migrations antigas. Esperado: migrations
+concluídas; API/worker continuam parados. Falha impede startup: confira mensagem
+sanitizada, senha, CA e permissões, sem exibir URL. Worker nunca migra.
+
+```bash
+sudo bash deploy/lightsail/deploy.sh prepare
+```
+
+No [SQL Editor novo](https://supabase.com/dashboard/project/fhslaelrgoiibblgfinu/sql/new),
+Hadukem/Claude conferem o journal sem consultar perguntas. Esperado: **13** na
+revisão com 0000–0012; versões futuras seguem seu próprio journal. Confira public.
+
+```sql
+select count(*) as applied_migrations from drizzle.__drizzle_migrations;
+```
+
+## 6. Cópia de conteúdo no PowerShell local
+
+Não faça login ainda. O script recusa destino com jogadores, staff, flags,
+ledger ou recompensas; valida os dois projetos aprovados e usa CA verificada.
+Copia só quiz_questions (id/slug, opções/resposta/explicação, ativo/agendamento)
+e quiz_bank_control. Se o banco antigo não tem controle de 0010, mantém o singleton
+novo. Fatos e catálogo são arquivos em game-core: **não há tabela para copiar**.
+Não copia sets diários, contas, temporadas antigas, preços ou sessões. Origem
+read-only; destino escrito/verificado numa transação. Não gera dump/JSON nem
+imprime perguntas. Repetição antes do primeiro login é idempotente; falha desfaz
+tudo. Não apagar jogadores para forçar o script a passar.
+
+No Windows, use checkout aprovado/limpo. Esperado: pull sem conflito; se houver
+mudanças locais, pare em vez de sobrescrevê-las.
 
 ```powershell
-Get-Content -Raw .env | ssh -i "$env:USERPROFILE\.ssh\lightsail-mstocks.pem" ubuntu@IP_ESTATICO 'sudo sh -c "umask 077; cat > /etc/mstocks-arena/.env; chmod 600 /etc/mstocks-arena/.env"'
-if ($LASTEXITCODE -ne 0) { throw "Env upload failed; check the SSH connection." }
+git status --short
 ```
 
-Não usar `cat .env` solto no terminal, `docker inspect` completo, `docker compose
-config` sem `--quiet`, shell `set -x` ou screenshots do editor. Para conferir
-somente permissões no servidor: `sudo stat -c '%a %U' /etc/mstocks-arena/.env` deve
-mostrar `600 root`. O diretório 700 impede acesso por usuários comuns. Um operador
-com sudo/Docker continua capaz de acessar o ambiente; não conceder esses acessos
-a contas de suporte/moderação do jogo.
+Esperado: vazio. Em caso de mudanças, pare; não descarte arquivos. Vá à main.
 
-Se preferir gerar no próprio servidor, usar a mesma ferramenta dentro da imagem:
+```powershell
+git switch main
+```
+
+Atualize; esperado: fast-forward sem conflito.
+
+```powershell
+git pull --ff-only
+```
+
+Selecione o mesmo SHA completo aprovado do servidor, antes de executar scripts.
+
+```powershell
+git checkout --detach SHA_COMPLETO_APROVADO
+```
+
+Instale pelo lockfile. Esperado: sucesso sem mudança de versões.
+
+```powershell
+pnpm install --frozen-lockfile
+```
+
+Senha da origem em entrada mascarada, sem histórico do valor. Se possível, redefina
+também essa senha exposta no painel antigo antes da cópia. A URL fica só no processo.
+
+```powershell
+$env:OLD_DATABASE_URL = 'postgresql://postgres.djlyrllwnvvljxexusbw:' + [uri]::EscapeDataString((Read-Host 'Senha da origem temporária' -MaskInput)) + '@aws-1-sa-east-1.pooler.supabase.com:5432/postgres?sslmode=require'
+```
+
+Senha nova, igual à salva no servidor, também sem eco/histórico.
+
+```powershell
+$env:NEW_DATABASE_URL = 'postgresql://postgres.fhslaelrgoiibblgfinu:' + [uri]::EscapeDataString((Read-Host 'Senha Supabase Ohio' -MaskInput)) + '@aws-0-us-east-2.pooler.supabase.com:5432/postgres?sslmode=require'
+```
+
+Dry-run: só leitura/validação, sem writes. Esperado: JSON com contagens 60
+quiz_questions e 1 quiz_bank_control. Se diferente, pare e valide com Claude
+o conteúdo aprovado, sem colar perguntas/URLs no chat.
+
+```powershell
+pnpm db:copy-game-content --dry-run
+```
+
+Cópia: esperado mesmas contagens. Falha: nada parcial é salvo; confira configuração,
+migrations e destino vazio. Nunca imprime URL, resposta ou explicação.
+
+```powershell
+pnpm db:copy-game-content
+```
+
+Remova as URLs do ambiente da sessão; esperado: sem saída.
+
+```powershell
+Remove-Item Env:\OLD_DATABASE_URL, Env:\NEW_DATABASE_URL
+```
+
+## 7. No SSH: iniciar stack e testar HTTPS
+
+Após contagens aprovadas, suba a mesma revisão. Revalida schema, espera API
+saudável e só então inicia worker/Caddy. Esperado: Deployment complete.
 
 ```bash
-sudo docker run --rm --user 0 --network none --entrypoint node \
-  -v /etc/mstocks-arena:/secrets "mstocks-arena:$release_sha" \
-  scripts/lightsail/rotate-secrets.mjs --file /secrets/.env
+sudo bash deploy/lightsail/deploy.sh deploy
 ```
 
-Escolher **um** local para gerar e sincronizar os mesmos valores para o outro por
-SSH, nunca gerar pares diferentes. O fluxo recomendado acima gera localmente e
-envia para o servidor, deixando `pnpm telegram:setup` já com o segredo correto.
-
-## 7. DNS e primeiro deploy
-
-Definir um hostname da API e criar um registro **A** para o IPv4 estático. Criar
-AAAA somente se o IPv6 estiver configurado e protegido. Caddy emite e renova o
-certificado do hostname automaticamente com 80/443 acessíveis. Até o domínio ser
-escolhido, o IP permite entrar por SSH e testar o health local, mas **não apontar
-a Vercel para HTTP ou para um certificado local/não confiável**. Este procedimento
-usa domínio com certificado público; HTTPS apenas por IP precisaria de uma
-configuração de certificado público compatível separada. Não usar `curl -k` ou
-desabilitar verificação TLS como solução. Referência: [HTTPS automático Caddy](https://caddyserver.com/docs/automatic-https).
-
-No checkout aprovado do servidor:
+Esperado: API healthy, worker/Caddy running. Se não, não vire a Vercel ainda.
 
 ```bash
-cd /opt/mstocks-arena
-sudo bash deploy/lightsail/deploy.sh
+sudo docker compose --env-file /etc/mstocks-arena/public.env -f deploy/lightsail/compose.yml ps
 ```
 
-O script exige root, checkout limpo, envs root/600 e trava contra deploy concorrente.
-Ele define `APP_RELEASE` pelo commit, faz build com lockfile, valida Caddy, para
-worker/API locais, força uma execução nova da migration e inicia os serviços na
-ordem. A mensagem de sucesso só aparece após a API ficar saudável. Se migration
-ou health falhar, investigar; não iniciar o worker por fora. Aplique o primeiro
-deploy apenas após confirmar que o writer antigo da Railway está inativo.
-
-`/api/health` é um **liveness check**, não comprova o acesso ao banco nem o polling.
-Conferir o sucesso da migration e snapshots nos logs do worker também:
+Use **somente --live**: GET health local e HTTPS público, ok:true, sem tocar em
+dados/serviços. Esperado: Live health checks passed. Modo sem argumentos é de
+CI isolado; não configurar CI=true no servidor para contornar a proteção.
 
 ```bash
-export APP_RELEASE=$(sudo cat /var/lib/mstocks-arena/current-release)
-sudo env APP_RELEASE="$APP_RELEASE" docker compose --env-file /etc/mstocks-arena/public.env -f deploy/lightsail/compose.yml ps
-curl --fail --silent --show-error http://127.0.0.1:8787/api/health
-curl --fail --silent --show-error https://DOMINIO_REAL_DA_API/api/health
-sudo env APP_RELEASE="$APP_RELEASE" docker compose --env-file /etc/mstocks-arena/public.env -f deploy/lightsail/compose.yml logs --tail 60 migrate api worker caddy
+sudo bash deploy/lightsail/smoke-test.sh --live
 ```
 
-API/worker usam o logger sanitizado já existente. Caddy não habilita access log e
-remove URI, headers e IP dos registros de erro de requisições, preservando o log
-operacional. Não ligar debug/registro de payloads para investigar auth.
+Em falha HTTPS, confira DNS do host → 77.114.44.78, portas 80/443 e logs Caddy.
+Não usar -k, aceitar certificado inválido nem apagar volumes para forçar emissão.
+sslip.io é opção inicial, sem garantia de disponibilidade/certificado: diante de
+rate limit ACME, aguarde o emissor ou use domínio próprio aprovado.
 
-## 8. Apontar Vercel e reconfigurar Telegram
+Esperado nos logs: snapshots primários para todo o catálogo e conferências dos
+pools configurados. Não publicar logs sem revisar; nada de tokens/payloads de login.
 
-Na Vercel → projeto → Settings → Environment Variables, trocar **o valor** de
-`RAILWAY_API_URL` para `https://DOMINIO_REAL_DA_API`, sem `/api` e sem credenciais,
-nos ambientes aplicáveis. **O nome da variável permanece igual.** Fazer novo
-deploy da revisão aprovada: o rewrite é resolvido no build, não basta trocar a
-variável sem rebuild. A raiz continua Vite estática em `apps/web`.
+```bash
+sudo docker compose --env-file /etc/mstocks-arena/public.env -f deploy/lightsail/compose.yml logs --tail 60 worker
+```
 
-Verificar `https://mstocks-arena.vercel.app/api/health` e depois login/jogos na
-Activity. Não mudar os mappings `/` e `/stock-logos`, pois continuam apontando para
-a Vercel/host de logos. O Interactions Endpoint Discord e webhook Telegram também
-continuam sob `https://mstocks-arena.vercel.app/api/...`.
+Para Caddy troque worker por caddy; para migration, por migrate. O Caddy versionado
+não registra query strings de OAuth/initData. Não habilite access/debug logging
+que capture dados privados. Logs Docker têm rotação de 10 MB × 3 por serviço.
 
-Manter no Discord OAuth2 Redirects `https://127.0.0.1` e adicionar/manter
-`https://mstocks-arena.vercel.app/api/admin/auth/callback`. Com a nova senha/secret
-e o redirect configurados, testar o admin em `/admin` pelo navegador; a rotação
-do SESSION_SECRET invalida sessões de jogador/CSRF antigos, então fazer novo login.
+## 8. .env local, sem imprimir conteúdo
 
-Após o rewrite novo estar ativo e o `.env` local conter exatamente o token/segredo
-do servidor, o Hadukem roda **localmente**, na raiz do projeto:
+**PowerShell 7 na raiz do repo**: copie o env privado por SSH diretamente para
+arquivo ignorado. Confira antes que esta cópia local pode ser substituída. A chave
+continua no Windows. Crie .corepack se ainda não existir.
+
+```powershell
+New-Item -ItemType Directory -Force .corepack | Out-Null
+```
+
+Nenhum valor aparece no terminal: a saída do SSH vai só para o arquivo temporário.
+
+```powershell
+ssh -T -i $arenaPem ubuntu@77.114.44.78 'sudo cat /etc/mstocks-arena/.env' | Set-Content -Encoding utf8 .corepack/ohio-env.download
+```
+
+Se SSH falhou, não substituir. Esperado: arquivo local trocado só em sucesso.
+
+```powershell
+if ($LASTEXITCODE -eq 0) { Move-Item -LiteralPath .corepack/ohio-env.download -Destination .env -Force } else { throw 'Env download failed; local .env not replaced.' }
+```
+
+Adicione apenas o Client ID público usado pelo web local.
+
+```powershell
+Add-Content .env 'VITE_DISCORD_CLIENT_ID=1560368721216938175'
+```
+
+Esperado: mensagem de validação, sem conexão ao banco nem valores na saída.
+
+```powershell
+node scripts/lightsail/validate-env.mjs api --file .env
+```
+
+## 9. Virada Vercel/Telegram/Discord
+
+No painel Vercel, abra o projeto que publica mstocks-arena.vercel.app → Settings
+→ Environment Variables. [Atalho de configurações](https://vercel.com/dashboard).
+Em Production/preview aprovado, defina **API_ORIGIN=https://77-114-44-78.sslip.io**.
+Atualize também RAILWAY_API_URL para o mesmo valor durante a transição. API_ORIGIN
+tem prioridade e, se vazio/inválido, falha sem fallback silencioso. Nunca VITE_
+para segredos. Faça **rebuild/redeploy da revisão web aprovada** e espere Ready;
+build antigo não troca rewrite sozinho. /api/* permanece relativo e sem CORS novo.
+
+No Windows, esperado: ok True pelo domínio web. Se falhar, não rode setup Telegram.
+
+```powershell
+Invoke-RestMethod https://mstocks-arena.vercel.app/api/health
+```
+
+Com .env local já atualizado, execute uma vez. Esperado: três configurações
+confirmadas, sem token na saída. Webhook usa Ohio diretamente; menu/Play continuam
+abrindo Vercel. Falha exige revisar token/segredo/HTTPS no editor, nunca no chat.
 
 ```powershell
 pnpm telegram:setup
 ```
 
-O script existente configura webhook, `/start`, `/help` e botão Play; só informa a
-contagem de configurações. Nada disso roda automaticamente no deploy/CI. Testar
-`/start` e o Mini App no celular. Novo token Telegram/Discord também deve ser
-sincronizado em qualquer consumidor ainda autorizado, sem copiar de volta à
-Railway bloqueada. Registrar as URLs e os testes reais em INFRA.md por PR após
-confirmar o ambiente, sem segredos.
+No [Discord OAuth2](https://discord.com/developers/applications/1560368721216938175/oauth2),
+confirme **https://mstocks-arena.vercel.app/api/admin/auth/callback**. Não trocar
+para o host da API. Activity mantém / → mstocks-arena.vercel.app e /stock-logos
+→ xstocks-metadata.backed.fi. Interactions Endpoint continua em
+https://mstocks-arena.vercel.app/api/discord/interactions. Não precisa registrar
+comandos novamente nem criar serviço extra/polling do Telegram.
 
-## 9. Operação, atualização e rollback
+## 10. Checklist real, executado pelos operadores
 
-Usar os comandos acima com `APP_RELEASE` do arquivo para logs/estado, e
-`sudo docker stats --no-stream` / `free -h` / `df -h` para recursos. Verificar os
-logs de `unattended-upgrades` e a necessidade de reboot. O worker não tem health
-HTTP: confirmar os ciclos de snapshots de **todo o catálogo configurado** e as
-conferências de pools existentes; não assumir um total fixo no código.
+Registrar UTC/SHAs/resultados após autorização de deploy. Estes testes criam dados
+novos de staging; não foram executados pelo Codex neste PR.
 
-Para atualizar: `sudo git fetch origin`, checkout de um commit aprovado e executar
-`sudo bash deploy/lightsail/deploy.sh` novamente. Não apagar a imagem anterior.
-Após reboot, Docker reinicia serviços previamente ativos; não roda migration do
-worker nem cria um segundo serviço em paralelo. Serviços parados por falha de
-deploy não devem ser iniciados sem corrigir a causa.
+- [ ] Health local, HTTPS direto e via Vercel válidos; API healthy.
+- [ ] Worker atualiza todo o catálogo e pools configurados, sem falhas recorrentes.
+- [ ] 60 perguntas e controle copiados; nenhuma conta/ledger/equipe/recompensa antiga.
+- [ ] Discord pelo botão de Atividades em canal de voz: login, check-in, quiz,
+      HL; fechar/reabrir e conferir liquidação após janela e prêmio único. Mercado
+      fechado mostra espera. Se testar /arena, registrar separadamente o caminho real.
+- [ ] Telegram /start, Play, abrir Mini App, login, check-in, quiz e HL.
+- [ ] /admin no navegador: primeiro login do Hadukem recria owner, overview,
+      equipe/controles/temporadas e Rewards. Usar destinatários fictícios para verificar
+      cadastro, lock/snapshot/CSV/auditoria; pagamento continua manual/revisado.
+- [ ] Sessões antigas invalidadas; nenhum segredo novo na Railway nem login em logs.
+- [ ] Segunda sessão SSH por chave e SSH pelo navegador funcionando; UFW permite
+      22/80/443 sem IP fixo. 443 foi aberto explicitamente no Lightsail; eventual
+      restrição de origem do SSH fica só no console Lightsail. Swap/atualizações
+      conferidos; 5432/8787 não públicos.
+- [ ] Hadukem aprova encerramento de recursos antigos só depois de tudo verde.
 
-Para voltar ao código anterior **no próprio Lightsail**, escolher um commit já
-implantado com schema compatível, cuja imagem ainda esteja no host:
+## 11. Rollback
+
+Antes de cada deploy posterior, anote o SHA/imagem anterior saudável no **mesmo
+banco novo**. Não fazer docker system prune durante a virada. No SSH, só com uma
+imagem anterior existente e schema compatível, substitua o SHA completo:
 
 ```bash
-sudo bash deploy/lightsail/deploy.sh rollback COMMIT_COMPLETO_ANTERIOR
+sudo bash deploy/lightsail/deploy.sh rollback SHA_COMPLETO_ANTERIOR_APROVADO
 ```
 
-O rollback para os writers locais, roda o migrator da imagem anterior (sem down
-migrations) e só reinicia após health. Não desfaz migrations, ledger ou dados do
-quiz; revisão incompatível com o schema atual exige corrigir o código em outra
-versão aprovada. As configurações de Caddy/Compose são do checkout atual; se elas
-forem o defeito, revisar também seus arquivos antes do rollback.
+Esperado: API healthy e worker iniciado depois dela. Não desfaz migrations nem
+apaga ledger/auditoria. Se schema incompatível, corrigir para frente. Na primeira
+implantação não existe release anterior seguro: manter web indisponível/manutenção
+e parar o writer enquanto corrige, sem voltar à Railway ou ao banco exposto.
 
-Se mudar de instância/domínio, reapontar DNS/Vercel para outro backend seguro e
-fazer rebuild. **Não voltar para a Railway enquanto estiver bloqueada ou reutilizar
-segredos expostos.** A configuração histórica permanece em DEPLOY.md. Não executar
-`down -v`: os volumes guardam certificados/conta ACME. Guardar pelo menos uma
-imagem anterior e um snapshot privado do servidor antes de manutenção relevante.
+```bash
+sudo docker compose --env-file /etc/mstocks-arena/public.env -f deploy/lightsail/compose.yml stop worker api
+```
 
-## Verificação deste PR e pendências
+Web: fazer **novo build da revisão anterior compatível com API_ORIGIN Ohio**.
+Promover artefato antigo pode restaurar o rewrite Railway embutido nele. Tokens
+revogados não voltam; manter env novos sincronizados. Não restaurar contas/ledger
+antigos nem executar down-migrations/limpezas para contornar falha.
 
-Testes locais do gerador usam arquivos temporários fictícios, nunca o `.env` real.
-O CI Linux faz build da imagem, verifica a versão/isolamento do contexto, executa
-migrations com PGlite isolado, valida Caddy, testa HTTPS com sua CA local **apenas
-no teste** e verifica que migration com Postgres inacessível bloqueia a API.
-Nenhum serviço AWS ou banco de produção é acessado por esses testes.
+## 12. Encerramento antigo, só após verde e aprovação
 
-A criação da instância, IP/DNS, senhas/tokens novos, deploy real, consumo de RAM
-no plano escolhido e smoke tests Discord/Telegram/admin continuam pendentes do
-Hadukem/Claude. Este PR prepara os artefatos; não declara o Lightsail já no ar.
+1. Registrar contagens, SHAs, UTC e aprovação do Hadukem; revisar backups/faturamento.
+2. Conferir que nenhum webhook, env ativo ou rewrite usa o projeto anterior.
+3. No [projeto antigo djlyrllwnvvljxexusbw](https://supabase.com/dashboard/project/djlyrllwnvvljxexusbw/settings/general),
+   escolher **Pause project**, não Delete. Confirmar nome/ref se a UI mudou; o
+   projeto fhslaelrgoiibblgfinu deve continuar ativo.
+4. Hadukem/Claude conferem serviço por serviço Railway e retiram variáveis expostas.
+   Remover serviços só com aprovação explícita no painel, considerando exclusão
+   definitiva. Não enviar segredos novos nem remover Vercel/AWS por engano.
+5. Com API_ORIGIN comprovado nos builds ativos, retirar a variável histórica
+   RAILWAY_API_URL da Vercel, rebuild e health novamente. Fallback em código pode
+   permanecer; não é destino de rollback.
+6. Atualizar INFRA.md com estados/testes reais. Exports/logs privados e perguntas
+   nunca entram no Git. Nenhuma ação de encerramento é automática neste PR.

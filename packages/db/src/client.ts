@@ -26,7 +26,9 @@ export function createLocalDatabase(dataDir = "memory://") {
 }
 
 /** Explicit empty databaseUrl selects the local fallback, even when the env is set. */
-export function createDatabase(options: { databaseUrl?: string; dataDir?: string } = {}) {
+export function createDatabase(
+  options: { databaseUrl?: string; dataDir?: string; connectTimeoutMs?: number } = {},
+) {
   const databaseUrl = options.databaseUrl ?? process.env.DATABASE_URL;
   if (!databaseUrl) return createLocalDatabase(options.dataDir ?? localDataDir);
 
@@ -44,6 +46,7 @@ export function createDatabase(options: { databaseUrl?: string; dataDir?: string
   }
   const client = new pg.Pool({
     connectionString: connectionUrl.toString(),
+    connectionTimeoutMillis: options.connectTimeoutMs,
     ssl: { ca, rejectUnauthorized: true },
   });
   const db = drizzlePostgres(client, { schema });

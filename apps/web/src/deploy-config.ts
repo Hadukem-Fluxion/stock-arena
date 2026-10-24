@@ -21,9 +21,13 @@ const originSchema = z
   });
 
 /** Build-time only; never expose the upstream setting through VITE_* or client code. */
+export function createVercelConfigFromEnv(env: Record<string, string | undefined>) {
+  return createVercelConfig(env.API_ORIGIN ?? env.RAILWAY_API_URL);
+}
 export function createVercelConfig(apiUrl: string | undefined): VercelConfig {
   const parsed = originSchema.safeParse(apiUrl);
-  if (!parsed.success) throw new Error("Set RAILWAY_API_URL to the backend API HTTPS origin.");
+  if (!parsed.success)
+    throw new Error("Set API_ORIGIN (or legacy RAILWAY_API_URL) to the backend API HTTPS origin.");
   return {
     framework: "vite",
     installCommand: "pnpm install --frozen-lockfile",

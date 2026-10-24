@@ -17,6 +17,8 @@ jobs:
         run: |
           bash -n deploy/lightsail/deploy.sh
           sh -n deploy/lightsail/entrypoint.sh
+          bash -n deploy/lightsail/bootstrap.sh
+          bash -n deploy/lightsail/smoke-test.sh
       - name: Build pinned runtime
         run: |
           mkdir -p .corepack packages/db/.local

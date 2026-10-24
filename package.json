@@ -26,7 +26,8 @@
     "db:seed-quiz": "tsx --env-file-if-exists=.env packages/db/src/seed-quiz.ts",
     "discord:register-commands": "pnpm --filter @stock-arena/api discord:register-commands",
     "telegram:setup": "pnpm --filter @stock-arena/api telegram:setup",
-    "oracle:print": "pnpm --filter @stock-arena/fluxion-oracle oracle:print"
+    "oracle:print": "pnpm --filter @stock-arena/fluxion-oracle oracle:print",
+    "db:copy-game-content": "tsx packages/db/src/copy-game-content.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",

@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import process from "node:process";
 import { URL } from "node:url";
 import { rotateSecrets } from "./rotate-secrets.mjs";
-import { validateEnvironment } from "./validate-env.mjs";
+import { validateEnvironment, validateOhioEnvironment } from "./validate-env.mjs";
 
 const directories = [];
 function temporary() {
@@ -17,6 +17,41 @@ function temporary() {
 }
 afterEach(() => {
   for (const path of directories.splice(0)) rmSync(path, { recursive: true, force: true });
+});
+
+describe("bootstrap firewall", () => {
+  it.skipIf(process.platform === "win32")(
+    "keeps SSH/HTTP/HTTPS open without pinning a client IP or provisioning the host",
+    () => {
+      const folder = temporary(),
+        log = join(folder, "ufw-calls");
+      writeFileSync(
+        join(folder, "ufw"),
+        '#!/usr/bin/env bash\nprintf "%s\\n" "$*" >> "$FIREWALL_TEST_LOG"\n',
+        { mode: 0o755 },
+      );
+      const script = fileURLToPath(new URL("../../deploy/lightsail/bootstrap.sh", import.meta.url));
+      const result = spawnSync(
+        "bash",
+        ["-c", 'source "$1"; configure_firewall', "synthetic-bootstrap", script],
+        {
+          encoding: "utf8",
+          env: { ...process.env, PATH: folder + ":" + process.env.PATH, FIREWALL_TEST_LOG: log },
+        },
+      );
+      expect(result.status).toBe(0);
+      expect(result.stderr).toBe("");
+      expect(readFileSync(log, "utf8").trim().split("\n")).toEqual([
+        "default deny incoming",
+        "default allow outgoing",
+        "allow 22/tcp",
+        "allow 80/tcp",
+        "allow 443/tcp",
+        "--force enable",
+      ]);
+      expect(result.stdout).toBe("");
+    },
+  );
 });
 
 describe("hosting secret rotation", () => {
@@ -68,6 +103,55 @@ describe("hosting secret rotation", () => {
   );
 });
 describe("production environment guard", () => {
+  it("validates the Ohio file without printing secrets and rejects templates/old database", () => {
+    const env = {
+      DATABASE_URL:
+        "postgresql://postgres.fhslaelrgoiibblgfinu:synthetic@aws-0-us-east-2.pooler.supabase.com:5432/postgres?sslmode=require",
+      SESSION_SECRET: "s".repeat(48),
+      TELEGRAM_WEBHOOK_SECRET: "w".repeat(48),
+      DISCORD_CLIENT_ID: "1560368721216938175",
+      DISCORD_CLIENT_SECRET: "synthetic-private-marker",
+      DISCORD_PUBLIC_KEY: "a".repeat(64),
+      TELEGRAM_BOT_TOKEN: "123:synthetic",
+      TELEGRAM_BOT_USERNAME: "mStocksArenaBot",
+      TELEGRAM_WEBHOOK_URL: "https://77-114-44-78.sslip.io/api/telegram/webhook",
+      OWNER_DISCORD_ID: "1225988280596824094",
+      ADMIN_WEB_ORIGIN: "https://mstocks-arena.vercel.app",
+    };
+    expect(() => validateOhioEnvironment(env)).not.toThrow();
+    for (const invalid of [
+      { ...env, DISCORD_CLIENT_SECRET: "CHANGE_ME" },
+      {
+        ...env,
+        DATABASE_URL: env.DATABASE_URL.replace("fhslaelrgoiibblgfinu", "djlyrllwnvvljxexusbw"),
+      },
+      { ...env, TELEGRAM_WEBHOOK_URL: "http://example.invalid" },
+    ])
+      expect(() => validateOhioEnvironment(invalid)).toThrow("Invalid Ohio configuration.");
+    const file = join(temporary(), ".env");
+    writeFileSync(
+      file,
+      Object.entries(env)
+        .map(([key, value]) => `${key}=${value}`)
+        .join("\n"),
+    );
+    const script = fileURLToPath(new URL("./validate-env.mjs", import.meta.url));
+    const result = spawnSync(process.execPath, [script, "api", "--file", file], {
+      encoding: "utf8",
+    });
+    expect(result.status).toBe(0);
+    expect(result.stdout).toBe("Hosting environment valid; no values displayed.\n");
+    writeFileSync(
+      file,
+      readFileSync(file, "utf8").replace(env.SESSION_SECRET, "private-failure-marker"),
+    );
+    const failed = spawnSync(process.execPath, [script, "api", "--file", file], {
+      encoding: "utf8",
+    });
+    expect(failed.status).toBe(1);
+    expect(failed.stderr).not.toContain("private-failure-marker");
+    expect(failed.stdout).toBe("");
+  });
   const env = {
     DATABASE_URL: "postgresql://synthetic@db.invalid/postgres",
     SESSION_SECRET: "s".repeat(48),
