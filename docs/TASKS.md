@@ -13,7 +13,7 @@ One brief = one pull request. Paste the whole brief into Codex together with AGE
 | Lightsail hosting | Integrated via PR #24; instance/DNS/cutover pending                                   |
 | T29               | Integrated via PR #25; post-deploy smoke test pending                                 |
 | T30               | Integrated via PR #26; post-deploy smoke test pending                                 |
-| T31               | Implemented on `t31-rewards`; review and post-deploy smoke test pending               |
+| T31               | Integrated via PR #27; live smoke test pending                                        |
 | T27 mStocks Flyer | Hold-to-rise brief updated; planned after T26, T28, T29, T30 and T31; not implemented |
 | T32               | Settlement query optimization; required before T19 load test; not part of T26         |
 
@@ -611,3 +611,7 @@ Implementation branch: `t31-rewards`. No merge, deploy or real database writes b
 - Due work is processed and future-boundary/target work is skipped without changing gameplay.
 - Thousands of weekend predictions and idle/active runs demonstrate bounded candidate selection; pending runs do not expire as idle.
 - Regression tests preserve halt handling, delayed reopening, void deadlines and double-settlement protection. Document query plans and how the changes prepare T19.
+
+### T31 follow-up — atomic snapshot locks and CSV change marker
+
+Freeze automatically upserts the season reward lock to true in the snapshot transaction and audits the prior/new lock state. CSV includes changed_after_snapshot (strictly later than snapshot.created_at, false when equal/missing). Preserve ledger/audit append-only rules. Test initial/already-held locks, empty rankings, rollback on audit failure, concurrent freeze and CSV time boundaries. Separate PR on t31-snapshot-lock; no new migration or real database operation.
