@@ -34,7 +34,7 @@ T28's admin foundation is integrated via PR #23:
 standalone Discord web login, revocable admin sessions, four Staff roles,
 owner-managed team and append-only audit. It requires migration `0009`, the new
 Discord web redirect, `ADMIN_WEB_ORIGIN` and `OWNER_DISCORD_ID` after merge.
-Real owner login/revocation and T29 smoke tests remain pending deployment. T30 live smoke tests remain pending. T31 is implemented on `t31-rewards`, pending review; T27 has not started. The
+Real owner login/revocation and T29 smoke tests remain pending deployment. T30 live smoke tests remain pending. T31 is integrated via PR #27; T27 has not started. The
 implementation order is unchanged. Official Season 1 dates still need Mantle
 confirmation; the admin hub records audited date changes without rewriting points.
 
@@ -84,3 +84,7 @@ change PR #20's status.
 - Final product name and art direction.
 - Confirmar com o admin da Mantle se a campanha é de mStocks (Bybit), xStocks ou ambos; brand kit, aviso legal e endereços dos mStocks na Mantle.
 - Datas oficiais da Season 1 (início/fim) — confirmar com a Mantle.
+
+T31 follow-up on `t31-snapshot-lock`: freeze and destination lock are atomic and
+audited; CSV flags changes after the frozen snapshot. Review pending, no new
+migration or live operation. Ohio hosting preparation precedes T34.
