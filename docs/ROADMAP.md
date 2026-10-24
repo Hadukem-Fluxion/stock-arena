@@ -14,6 +14,12 @@ Ohio status (24/10): PR #30 is integrated. Hadukem reports cutover complete at 9
 
 ## Who does what
 
+Priority update (24/10): PR #32 quiz option ordering is synchronized with main/#31
+and has green CI; review remains pending. Next is **T35 public stats → T34 → T27**,
+one branch/PR at a time. T35 publishes only anonymous aggregates for Mantle Synch,
+with a 60-second cache, exact-origin CORS and an IP quota. It is implemented on
+t35-public-stats for review, with no live database, merge or deployment by Codex.
+
 Hosting priority (22/10/2026): prepare the API/worker move to Lightsail in
 `chore-lightsail-hosting`, following Hadukem's report that Railway is blocked after
 the 21/10 environment-variable incident. Artifacts and the operator guide are for
@@ -21,7 +27,7 @@ review and integrated via PR #24; instance, DNS, new provider credentials and li
 smoke tests remain pending. Railway resources/configuration are retained.
 T28, T29 and T30 are integrated via PRs #23, #25 and #26. T31 reward registration and frozen payout snapshots are integrated via PR #27; live migration/smoke tests pending. No real database change or deployment is claimed.
 
-Current queue: **Ohio operator follow-up → T34 → T27**, one branch/PR per task, no merge/deploy/live database changes by Codex. T31 and its follow-up are integrated via PRs #27/#29; T33 is integrated via PR #28 with dedicated screens, the new home and Flyer/Invite cards disabled as Soon. Ohio PR #30 is integrated and the cutover reported complete by Hadukem. T34 replaces the historical T13 referral brief: first-check-in qualification and inviter/invitee rewards will be implemented in that task. T27 then activates hold-to-rise/release-to-fall Flyer with deterministic 60 Hz press/release replay, outside-canvas release and mobile gesture blocking, using screen 4 of the approved six-screen mockup. T14 remains superseded by T28–T30 and T21 cancelled into T26. These dependencies do not confirm launch dates.
+T31 and its follow-up are integrated via PRs #27/#29; T33 is integrated via PR #28 with dedicated screens, the new home and Flyer/Invite cards disabled as Soon. Ohio PRs #30/#31 are integrated and the cutover reported complete by Hadukem. T34 follows the quiz option ordering/public stats work and replaces the historical T13 referral brief: first-check-in qualification and inviter/invitee rewards will be implemented in that task. T27 then activates hold-to-rise/release-to-fall Flyer with deterministic 60 Hz press/release replay, outside-canvas release and mobile gesture blocking, using screen 4 of the approved six-screen mockup. T14 remains superseded by T28–T30 and T21 cancelled into T26. These dependencies do not confirm launch dates.
 
 T28's admin foundation is integrated via PR #23:
 standalone Discord web login, revocable admin sessions, four Staff roles,

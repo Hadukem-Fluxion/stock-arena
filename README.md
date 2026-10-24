@@ -29,6 +29,7 @@ Full rules and point values: `docs/GAME_RULES.md`, implemented in `packages/game
 | `docs/PLAYER_GUIDE.md`      | Players                   | How to play on Discord and Telegram, FAQ                                 |
 | `docs/ADMIN_GUIDE.md`       | Admins and mods           | Permissions, routines, abuse signals, incidents, payouts                 |
 | `docs/INFRA.md`             | Everyone                  | Infrastructure services, account ownership and secret storage            |
+| `docs/PUBLIC_API.md`        | Mantle Synch integrators  | Anonymous aggregate stats, UTC counters, cache, CORS and HTTP quotas     |
 | `docs/DEPLOY.md`            | Claude and Hadukem        | Staging dashboard settings, environment variables and rollback           |
 | `docs/HOSTING_LIGHTSAIL.md` | Hadukem and Claude        | Lightsail replacement hosting, secret rotation and rollback (Portuguese) |
 | `docs/design/DESIGN.md`     | Implementation and review | Visual guide and mobile/desktop prototype references for T08             |

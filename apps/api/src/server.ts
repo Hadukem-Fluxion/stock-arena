@@ -18,6 +18,7 @@ import type { HlOptions } from "./higher-lower.js";
 import { registerAdmin } from "./admin/index.js";
 import { AdminError } from "./admin/permissions.js";
 import { GameControlError } from "./game-control.js";
+import { registerPublicStats } from "./public-stats.js";
 
 export const VERSION = "0.1.0";
 
@@ -60,6 +61,11 @@ export function buildServer(
 
   app.get("/api/health", async () => ({ ok: true, version: VERSION, tickers: TICKERS }));
   const auth = registerAuth(app, options.auth);
+  registerPublicStats(app, {
+    database: auth.database,
+    now: options.auth?.now,
+    env: options.auth?.env,
+  });
   registerAdmin(app, {
     ...options.auth,
     database: auth.database,

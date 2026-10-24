@@ -4,21 +4,23 @@ One brief = one pull request. Paste the whole brief into Codex together with AGE
 
 ## Task Board updates — 2026-10-24
 
-| Task              | State / dependency                                                                                  |
-| ----------------- | --------------------------------------------------------------------------------------------------- |
-| T14               | Superseded by T28–T30                                                                               |
-| T21 Daily Call    | CANCELLED — merged into T26                                                                         |
-| T26               | Integrated via PR #20; post-deploy smoke test remains pending confirmation                          |
-| T28               | Integrated via PR #23; real admin smoke test pending deployment                                     |
-| Lightsail hosting | Integrated via PRs #24/#30; Ohio cutover reported complete at 9fe93dc; operator follow-up in review |
-| T29               | Integrated via PR #25; post-deploy smoke test pending                                               |
-| T30               | Integrated via PR #26; post-deploy smoke test pending                                               |
-| T31               | Integrated via PR #27; live smoke test pending                                                      |
-| T31 follow-up     | Integrated via PR #29: atomic snapshot lock and CSV marker                                          |
-| T33               | Integrated via PR #28; dedicated home/screens and review adjustments; live smoke test pending       |
-| T34               | Referrals, after Ohio hosting preparation and integrated T33; not started                           |
-| T27 mStocks Flyer | After T34; hold-to-rise with approved screen 4; not started                                         |
-| T32               | Settlement query optimization; required before T19 load test; not part of T26                       |
+| Task              | State / dependency                                                                                   |
+| ----------------- | ---------------------------------------------------------------------------------------------------- |
+| T14               | Superseded by T28–T30                                                                                |
+| T21 Daily Call    | CANCELLED — merged into T26                                                                          |
+| T26               | Integrated via PR #20; post-deploy smoke test remains pending confirmation                           |
+| T28               | Integrated via PR #23; real admin smoke test pending deployment                                      |
+| Lightsail hosting | Integrated via PRs #24/#30/#31; Ohio cutover reported complete at 9fe93dc; operator fixes integrated |
+| T29               | Integrated via PR #25; post-deploy smoke test pending                                                |
+| T30               | Integrated via PR #26; post-deploy smoke test pending                                                |
+| T31               | Integrated via PR #27; live smoke test pending                                                       |
+| T31 follow-up     | Integrated via PR #29: atomic snapshot lock and CSV marker                                           |
+| T33               | Integrated via PR #28; dedicated home/screens and review adjustments; live smoke test pending        |
+| Quiz option order | PR #32 synchronized with main/#31, CI green; review pending                                          |
+| T35 public stats  | Implemented on t35-public-stats for review; before T34                                               |
+| T34               | Referrals, after quiz option ordering/T35 and integrated T33; not started                            |
+| T27 mStocks Flyer | After T34; hold-to-rise with approved screen 4; not started                                          |
+| T32               | Settlement query optimization; required before T19 load test; not part of T26                        |
 
 Campaign decision for Mantle (not code): accepted reward identifiers (Bybit UID,
 Mantle address or both) and manual delivery process. Keep both fields optional
@@ -656,6 +658,28 @@ Implementation branch: `t31-rewards`. No merge, deploy or real database writes b
 - Reuse QuizPanel and HigherLowerPanel on dedicated screens. Higher or Lower: three keyboard-accessible run tabs, 64px Up/Down buttons, countdown and "Safe to close the app.", rules in "How it works" details. Preserve maintenance, closed-market, void, daily limits and error handling.
 - Markets owns the existing catalog list, "Live · 24h" status when live, Fluxion link and provider price disclaimer. Informational pool price remains closed-market only.
 - All copy in en.ts, remove obsolete strings; 44px targets, visible focus, 4.5:1 text contrast. Test 3/30 assets, mobile/desktop, browser preview and simulated Discord/Telegram. Save 390px/desktop captures in docs/review/t33. No merge/deploy/real database changes.
+
+## T35 — Public statistics for Mantle Synch
+
+**Order**: before T34, one small branch/PR without merge, deployment or real DB access.
+
+- GET /api/public/stats, forwarded through the existing Vercel rewrite; anonymous,
+  read-only, no cookies or player/identity/reward data. Return updatedAt, UTC day,
+  season metadata or null, player total/activeToday, today's check-ins/completed
+  quizzes/locked HL predictions and active/paused switches for the three games.
+- One aggregate SQL query per 60-second process-local cache window; coalesce
+  concurrent refreshes and suppress per-request DB retries on failures. Invalidate
+  at UTC midnight. Successful responses: Cache-Control public, max-age=60.
+- CORS allows exactly https://mantle-synch.netlify.app and GET/OPTIONS, without
+  credentials; other origins have no allow header. Vary by Origin. Other methods
+  return 405; unknown query parameters are rejected.
+- Simple per-IP/minute HTTP limit (public default 60, configurable via env),
+  bounded memory and Retry-After on 429. Trust only the nearest forwarded address
+  from the existing private Caddy hop; do not enable global proxy trust.
+- Document counter definitions, cache/CORS/limit behavior and a synthetic example
+  in docs/PUBLIC_API.md. Tests cover exact shape/no PII, real isolated aggregates,
+  concurrent cache, rollover, CORS allow/deny, methods, quota and sanitized errors.
+- No migrations, schema, game rules, points or account/session behavior changes.
 
 ## T34 — Invite friends (referrals)
 

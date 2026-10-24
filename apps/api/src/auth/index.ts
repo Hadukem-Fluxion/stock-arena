@@ -59,6 +59,7 @@ export function registerAuth(app: FastifyInstance, options: AuthOptions = {}) {
     if (
       !route?.startsWith("/api/") ||
       route === "/api/health" ||
+      route === "/api/public/stats" ||
       route === "/api/admin" ||
       route?.startsWith("/api/admin/") ||
       (request.method === "POST" &&
