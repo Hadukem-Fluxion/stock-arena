@@ -12,8 +12,8 @@ One brief = one pull request. Paste the whole brief into Codex together with AGE
 | T28               | Integrated via PR #23; real admin smoke test pending deployment                       |
 | Lightsail hosting | Integrated via PR #24; instance/DNS/cutover pending                                   |
 | T29               | Integrated via PR #25; post-deploy smoke test pending                                 |
-| T30               | Implemented on `t30-admin-game-controls`; review and post-deploy smoke test pending   |
-| T31               | Planned after T30 review/integration                                                  |
+| T30               | Integrated via PR #26; post-deploy smoke test pending                                 |
+| T31               | Implemented on `t31-rewards`; review and post-deploy smoke test pending               |
 | T27 mStocks Flyer | Hold-to-rise brief updated; planned after T26, T28, T29, T30 and T31; not implemented |
 | T32               | Settlement query optimization; required before T19 load test; not part of T26         |
 
@@ -541,15 +541,22 @@ pending after review/merge; no ledger rewrite or T31 feature is included.
 - Seasons table in the database (id, name, starts_at, ends_at) replacing `GAME_CONFIG.season`; owner/admin can create the next season and set/change end dates. Leaderboards read it. The ledger is never rewritten. Changing a past start date requires owner role and is audited.
 - Tests: paused game blocks actions without consuming limits; season boundaries on leaderboards.
 
-## T31 — Reward destination registration and export
+## T31 — Reward registration, season snapshots and delivery review
 
-- Player Profile: optional fields "Bybit UID" (digits only, 5–12) and "Mantle address" (0x + 40 hex, EIP-55 checksum validated when mixed case). At least one may be empty. No wallet connection, no signatures.
-- Confirmation: the player reviews and confirms ("I confirm these details are mine and correct"). Changes append to `reward_destination_history` (old/new masked values, changed_at, actor = player or staff). Players see only their own data.
-- Lock: owner/admin can lock destinations for a season (before payout); locked players see "Locked for payout review" and cannot edit until unlocked.
-- Staff view: masked (last 4) for moderator/support; full values only for owner/admin.
-- Export CSV (owner/admin only): season rank, points, display name, platform ids, eligibility (T18), Bybit UID, Mantle address, last change time. Each export audited with row count.
-- English copy: no promise of automatic payment or verification; add "Rewards are reviewed by mods and paid manually according to the campaign terms."
-- Tests: validation, history, lock, permissions, masking, export content and audit.
+Hadukem confirmed on 2026-10-23 that this delivery includes both the original
+Profile destination registration and the expanded season reward workflow.
+Implementation branch: `t31-rewards`. No merge, deploy or real database writes by Codex.
+
+- Player Profile: optional Bybit UID (5–12 digits) and Mantle address (0x + 40 hex; validate EIP-55 for mixed case). No wallet connection/signatures. Explicit review and confirmation: "I confirm these details are mine and correct".
+- Changes append masked old/new values, timestamp and player/staff actor to `reward_destination_history`. Players can read only their own data. Staff corrections require owner/admin, confirmation and an audited reason. Concurrent stale edits fail safely.
+- Owner/admin can lock destinations for a season before payout. Any locked season blocks all player/staff destination edits until every lock is cleared. UI: "Locked for payout review". Moderator/support see only the last four characters; full values/export are owner/admin only.
+- Migration `0012_rewards`: prize rank bands by season, immutable top-N ranking snapshots, immutable recipient rows and append-only status events (pending / approved / delivered / void). Ledger and admin_actions remain append-only; no historical migration changes.
+- Admin defines nonoverlapping prize bands covering ranks 1 through N (N configurable in the UI). After the season ends, owner/admin explicitly generate its snapshot once. Freeze the season window, rank, points, display name, Discord/Telegram identities and prize description. Use the existing ranking/tie rules. Never regenerate/delete a frozen snapshot; later ledger/name/date changes do not rewrite it.
+- Owner/admin approve pending rewards, then mark delivered, or void pending/approved rewards. Notes required; delivered/void are final. Support/moderator read only. Inactive players cannot be approved/delivered.
+- Export CSV from the snapshot, with current destination values and their last-change time, rank, points, display name, platform IDs, account/reward status and eligibility. Audit actor and row count for each export. Include no authentication, IP, quiz or unrelated personal data. Escape CSV formulas. T18 eligibility is still pending: export `review_required`, never claim automated verification.
+- English copy: "Rewards are reviewed by mods and paid manually according to the campaign terms." No automatic-payment or ownership-verification promise.
+- Quiz check: T30 intentionally preserves the 30-second server deadline across maintenance. Document that a late reply after resumption times out; this delivery does not change timers, points or attempts. Include a regression test and operator warning to pause between questions where possible.
+- Tests: validation, history, ownership/privacy, lock and concurrent edits, roles/revocation/CSRF, season boundaries/ties/top N, freeze preservation, state transitions, CSV content/formula escaping, export/write audit, migration preservation and append-only triggers. E2E and synthetic mobile/desktop screenshots in `docs/review/t31`; update ADMIN_GUIDE, README and GAME_RULES.
 
 ---
 

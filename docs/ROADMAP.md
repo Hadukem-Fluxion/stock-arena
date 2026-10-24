@@ -17,8 +17,7 @@ Hosting priority (22/10/2026): prepare the API/worker move to Lightsail in
 the 21/10 environment-variable incident. Artifacts and the operator guide are for
 review and integrated via PR #24; instance, DNS, new provider credentials and live
 smoke tests remain pending. Railway resources/configuration are retained.
-T28 is integrated via PR #23 and T29 via PR #25. T30 is implemented on
-`t30-admin-game-controls`, pending review: game maintenance, manual ticker controls
+T28 is integrated via PR #23 and T29 via PR #25. T30 is integrated via PR #26: game maintenance, manual ticker controls
 and database-backed seasons with migration `0011`. Synthetic review captures and
 local/API/database/browser checks accompany the PR; live operations are not claimed.
 
@@ -35,10 +34,14 @@ T28's admin foundation is integrated via PR #23:
 standalone Discord web login, revocable admin sessions, four Staff roles,
 owner-managed team and append-only audit. It requires migration `0009`, the new
 Discord web redirect, `ADMIN_WEB_ORIGIN` and `OWNER_DISCORD_ID` after merge.
-Real owner login/revocation and T29 smoke tests remain pending deployment. T30
-review and live smoke tests are pending; T31 and T27 have not started. The
+Real owner login/revocation and T29 smoke tests remain pending deployment. T30 live smoke tests remain pending. T31 is implemented on `t31-rewards`, pending review; T27 has not started. The
 implementation order is unchanged. Official Season 1 dates still need Mantle
 confirmation; the admin hub records audited date changes without rewriting points.
+
+T31 includes optional Profile Bybit UID/Mantle destinations plus season prize bands,
+a frozen top-N snapshot and audited approval/delivery/void/CSV operations. Migration
+`0012_rewards` leaves points/audit history intact. Eligibility remains a manual
+review until T18; no real payout or deployment is claimed.
 
 The official Task Board is `docs/TASKS.md` and this file; there is no external
 board. T26 is integrated via PR #20, including the requested offer-recovery and

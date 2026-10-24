@@ -310,6 +310,125 @@ export const seasons = pgTable(
   ],
 );
 
+export const rewardControl = pgTable(
+  "reward_control",
+  {
+    id: integer("id").primaryKey(),
+  },
+  (t) => [check("reward_control_singleton", sql`${t.id} = 1`)],
+);
+export const rewardDestinations = pgTable("reward_destinations", {
+  userId: uuid("user_id")
+    .primaryKey()
+    .references(() => users.id),
+  bybitUid: text("bybit_uid").notNull().default(""),
+  mantleAddress: text("mantle_address").notNull().default(""),
+  changedAt: instant("changed_at").notNull(),
+});
+export const rewardDestinationHistory = pgTable(
+  "reward_destination_history",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id),
+    actorId: uuid("actor_id")
+      .notNull()
+      .references(() => users.id),
+    actor: text("actor").notNull(),
+    oldValues: jsonb("old_values").$type<{ bybitUid: string; mantleAddress: string }>().notNull(),
+    newValues: jsonb("new_values").$type<{ bybitUid: string; mantleAddress: string }>().notNull(),
+    changedAt: instant("changed_at").notNull(),
+  },
+  (t) => [
+    index("reward_history_user_idx").on(t.userId, t.changedAt),
+    check("reward_history_actor", sql`${t.actor} IN ('player','staff')`),
+  ],
+);
+export const rewardLocks = pgTable("reward_locks", {
+  seasonId: text("season_id")
+    .primaryKey()
+    .references(() => seasons.id),
+  locked: boolean("locked").notNull().default(false),
+  updatedAt: instant("updated_at").notNull(),
+});
+export const rewardPrizes = pgTable(
+  "reward_prizes",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    seasonId: text("season_id")
+      .notNull()
+      .references(() => seasons.id),
+    rankFrom: integer("rank_from").notNull(),
+    rankTo: integer("rank_to").notNull(),
+    description: text("description").notNull(),
+    createdAt: instant("created_at").notNull(),
+  },
+  (t) => [check("reward_prize_ranks", sql`${t.rankFrom} > 0 AND ${t.rankTo} >= ${t.rankFrom}`)],
+);
+export const rewardSnapshots = pgTable(
+  "reward_snapshots",
+  {
+    seasonId: text("season_id")
+      .primaryKey()
+      .references(() => seasons.id),
+    seasonName: text("season_name").notNull(),
+    startsAt: instant("starts_at").notNull(),
+    endsAt: instant("ends_at").notNull(),
+    topN: integer("top_n").notNull(),
+    createdAt: instant("created_at").notNull(),
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => users.id),
+  },
+  (t) => [check("reward_snapshot_top", sql`${t.topN} > 0`)],
+);
+export type RewardIdentity = { platform: "discord" | "telegram"; platformUserId: string };
+export const rewardEntries = pgTable(
+  "reward_entries",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    seasonId: text("season_id")
+      .notNull()
+      .references(() => rewardSnapshots.seasonId),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id),
+    rank: integer("rank").notNull(),
+    points: bigint("points", { mode: "number" }).notNull(),
+    displayName: text("display_name").notNull(),
+    identities: jsonb("identities").$type<RewardIdentity[]>().notNull(),
+    eligibility: text("eligibility").notNull().default("review_required"),
+    prizeDescription: text("prize_description").notNull(),
+  },
+  (t) => [
+    unique("reward_entry_rank").on(t.seasonId, t.rank),
+    unique("reward_entry_user").on(t.seasonId, t.userId),
+    check("reward_entry_positive_rank", sql`${t.rank} > 0`),
+  ],
+);
+export const rewardEvents = pgTable(
+  "reward_events",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    entryId: uuid("entry_id")
+      .notNull()
+      .references(() => rewardEntries.id),
+    version: integer("version").notNull(),
+    status: text("status").$type<"pending" | "approved" | "delivered" | "void">().notNull(),
+    note: text("note").notNull(),
+    actorId: uuid("actor_id")
+      .notNull()
+      .references(() => users.id),
+    createdAt: instant("created_at").notNull(),
+  },
+  (t) => [
+    unique("reward_event_version").on(t.entryId, t.version),
+    check("reward_event_status", sql`${t.status} IN ('pending','approved','delivered','void')`),
+    check("reward_event_version_positive", sql`${t.version} >= 0`),
+  ],
+);
+
 export const pointsLedger = pgTable(
   "points_ledger",
   {

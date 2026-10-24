@@ -49,7 +49,9 @@ Full rules and point values: `docs/GAME_RULES.md`, implemented in `packages/game
 - T30 adds per-game maintenance, manual ticker controls and database-backed
   seasons. Apply `0011_admin-game-controls` before API/worker startup. Locked
   predictions keep settling during game maintenance; new actions consume no limits.
-  T31 reward destinations remain pending.
+  T31 adds optional Profile reward destinations plus immutable season reward snapshots,
+  manual approval/delivery review and audited CSV exports. Apply `0012_rewards`
+  before the matching API; no payout is automatic. See the operator guide.
 
 ## Architecture
 
