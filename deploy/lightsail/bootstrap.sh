@@ -37,6 +37,7 @@ fi
 swapon --show=NAME --noheadings | grep -Fx /swapfile >/dev/null || { echo "Existing swapfile needs operator review; it was not reformatted." >&2; exit 1; }
 grep -qE '^/swapfile[[:space:]]' /etc/fstab || printf '/swapfile none swap sw 0 0\n' >> /etc/fstab
 install -m 644 "$folder/00-mstocks-ssh.conf" /etc/ssh/sshd_config.d/00-mstocks.conf
+install -d -m 755 /run/sshd
 sshd -t
 install -m 644 "$folder/20auto-upgrades" /etc/apt/apt.conf.d/20auto-upgrades
 install -m 644 "$folder/52mstocks-security" /etc/apt/apt.conf.d/52mstocks-security

@@ -1,7 +1,9 @@
 # Deploy de staging — Ohio
 
-**24/10/2026:** Lightsail e Supabase foram criados pelo Hadukem em us-east-2.
-Deploy/virada ainda pendentes. Railway é histórico bloqueado após o incidente
+**24/10/2026:** Hadukem informou a virada concluída no SHA `9fe93dc`: API/worker/Caddy
+no ar em Ohio, 13 migrations, 60 perguntas copiadas, Telegram setup e Vercel API_ORIGIN ok.
+O follow-up corrige os pontos encontrados na execução; novos deploys exigem SHA aprovado.
+Railway é histórico bloqueado após o incidente
 informado pelo Hadukem; não recebe segredos novos nem é destino de rollback.
 O roteiro completo, com um comando por bloco e tratamento de erros, está em
 [HOSTING_LIGHTSAIL.md](HOSTING_LIGHTSAIL.md). Codex prepara o PR/testes;
@@ -26,7 +28,7 @@ real de deploy/banco ou exclusão é executada pelo PR.
 
 Depois da revisão/merge: checkout aprovado → bootstrap/hardening → env privado
 e rotação → deploy.sh prepare (migrations, apps parados) → cópia só de conteúdo
-local pelo Hadukem → deploy.sh deploy → smoke-test.sh --live → Vercel rebuild
+pelo Hadukem (container no servidor ou PowerShell 7 local) → deploy.sh deploy → smoke-test.sh --live → Vercel rebuild
 → telegram:setup → testes manuais → aprovação → pausa/retirada do ambiente antigo.
 Não executar smoke-test sem --live em produção: esse modo é exclusivo de CI.
 
@@ -42,7 +44,7 @@ não usar fallback PGlite em produção e não copiar o banco inteiro.
 | Servidor /etc/mstocks-arena/public.env, root/600 | API_HOST=77-114-44-78.sslip.io; nenhum segredo da aplicação vai para Caddy                                                                                                                                                                                                                                                                                                                                            |
 | Vercel, build Production/preview aprovado        | API_ORIGIN=https://77-114-44-78.sslip.io, VITE_DISCORD_CLIENT_ID=1560368721216938175; durante transição RAILWAY_API_URL com a mesma origem                                                                                                                                                                                                                                                                            |
 | .env local ignorado                              | Cópia privada dos valores novos, mais VITE_DISCORD_CLIENT_ID público, para ferramentas locais/setup; nunca commitar                                                                                                                                                                                                                                                                                                   |
-| Somente processo PowerShell durante cópia        | OLD_DATABASE_URL e NEW_DATABASE_URL, digitadas via Read-Host -MaskInput; remover ao terminar, nunca imprimir                                                                                                                                                                                                                                                                                                          |
+| Somente processo de cópia                        | No servidor: read -s + stdin do container; DATABASE_URL novo vem do arquivo privado. Alternativa PowerShell 7: OLD_DATABASE_URL e NEW_DATABASE_URL via Read-Host -MaskInput; limpar variáveis ao terminar, nunca imprimir                                                                                                                                                                                             |
 
 API_ORIGIN tem prioridade sobre RAILWAY_API_URL; o fallback só existe se a nova
 chave estiver ausente. Nova chave vazia/inválida falha o build. Nenhuma das duas
@@ -53,6 +55,12 @@ Os templates server.env.example/public.env.example têm só placeholders/públic
 O gerador rotate-secrets.mjs grava dois valores URL-safe de 48 caracteres sem
 imprimir. validate-env.mjs api --file valida placeholders/Ohio sem conectar a
 serviços e sem mostrar valores. Não repetir rotação sem sincronizar servidor/local.
+Validate-env e diagnósticos de arquivo usam `docker run --user 0` nos containers
+temporários, pois o env é root/600; API/worker continuam como node. Comandos Compose
+no SSH passam `sudo APP_RELEASE=$(sudo git rev-parse HEAD) docker compose ...`.
+O smoke --live aguarda até cerca de 60 s pelo HTTPS/ACME, mantendo TLS verificado.
+O [roteiro](HOSTING_LIGHTSAIL.md) inclui cópia de conteúdo e telegram:setup no
+container; Windows precisa apenas de SSH, sem Node/PowerShell 7 nessa alternativa.
 
 ## Dados novos e owner
 

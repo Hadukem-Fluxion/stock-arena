@@ -52,7 +52,9 @@ export function StockCard({
       {price.state === "paused" && (
         <p className="caption muted">
           {price.reason === "closed"
-            ? en.status.marketClosed
+            ? price.usd === null
+              ? en.prices.awaitingOpen
+              : en.status.marketClosed
             : price.usd === null
               ? en.checkin.priceUnavailable
               : en.checkin.paused}

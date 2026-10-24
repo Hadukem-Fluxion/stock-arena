@@ -54,6 +54,97 @@ describe("bootstrap firewall", () => {
   );
 });
 
+describe.skipIf(process.platform === "win32")("live HTTPS startup checks", () => {
+  function liveCheck(mode) {
+    const folder = temporary(),
+      log = join(folder, "curl-calls"),
+      count = join(folder, "https-attempts");
+    writeFileSync(join(folder, "docker"), "#!/usr/bin/env bash\nexit 99\n", { mode: 0o755 });
+    writeFileSync(
+      join(folder, "curl"),
+      `#!/usr/bin/env bash
+printf '%s\\n' "$*" >> "$SMOKE_TEST_LOG"
+url="\${!#}"
+if [[ $url == http://127.0.0.1:* ]]; then
+  [[ $SMOKE_TEST_MODE != local-failure ]] || exit 7
+  printf '{"ok":true}'
+  exit 0
+fi
+n=0
+[[ ! -f $SMOKE_TEST_COUNT ]] || read -r n < "$SMOKE_TEST_COUNT"
+n=$((n + 1))
+printf '%s\\n' "$n" > "$SMOKE_TEST_COUNT"
+if [[ $SMOKE_TEST_MODE == permanent || $n -le 2 ]]; then
+  case $SMOKE_TEST_MODE in
+    empty) exit 0 ;;
+    malformed) printf 'synthetic-private-response'; exit 0 ;;
+    unhealthy) printf '{"ok":false}'; exit 0 ;;
+    *) printf 'synthetic-private-curl-error' >&2; exit 60 ;;
+  esac
+fi
+printf '{"ok":true}'
+`,
+      { mode: 0o755 },
+    );
+    const script = fileURLToPath(new URL("../../deploy/lightsail/smoke-test.sh", import.meta.url));
+    const result = spawnSync(
+      "bash",
+      [
+        "-c",
+        // Advance the shell deadline without real sleeps, network or Compose operations.
+        'sleep() { SECONDS=$((SECONDS + $1)); }; export -f sleep; exec bash "$1" --live',
+        "synthetic-smoke",
+        script,
+      ],
+      {
+        encoding: "utf8",
+        timeout: 10000,
+        env: {
+          ...process.env,
+          PATH: folder + ":" + process.env.PATH,
+          SMOKE_TEST_LOG: log,
+          SMOKE_TEST_COUNT: count,
+          SMOKE_TEST_MODE: mode,
+        },
+      },
+    );
+    const calls = readFileSync(log, "utf8").trim().split("\n");
+    expect(calls.every((call) => call.includes("--fail --silent --show-error --max-time"))).toBe(
+      true,
+    );
+    expect(calls.some((call) => /--insecure|(?:^|\s)-k(?:\s|$)/.test(call))).toBe(false);
+    expect(result.stdout + result.stderr).not.toMatch(
+      /synthetic-private|Traceback|JSONDecodeError/,
+    );
+    return { result, calls };
+  }
+  it.each(["tls", "empty", "malformed", "unhealthy"])(
+    "retries %s failures before parsing a healthy HTTPS response",
+    (mode) => {
+      const { result, calls } = liveCheck(mode);
+      expect(result.status).toBe(0);
+      expect(calls).toHaveLength(4);
+      expect(result.stdout).toBe("Live health checks passed; no services or data changed.\n");
+      expect(result.stderr).toBe("");
+    },
+  );
+  it("stops at the 60-second deadline with a concise error and no response body", () => {
+    const { result, calls } = liveCheck("permanent");
+    expect(result.status).toBe(1);
+    expect(calls.length).toBeGreaterThan(2);
+    expect(result.stdout).toBe("");
+    expect(result.stderr).toBe(
+      "HTTPS health check failed after 60 seconds; check DNS, firewall and Caddy logs.\n",
+    );
+  });
+  it("fails a broken local API before attempting HTTPS", () => {
+    const { result, calls } = liveCheck("local-failure");
+    expect(result.status).toBe(1);
+    expect(calls).toHaveLength(1);
+    expect(result.stderr).toBe("Local API health check failed; check service status.\n");
+  });
+});
+
 describe("hosting secret rotation", () => {
   it("generates independent URL-safe 48-character secrets, deduplicating only those keys", () => {
     const file = join(temporary(), ".env");

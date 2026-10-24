@@ -199,6 +199,23 @@ export async function setupPrediction(page: Page, count: number, closed = false)
   return {
     catalog,
     picks: () => picks,
+    withoutPrimaryHistory(reason: "closed" | "stale" = "closed") {
+      Object.assign(checkin.stock.price, {
+        usd: null,
+        takenAt: null,
+        change24hPct: null,
+        state: "paused",
+        reason,
+      });
+      for (const quote of prices.prices)
+        Object.assign(quote, {
+          priceUsd: null,
+          takenAt: null,
+          change24hPct: null,
+          state: "paused",
+          reason,
+        });
+    },
     pause() {
       view.maintenance = true;
       view.canStart = false;
