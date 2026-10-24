@@ -9,6 +9,7 @@ import {
   identities,
   pointsLedger,
   rewardDestinationHistory,
+  rewardDestinations,
   rewardEntries,
   rewardEvents,
   rewardLocks,
@@ -287,6 +288,102 @@ describe("T31 season rewards", () => {
       .where(eq(adminSessions.tokenHash, digest(a.token)));
     expect((await post(a.headers, "export", { seasonId: season })).statusCode).toBe(401);
   });
+  it.each([false, true])(
+    "freezing locks destinations and audits the previous lock=%s",
+    async (locked) => {
+      const a = await actor(),
+        p = await player();
+      await award(p.id, 10);
+      await post(p.headers, "/api/rewards/destination", profileBody);
+      await prepare(a.headers, 1);
+      await db.db.insert(rewardLocks).values({ seasonId: season, locked, updatedAt: now });
+      expect(
+        (await post(a.headers, "freeze", { seasonId: season, topN: 1, reason: "Freeze and lock" }))
+          .statusCode,
+      ).toBe(200);
+      expect((await view(a.headers)).json().locked).toBe(true);
+      expect(
+        (
+          await post(p.headers, "/api/rewards/destination", {
+            ...profileBody,
+            bybitUid: "98765432",
+          })
+        ).json().error.code,
+      ).toBe("REWARDS_LOCKED");
+      const logs = await db.db.select().from(adminActions).where(eq(adminActions.targetId, season));
+      expect(logs.filter((row) => row.action === "reward.destinations_locked")).toMatchObject([
+        {
+          adminId: a.id,
+          details: { before: locked, after: true, source: "snapshot", reason: "Freeze and lock" },
+        },
+      ]);
+    },
+  );
+  it("freezes and locks even an empty ranking", async () => {
+    const a = await actor();
+    await prepare(a.headers, 1);
+    expect(
+      (await post(a.headers, "freeze", { seasonId: season, topN: 1, reason: "Empty season" }))
+        .statusCode,
+    ).toBe(200);
+    expect((await view(a.headers)).json()).toMatchObject({ locked: true, entries: [] });
+  });
+  it("rolls the snapshot, recipients and lock back if lock auditing fails", async () => {
+    const a = await actor(),
+      p = await player();
+    await award(p.id, 10);
+    await prepare(a.headers, 1);
+    await db.db.execute(
+      sql.raw(
+        `CREATE FUNCTION reject_synthetic_lock_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.action = 'reward.destinations_locked' THEN RAISE EXCEPTION 'Synthetic audit failure'; END IF; RETURN NEW; END $$`,
+      ),
+    );
+    await db.db.execute(
+      sql.raw(
+        `CREATE TRIGGER reject_synthetic_lock_audit BEFORE INSERT ON admin_actions FOR EACH ROW EXECUTE FUNCTION reject_synthetic_lock_audit()`,
+      ),
+    );
+    try {
+      expect(
+        (await post(a.headers, "freeze", { seasonId: season, topN: 1, reason: "Atomic test" }))
+          .statusCode,
+      ).toBe(500);
+      expect((await view(a.headers)).json()).toMatchObject({
+        locked: false,
+        snapshot: null,
+        entries: [],
+      });
+    } finally {
+      await db.db.execute(sql.raw("DROP TRIGGER reject_synthetic_lock_audit ON admin_actions"));
+      await db.db.execute(sql.raw("DROP FUNCTION reject_synthetic_lock_audit()"));
+    }
+  });
+  it.each([-1000, 0, 1000, null])(
+    "CSV flags destination changes strictly after snapshot: offset=%s",
+    async (offset) => {
+      const a = await actor(),
+        p = await player();
+      await award(p.id, 10);
+      await prepare(a.headers, 1);
+      if (offset !== null)
+        await db.db.insert(rewardDestinations).values({
+          userId: p.id,
+          bybitUid: "01234567",
+          mantleAddress: "",
+          changedAt: new Date(now.getTime() + offset),
+        });
+      await post(a.headers, "freeze", { seasonId: season, topN: 1, reason: "Export boundary" });
+      const csv = await post(a.headers, "export", { seasonId: season });
+      expect(csv.statusCode).toBe(200);
+      const [header, row] = csv.body
+        .trim()
+        .split("\r\n")
+        .map((line) => line.split(","));
+      const index = header!.indexOf('"changed_after_snapshot"');
+      expect(index).toBeGreaterThan(-1);
+      expect(row![index]).toBe(offset !== null && offset > 0 ? '"true"' : '"false"');
+    },
+  );
   it("concurrent freezes generate only one snapshot and one initial event per recipient", async () => {
     const a = await actor(),
       p = await player();

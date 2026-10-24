@@ -14,7 +14,7 @@ One brief = one pull request. Paste the whole brief into Codex together with AGE
 | T29               | Integrated via PR #25; post-deploy smoke test pending                                           |
 | T30               | Integrated via PR #26; post-deploy smoke test pending                                           |
 | T31               | Integrated via PR #27; live smoke test pending                                                  |
-| T31 follow-up     | PR #29: atomic snapshot lock and CSV marker; review pending                                     |
+| T31 follow-up     | Integrated via PR #29: atomic snapshot lock and CSV marker                                      |
 | T33               | PR #28 synchronized with main/T31; green CI, review pending                                     |
 | T34               | After Ohio cutover preparation and reviewed T33; not started                                    |
 | T27 mStocks Flyer | After T34; hold-to-rise, not started                                                            |
@@ -26,7 +26,7 @@ until confirmed. This table records the official task status changes.
 
 ## Operational priority — Ohio cutover (2026-10-24)
 
-After synchronizing T33 with merged T31 and the separate T31 lock/CSV follow-up, prepare one PR on chore-lightsail-ohio, before T34. Resources were created by Hadukem: mstocks-arena Lightsail/Ohio, 77.114.44.78, and fresh Supabase mstocks-arenaUS/fhslaelrgoiibblgfinu. Include Portuguese one-command-per-block PowerShell/SSH runbook, templates, official Docker/swap/hardening, secret rotation/validation, explicit migrations 0000–0012, local content-only quiz copy with counts, API_ORIGIN legacy compatibility, direct Ohio Telegram webhook, safe live smoke checks, manual Activity/Mini App/admin checklist and rollback/retirement. No merge, deploy, credentials, private question content or real database access by Codex. Old player/points/admin/reward data are intentionally not copied. Tests use isolated PGlite and mocked providers.
+After synchronizing T33 with merged T31 and the separate T31 lock/CSV follow-up, prepare one PR on chore-lightsail-ohio, before T34. Resources were created by Hadukem: mstocks-arena Lightsail/Ohio, 77.114.44.78, and fresh Supabase mstocks-arenaUS/fhslaelrgoiibblgfinu. Include Portuguese one-command-per-block PowerShell/SSH runbook, templates, official Docker/swap/hardening, secret rotation/validation, explicit migrations 0000–0012, local content-only quiz copy with counts, API_ORIGIN legacy compatibility, direct Ohio Telegram webhook, safe live smoke checks, manual Activity/Mini App/admin checklist and rollback/retirement. No merge, deploy, credentials, private question content or real database access by Codex. Old player/points/admin/reward data are intentionally not copied. Tests use isolated PGlite and mocked providers. Review adjustment: host UFW opens 22/80/443 without IP pinning; SSH stays key-only. Optional SSH source restrictions belong only in the browser-editable Lightsail firewall; explicitly open 443 there. Bootstrap firewall tests use mocked ufw on Linux, without provisioning.
 
 ### Operational brief — Lightsail replacement hosting (2026-10-22)
 
@@ -618,3 +618,7 @@ Implementation branch: `t31-rewards`. No merge, deploy or real database writes b
 - Due work is processed and future-boundary/target work is skipped without changing gameplay.
 - Thousands of weekend predictions and idle/active runs demonstrate bounded candidate selection; pending runs do not expire as idle.
 - Regression tests preserve halt handling, delayed reopening, void deadlines and double-settlement protection. Document query plans and how the changes prepare T19.
+
+### T31 follow-up — atomic snapshot locks and CSV change marker
+
+Freeze automatically upserts the season reward lock to true in the snapshot transaction and audits the prior/new lock state. CSV includes changed_after_snapshot (strictly later than snapshot.created_at, false when equal/missing). Preserve ledger/audit append-only rules. Test initial/already-held locks, empty rankings, rollback on audit failure, concurrent freeze and CSV time boundaries. Integrated via PR #29; no new migration or real database operation.

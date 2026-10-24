@@ -19,6 +19,41 @@ afterEach(() => {
   for (const path of directories.splice(0)) rmSync(path, { recursive: true, force: true });
 });
 
+describe("bootstrap firewall", () => {
+  it.skipIf(process.platform === "win32")(
+    "keeps SSH/HTTP/HTTPS open without pinning a client IP or provisioning the host",
+    () => {
+      const folder = temporary(),
+        log = join(folder, "ufw-calls");
+      writeFileSync(
+        join(folder, "ufw"),
+        '#!/usr/bin/env bash\nprintf "%s\\n" "$*" >> "$FIREWALL_TEST_LOG"\n',
+        { mode: 0o755 },
+      );
+      const script = fileURLToPath(new URL("../../deploy/lightsail/bootstrap.sh", import.meta.url));
+      const result = spawnSync(
+        "bash",
+        ["-c", 'source "$1"; configure_firewall', "synthetic-bootstrap", script],
+        {
+          encoding: "utf8",
+          env: { ...process.env, PATH: folder + ":" + process.env.PATH, FIREWALL_TEST_LOG: log },
+        },
+      );
+      expect(result.status).toBe(0);
+      expect(result.stderr).toBe("");
+      expect(readFileSync(log, "utf8").trim().split("\n")).toEqual([
+        "default deny incoming",
+        "default allow outgoing",
+        "allow 22/tcp",
+        "allow 80/tcp",
+        "allow 443/tcp",
+        "--force enable",
+      ]);
+      expect(result.stdout).toBe("");
+    },
+  );
+});
+
 describe("hosting secret rotation", () => {
   it("generates independent URL-safe 48-character secrets, deduplicating only those keys", () => {
     const file = join(temporary(), ".env");

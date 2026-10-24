@@ -92,7 +92,7 @@ export const en = {
       frozenAt: "Frozen at",
       topN: "Top N players",
       freezeHelp:
-        "End the season in Seasons first. Define prize bands covering ranks 1 through N, then freeze once. Later points, names and date changes never rewrite this snapshot. All eligibility still requires manual review.",
+        "End the season first and cover ranks 1 through N with prizes. Freeze once to save the ranking and lock destinations together. Later points, names and dates never rewrite it. Eligibility requires manual review.",
       prepare: "Prepare payout review",
       lock: "Lock destinations for this season",
       unlock: "Unlock destinations for this season",
@@ -108,7 +108,7 @@ export const en = {
         "Add this permanent prize band? It cannot overlap an existing band or be deleted.",
       freeze: "Freeze ranking snapshot",
       confirmFreeze:
-        "Freeze this ended season's top N? The ranking, names, platform IDs and prizes cannot be replaced or deleted.",
+        "Freeze this ended season's top N and lock reward destinations? The ranking, names, platform IDs and prizes cannot be replaced or deleted.",
       export: "Export payout CSV",
       rank: "Rank",
       player: "Player",

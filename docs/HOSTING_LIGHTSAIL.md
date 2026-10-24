@@ -78,14 +78,19 @@ Abra [Networking da instância](https://lightsail.aws.amazon.com/ls/webapp/us-ea
 Se redirecionar, escolha Ohio → Instances → mstocks-arena → Networking.
 Confira StaticIp-1 anexado, endereço 77.114.44.78. Em **IPv4 e IPv6**:
 
-- TCP 80 e 443 públicos para Caddy; não precisa liberar UDP 443.
-- TCP 22 apenas do IP pessoal atual (/32 IPv4 ou /128 IPv6). Mantenha a sessão
-  existente ao mudar regras; console SSH pode ser resgate temporário.
+- TCP 80 e 443 públicos para Caddy; não precisa liberar UDP 443. **Adicionar 443
+  explicitamente**: por padrão, a instância vem apenas com 22 e 80 abertos.
+- TCP 22 habilitado para SSH. No **UFW do host**, 22, 80 e 443 ficam abertos sem
+  restrição por IP. O SSH usa somente chave via 00-mstocks-ssh.conf. Não fixar o
+  IP residencial dinâmico nem os IPs AWS do SSH pelo navegador no UFW.
+- Se desejar restringir a origem do SSH, faça isso **somente no firewall Lightsail
+  deste painel**, que pode ser corrigido pelo navegador quando o IP mudar. Mantenha
+  a opção de SSH pelo navegador habilitada e teste esse acesso antes de restringir.
 - Não abrir 5432 ou 8787; worker não publica porta. O hostname inicial usa IPv4.
 
 [Guia oficial do firewall](https://docs.aws.amazon.com/lightsail/latest/userguide/amazon-lightsail-editing-firewall-rules.html).
 No Windows, esperado: TcpTestSucceeded True. Se False, confira IP/origem/regras;
-não abra SSH para o mundo como solução permanente.
+corrija a regra no console; não volte a fixar IP no UFW.
 
 ```powershell
 Test-NetConnection 77.114.44.78 -Port 22
@@ -150,11 +155,11 @@ export APP_RELEASE=$(sudo git rev-parse HEAD)
 O bootstrap usa o [repositório oficial Docker para Ubuntu](https://docs.docker.com/engine/install/ubuntu/),
 cria swap 2 GB, configura UFW, copia os arquivos SSH/unattended-upgrades já
 versionados. **Mantenha esta conexão aberta.** Esperado: Compose instalado,
-swap ~2 GiB e regras 22 restrito/80/443. Se apt falhar, resolva antes de repetir.
+swap ~2 GiB e regras UFW 22/80/443 abertas. Se apt falhar, resolva antes de repetir.
 Swap existente inativa exige revisão manual; o script não a reformata.
 
 ```bash
-sudo bash deploy/lightsail/bootstrap.sh --ssh-source "${SSH_CONNECTION%% *}/$([[ ${SSH_CONNECTION%% *} == *:* ]] && echo 128 || echo 32)"
+sudo bash deploy/lightsail/bootstrap.sh
 ```
 
 Confira valores efetivos: publickey yes; password/kbdinteractive no;
@@ -186,7 +191,7 @@ sudo unattended-upgrade --dry-run
 
 Docker pode contornar UFW em portas publicadas: o firewall Lightsail também é
 obrigatório. API só em loopback, apenas Caddy público. Não dar grupo Docker ao
-usuário comum. Limites: API 320 MB, worker 384 MB, Caddy 96 MB; typecheck de build
+usuário comum. Fail2ban é opcional e não é instalado/configurado por este bootstrap. Limites: API 320 MB, worker 384 MB, Caddy 96 MB; typecheck de build
 sequencial usa heap 512 MB. 1 GB é staging, sem prova de capacidade de lançamento.
 OOM/swap constante exigem ampliar o plano antes de liberar tráfego. Logs têm rotação.
 
@@ -485,8 +490,10 @@ novos de staging; não foram executados pelo Codex neste PR.
       equipe/controles/temporadas e Rewards. Usar destinatários fictícios para verificar
       cadastro, lock/snapshot/CSV/auditoria; pagamento continua manual/revisado.
 - [ ] Sessões antigas invalidadas; nenhum segredo novo na Railway nem login em logs.
-- [ ] Segunda sessão SSH por chave; 22 restrito, apenas 80/443 públicos nos dois
-      firewalls, swap/atualizações conferidos. 5432/8787 não públicos.
+- [ ] Segunda sessão SSH por chave e SSH pelo navegador funcionando; UFW permite
+      22/80/443 sem IP fixo. 443 foi aberto explicitamente no Lightsail; eventual
+      restrição de origem do SSH fica só no console Lightsail. Swap/atualizações
+      conferidos; 5432/8787 não públicos.
 - [ ] Hadukem aprova encerramento de recursos antigos só depois de tudo verde.
 
 ## 11. Rollback

@@ -1,6 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
-[[ $(id -u) == 0 && ${1:-} == --ssh-source && $# == 2 && $2 =~ ^[0-9a-fA-F.:]+/(32|128)$ ]] || { echo "Use sudo bootstrap.sh --ssh-source <single-client-IP/32-or-128>." >&2; exit 1; }
+
+configure_firewall() {
+  ufw default deny incoming
+  ufw default allow outgoing
+  # Never pin dynamic home or browser-console SSH addresses in the host firewall.
+  # Optional SSH source restrictions belong in the browser-editable Lightsail firewall.
+  ufw allow 22/tcp
+  ufw allow 80/tcp
+  ufw allow 443/tcp
+  ufw --force enable
+}
+
+# Allow the firewall function to be exercised with mocked ufw, without provisioning.
+if [[ ${BASH_SOURCE[0]} != "$0" ]]; then return 0; fi
+[[ $(id -u) == 0 && $# == 0 ]] || { echo "Use sudo bash bootstrap.sh (no arguments)." >&2; exit 1; }
 source /etc/os-release
 [[ $ID == ubuntu && $VERSION_ID == 24.04 ]] || { echo "Ubuntu 24.04 LTS is required." >&2; exit 1; }
 folder=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
@@ -27,12 +41,7 @@ sshd -t
 install -m 644 "$folder/20auto-upgrades" /etc/apt/apt.conf.d/20auto-upgrades
 install -m 644 "$folder/52mstocks-security" /etc/apt/apt.conf.d/52mstocks-security
 systemctl enable --now apt-daily.timer apt-daily-upgrade.timer
-ufw default deny incoming
-ufw default allow outgoing
-ufw allow from "$2" to any port 22 proto tcp
-ufw allow 80/tcp
-ufw allow 443/tcp
-ufw --force enable
+configure_firewall
 docker compose version
 free -h
 ufw status numbered

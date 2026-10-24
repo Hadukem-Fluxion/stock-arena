@@ -19,7 +19,10 @@ real de deploy/banco ou exclusão é executada pelo PR.
   CA verificada em packages/db/certs/supabase-ca.crt.
 - Build pinned Node 24.19.0 / pnpm 10.28.0, frozen lockfile; pnpm start:api e
   pnpm start:worker com tsx. Worker sem porta pública, API apenas loopback,
-  Caddy 80/443. Docker tem limites de memória/logs; swap 2 GB é necessário no plano.
+  Caddy 80/443. UFW permite 22/80/443 sem IP fixo; SSH só por chave, com
+  restrição opcional de origem apenas no console Lightsail. Abrir 443 explicitamente
+  no painel (padrão: apenas 22/80). Docker tem limites de memória/logs; swap 2 GB
+  é necessário no plano.
 
 Depois da revisão/merge: checkout aprovado → bootstrap/hardening → env privado
 e rotação → deploy.sh prepare (migrations, apps parados) → cópia só de conteúdo
