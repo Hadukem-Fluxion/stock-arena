@@ -16,6 +16,7 @@ One brief = one pull request. Paste the whole brief into Codex together with AGE
 | T31               | Integrated via PR #27; live smoke test pending                                                  |
 | T31 follow-up     | Integrated via PR #29: atomic snapshot lock and CSV marker                                      |
 | T33               | Integrated via PR #28; dedicated home/screens and review adjustments; live smoke test pending   |
+| Quiz option order | T10 follow-up on t10-quiz-option-order; implementation/tests ready for review, before T34       |
 | T34               | Referrals, after Ohio hosting preparation and integrated T33; not started                       |
 | T27 mStocks Flyer | After T34; hold-to-rise with approved screen 4; not started                                     |
 | T32               | Settlement query optimization; required before T19 load test; not part of T26                   |
@@ -209,6 +210,24 @@ Player-facing copy: "Live xStock prices, as quoted on Fluxion RFQ."
 **Acceptance**
 
 - Tests for timing, scoring, single attempt, and that answers never appear in the start response.
+
+### T10 follow-up — deterministic option ordering (2026-10-24)
+
+Priority: Quiz option ordering → T34 referrals → T27 Flyer, one branch/PR at a
+time, without merge/deployment/live database access by Codex.
+
+- Shuffle alternatives on the server deterministically for (userId, UTC day,
+  questionId). Map a submitted displayed index back to the original answer_index;
+  store original indices and return feedback in the displayed order.
+- No schema/migrations, bank edits, scoring or timer changes. Keep future keys,
+  seeds and index mappings out of client responses. Tests use invented content.
+- New frozen daily JSON snapshots include a private derived seed; existing
+  unmarked sets retain their old order, protecting already displayed questions
+  and historical answers. Persisted seeds keep an order stable across API restart
+  and session-key rotation. Never rewrite an existing daily set to activate it.
+- Cover stable reads/retries/restarts, different player/day fixtures, all four
+  original key indices, correct feedback and scoring, idempotent awards,
+  unmodified bank content and legacy in-progress/completed attempts.
 
 ---
 

@@ -226,7 +226,7 @@ describe("T29 quiz bank", () => {
       expect((await post(a.headers, "quiz/import", rows)).json()).toEqual({ ok: true, count: 3 });
     expect(await connection.db.select().from(quizQuestions)).toHaveLength(3);
     const p = await player();
-    await createQuizStore(connection, () => now)(p.id, { type: "start" });
+    await createQuizStore(connection, secret, () => now)(p.id, { type: "start" });
     const [row] = await connection.db.select().from(quizQuestions);
     const set = await connection.db.select().from(quizDailySets);
     expect(
@@ -262,7 +262,7 @@ describe("T29 quiz bank", () => {
     const rows = await Promise.all([save(a.headers), save(a.headers), save(a.headers)]);
     const row = rows[0]!;
     const [start, edit] = await Promise.all([
-      createQuizStore(connection, () => now)(p.id, { type: "start" }),
+      createQuizStore(connection, secret, () => now)(p.id, { type: "start" }),
       post(a.headers, "quiz/save", {
         id: row.id,
         slug: row.slug,

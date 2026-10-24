@@ -21,6 +21,14 @@ A game day runs from 00:00 to 23:59 UTC. Daily games reset at 00:00 UTC. The sto
 
 Missing a day resets your check-in streak to zero.
 
+### Daily Quiz alternatives
+
+Alternative order is personal to each player, day and question and remains stable
+when reopening the quiz. A correct answer earns the same points in any displayed
+position. The daily question selection, server deadline and one-attempt limit
+are unchanged. Existing daily sets keep their original order during the rollout;
+the shuffled presentation applies to newly frozen sets.
+
 ### Higher or Lower: future prices
 
 Choose Up or Down for one randomly assigned eligible stock. The server locks
