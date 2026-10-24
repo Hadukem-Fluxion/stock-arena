@@ -4,15 +4,15 @@ Todas as contas pertencem ao Hadukem. O Claude configura os painéis pelo navega
 
 ## Serviços
 
-| Serviço                  | Para que serve                        | Quando é necessário     | Variáveis que gera                                                                              | Onde o valor fica                                              |
-| ------------------------ | ------------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| GitHub                   | Código, pull requests e CI            | Agora                   | —                                                                                               | —                                                              |
-| Supabase                 | Banco Postgres                        | Antes da T04            | `DATABASE_URL`                                                                                  | `.env` local e Railway                                         |
-| Discord Developer Portal | App com Activities e bot              | Antes da T07            | `DISCORD_CLIENT_ID` (público), `DISCORD_CLIENT_SECRET`, `DISCORD_BOT_TOKEN`, `DISCORD_GUILD_ID` | `.env` local, Railway; o Client ID também na Vercel            |
-| Telegram BotFather       | Bot de teste e bot oficial            | Antes da T07            | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_BOT_USERNAME`                                                   | `.env` local (bot de teste), Railway (bot oficial)             |
-| Vercel                   | Frontend (`apps/web`)                 | Fim da fase 0 (staging) | —                                                                                               | —                                                              |
-| Railway                  | API, worker e bots                    | Fim da fase 0 (staging) | `SESSION_SECRET`, `MANTLE_RPC_URL`, `FLUXION_POOLS_JSON`, ids de admin                          | Variáveis do projeto no Railway                                |
-| AWS Lightsail            | API e worker substitutos, Caddy HTTPS | Migração de hospedagem  | Segredos novos e configuração existente                                                         | `/etc/mstocks-arena/.env`, root, modo 600; cópia local privada |
+| Serviço                  | Para que serve                          | Quando é necessário           | Variáveis que gera                                                                              | Onde o valor fica                                              |
+| ------------------------ | --------------------------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| GitHub                   | Código, pull requests e CI              | Agora                         | —                                                                                               | —                                                              |
+| Supabase                 | Banco Postgres                          | Antes da T04                  | `DATABASE_URL`                                                                                  | `.env` local e Lightsail                                       |
+| Discord Developer Portal | App com Activities e bot                | Antes da T07                  | `DISCORD_CLIENT_ID` (público), `DISCORD_CLIENT_SECRET`, `DISCORD_BOT_TOKEN`, `DISCORD_GUILD_ID` | `.env` local, Lightsail; o Client ID também na Vercel          |
+| Telegram BotFather       | Bot de teste e bot oficial              | Antes da T07                  | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_BOT_USERNAME`                                                   | `.env` local (bot de teste), Lightsail (bot oficial)           |
+| Vercel                   | Frontend (`apps/web`)                   | Fim da fase 0 (staging)       | —                                                                                               | —                                                              |
+| Railway                  | Histórico bloqueado, sem novos segredos | Não usar para deploy/rollback | —                                                                                               | Retirada após virada aprovada                                  |
+| AWS Lightsail            | API e worker substitutos, Caddy HTTPS   | Migração de hospedagem        | Segredos novos e configuração existente                                                         | `/etc/mstocks-arena/.env`, root, modo 600; cópia local privada |
 
 ## Regras
 
@@ -23,38 +23,34 @@ Todas as contas pertencem ao Hadukem. O Claude configura os painéis pelo navega
 
 ## Estado atual
 
-| Serviço                  | Estado                                                                         | Endereço                                                              |
-| ------------------------ | ------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
-| GitHub                   | Configurado                                                                    | https://github.com/Hadukem-Fluxion/stock-arena (público)              |
-| Supabase                 | Configurado                                                                    | Projeto `mstocks-arena`, ref `djlyrllwnvvljxexusbw`                   |
-| Discord Developer Portal | Configurado (Activities ligado: Web/iOS/Android)                               | mStocks Arena, Client ID `1560368721216938175`                        |
-| Telegram BotFather       | A criar                                                                        | —                                                                     |
-| Vercel                   | Configurado (Hobby)                                                            | https://mstocks-arena.vercel.app                                      |
-| Railway                  | Bloqueado — incidente informado pelo Hadukem em 21/10; configuração preservada | https://stock-arenaapi-production.up.railway.app (endereço histórico) |
-| AWS Lightsail            | Artefatos preparados em `chore-lightsail-hosting`; criação/deploy pendentes    | IP estático e domínio da API a definir                                |
+| Serviço                  | Estado                                                                         | Endereço                                                                                        |
+| ------------------------ | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| GitHub                   | Configurado                                                                    | https://github.com/Hadukem-Fluxion/stock-arena (público)                                        |
+| Supabase                 | Criado pelo Hadukem; migrations/cópia pendentes                                | mstocks-arenaUS, fhslaelrgoiibblgfinu, us-east-2 (Ohio), Free, Data API desligada               |
+| Discord Developer Portal | Configurado (Activities ligado: Web/iOS/Android)                               | mStocks Arena, Client ID `1560368721216938175`                                                  |
+| Telegram BotFather       | Bot existente; rotação e webhook Ohio pendentes                                | @mStocksArenaBot                                                                                |
+| Vercel                   | Configurado (Hobby)                                                            | https://mstocks-arena.vercel.app                                                                |
+| Railway                  | Bloqueado — incidente informado pelo Hadukem em 21/10; configuração preservada | https://stock-arenaapi-production.up.railway.app (endereço histórico)                           |
+| AWS Lightsail            | Instância criada pelo Hadukem; deploy/testes pendentes                         | mstocks-arena, Ohio/zona A, StaticIp-1 77.114.44.78, API prevista https://77-114-44-78.sslip.io |
 
 O Claude informa as mudanças e o Codex atualiza esta tabela.
 
-## Migração para Lightsail — 22/10/2026
+## Virada Ohio — 24/10/2026
 
-O Hadukem informou vazamento de variáveis na Railway em 21/10 e bloqueio continuado.
-Não foi realizada uma verificação independente do incidente neste PR. API e worker
-passam a ter um procedimento de instalação no Lightsail Ubuntu LTS/1 GB, com
-Compose, Caddy, SSH por chave, firewall restrito e rotação de segredos.
+Hadukem criou Lightsail e Supabase novos em Ohio. Session pooler novo:
+aws-0-us-east-2.pooler.supabase.com:5432, sslmode=require, CA verificada.
+API/worker usam os procedimentos de HOSTING_LIGHTSAIL.md; env privados root/600.
+Nenhum deploy, acesso a banco real, cópia ou rotação real foi executado pelo Codex.
 
-O guia é [HOSTING_LIGHTSAIL.md](HOSTING_LIGHTSAIL.md). Não criamos instância nem
-alteramos serviços Railway, banco ou segredos reais. Hadukem troca as credenciais
-nos provedores, configura IP/DNS e envia o `.env` novo ao servidor, fora do repo.
-`OWNER_DISCORD_ID=1225988280596824094` e o Client ID Discord são públicos.
+Copiar apenas conteúdo do quiz; contas, pontos, equipe, flags e recompensas
+começam do zero. O owner público 1225988280596824094 é recriado no primeiro login.
+Vercel passa a usar API_ORIGIN; RAILWAY_API_URL é fallback histórico, temporariamente
+com a mesma origem Ohio. Webhook Telegram vai para a API Ohio; Mini App, Activity,
+Interactions e callback admin ficam na Vercel. Setup/smoke tests reais pendentes.
 
-Na Vercel, manter o nome `RAILWAY_API_URL`, substituindo o valor pela nova origem
-HTTPS após validar o Lightsail e fazendo rebuild. URLs do web/Activity, mappings,
-Interactions Endpoint e webhook Telegram continuam no domínio da Vercel.
-O setup real do Telegram e os smoke tests admin/Discord/Telegram ficam pendentes.
-T28 foi integrada pelo Hadukem no PR #23; T29 ainda não foi iniciada.
-
-As tabelas e verificações de staging de 16/10 abaixo descrevem o ambiente anterior;
-não confirmam a disponibilidade atual da Railway nem do futuro Lightsail.
+Projeto antigo djlyrllwnvvljxexusbw será pausado somente após checklist verde e
+aprovação do Hadukem; serviços/variáveis Railway serão retirados pelos operadores.
+As seções abaixo são histórico anterior, sem confirmar disponibilidade atual.
 
 ## Staging
 

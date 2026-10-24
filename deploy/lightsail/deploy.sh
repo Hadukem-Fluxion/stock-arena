@@ -18,7 +18,7 @@ for file in "$MSTOCKS_ENV_FILE" "$MSTOCKS_PUBLIC_ENV_FILE"; do
 done
 
 case "${1:-deploy}" in
-  deploy)
+  deploy|prepare)
     export APP_RELEASE
     APP_RELEASE=$(git rev-parse HEAD)
     [[ -z $(git status --porcelain --untracked-files=normal) ]] || { echo "Deploy only a clean, approved checkout." >&2; exit 1; }
@@ -28,17 +28,21 @@ case "${1:-deploy}" in
     export APP_RELEASE=$2
     docker image inspect "mstocks-arena:$APP_RELEASE" >/dev/null
     ;;
-  *) echo "Usage: deploy.sh [deploy | rollback <approved-commit>]" >&2; exit 1 ;;
+  *) echo "Usage: deploy.sh [prepare | deploy | rollback <approved-commit>]" >&2; exit 1 ;;
 esac
 compose=(docker compose --env-file "$MSTOCKS_PUBLIC_ENV_FILE" -f deploy/lightsail/compose.yml)
 "${compose[@]}" config --quiet
-if [[ ${1:-deploy} == deploy ]]; then
+if [[ ${1:-deploy} != rollback ]]; then
   "${compose[@]}" build --pull api
 fi
 "${compose[@]}" run --rm --no-deps --entrypoint caddy caddy validate --config /etc/caddy/Caddyfile
 # Stop the old writer before migrations; a failed migration leaves both apps stopped.
 "${compose[@]}" stop worker api
 "${compose[@]}" up --no-deps --force-recreate --abort-on-container-exit --exit-code-from migrate migrate
+if [[ ${1:-deploy} == prepare ]]; then
+  echo "Migrations complete; API and worker remain stopped. Copy approved game content before first login."
+  exit 0
+fi
 "${compose[@]}" up -d --no-deps --wait --wait-timeout 120 api
 "${compose[@]}" up -d --no-deps --wait --wait-timeout 120 worker caddy
 install -d -m 700 /var/lib/mstocks-arena

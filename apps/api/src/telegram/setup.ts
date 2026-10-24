@@ -16,11 +16,25 @@ export async function setupTelegram(
       .regex(/^\d+:[A-Za-z0-9_-]+$/)
       .parse(env.TELEGRAM_BOT_TOKEN);
     const secret = webhookSecretSchema.parse(env.TELEGRAM_WEBHOOK_SECRET);
+    const webhook = z
+      .string()
+      .url()
+      .transform((value) => {
+        const url = new URL(value);
+        if (
+          url.protocol !== "https:" ||
+          url.username ||
+          url.password ||
+          url.search ||
+          url.hash ||
+          url.pathname !== "/api/telegram/webhook"
+        )
+          throw new Error();
+        return url.toString();
+      })
+      .parse(env.TELEGRAM_WEBHOOK_URL || telegramWebhookUrl);
     const settings = [
-      [
-        "setWebhook",
-        { url: telegramWebhookUrl, secret_token: secret, allowed_updates: ["message"] },
-      ],
+      ["setWebhook", { url: webhook, secret_token: secret, allowed_updates: ["message"] }],
       [
         "setMyCommands",
         {

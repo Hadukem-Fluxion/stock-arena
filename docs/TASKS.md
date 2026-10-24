@@ -2,24 +2,31 @@
 
 One brief = one pull request. Paste the whole brief into Codex together with AGENTS.md. This file and `docs/ROADMAP.md` are the official Task Board; there is no external board. Keep them updated with implementation/review status and dependencies. Non-code tasks (T00, T01, T05, T06, T17, T20) are done by people or Claude and are not listed here.
 
-## Task Board updates — 2026-10-23
+## Task Board updates — 2026-10-24
 
-| Task              | State / dependency                                                                    |
-| ----------------- | ------------------------------------------------------------------------------------- |
-| T14               | Superseded by T28–T30                                                                 |
-| T21 Daily Call    | CANCELLED — merged into T26                                                           |
-| T26               | Integrated via PR #20; post-deploy smoke test remains pending confirmation            |
-| T28               | Integrated via PR #23; real admin smoke test pending deployment                       |
-| Lightsail hosting | Integrated via PR #24; instance/DNS/cutover pending                                   |
-| T29               | Integrated via PR #25; post-deploy smoke test pending                                 |
-| T30               | Integrated via PR #26; post-deploy smoke test pending                                 |
-| T31               | Implemented on `t31-rewards`; review and post-deploy smoke test pending               |
-| T27 mStocks Flyer | Hold-to-rise brief updated; planned after T26, T28, T29, T30 and T31; not implemented |
-| T32               | Settlement query optimization; required before T19 load test; not part of T26         |
+| Task              | State / dependency                                                                              |
+| ----------------- | ----------------------------------------------------------------------------------------------- |
+| T14               | Superseded by T28–T30                                                                           |
+| T21 Daily Call    | CANCELLED — merged into T26                                                                     |
+| T26               | Integrated via PR #20; post-deploy smoke test remains pending confirmation                      |
+| T28               | Integrated via PR #23; real admin smoke test pending deployment                                 |
+| Lightsail hosting | Base integrated via PR #24; Ohio resources created; chore-lightsail-ohio review/cutover pending |
+| T29               | Integrated via PR #25; post-deploy smoke test pending                                           |
+| T30               | Integrated via PR #26; post-deploy smoke test pending                                           |
+| T31               | Integrated via PR #27; live smoke test pending                                                  |
+| T31 follow-up     | PR #29: atomic snapshot lock and CSV marker; review pending                                     |
+| T33               | PR #28 synchronized with main/T31; green CI, review pending                                     |
+| T34               | After Ohio cutover preparation and reviewed T33; not started                                    |
+| T27 mStocks Flyer | After T34; hold-to-rise, not started                                                            |
+| T32               | Settlement query optimization; required before T19 load test; not part of T26                   |
 
 Campaign decision for Mantle (not code): accepted reward identifiers (Bybit UID,
 Mantle address or both) and manual delivery process. Keep both fields optional
 until confirmed. This table records the official task status changes.
+
+## Operational priority — Ohio cutover (2026-10-24)
+
+After synchronizing T33 with merged T31 and the separate T31 lock/CSV follow-up, prepare one PR on chore-lightsail-ohio, before T34. Resources were created by Hadukem: mstocks-arena Lightsail/Ohio, 77.114.44.78, and fresh Supabase mstocks-arenaUS/fhslaelrgoiibblgfinu. Include Portuguese one-command-per-block PowerShell/SSH runbook, templates, official Docker/swap/hardening, secret rotation/validation, explicit migrations 0000–0012, local content-only quiz copy with counts, API_ORIGIN legacy compatibility, direct Ohio Telegram webhook, safe live smoke checks, manual Activity/Mini App/admin checklist and rollback/retirement. No merge, deploy, credentials, private question content or real database access by Codex. Old player/points/admin/reward data are intentionally not copied. Tests use isolated PGlite and mocked providers.
 
 ### Operational brief — Lightsail replacement hosting (2026-10-22)
 

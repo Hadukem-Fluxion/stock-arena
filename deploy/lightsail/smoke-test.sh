@@ -1,9 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
+if [[ ${1:-} == --live ]]; then
+  [[ $# == 1 ]] || { echo "Usage: smoke-test.sh --live" >&2; exit 1; }
+  # Read-only checks: never use Compose down/up, migration tools or provider APIs.
+  for url in http://127.0.0.1:8787/api/health https://77-114-44-78.sslip.io/api/health; do
+    curl --proto '=http,https' --fail --silent --show-error --max-time 20 "$url" | \
+      python3 -c 'import json,sys; assert json.load(sys.stdin)["ok"] is True'
+  done
+  echo "Live health checks passed; no services or data changed."
+  exit 0
+fi
+[[ $# == 0 && ${CI:-} == true ]] || { echo "Use --live on a server; destructive test mode requires CI=true." >&2; exit 1; }
 # CI only: never read deployment secrets or contact a real database/provider.
 temporary=$(mktemp -d)
 cleanup() {
-  docker compose --env-file "$temporary/public.env" -f deploy/lightsail/compose.yml down -v >/dev/null 2>&1 || true
+  docker compose -p mstocks-arena-ci --env-file "$temporary/public.env" -f deploy/lightsail/compose.yml down -v >/dev/null 2>&1 || true
   rm -rf -- "$temporary"
 }
 trap cleanup EXIT
@@ -12,7 +23,7 @@ export MSTOCKS_ENV_FILE="$temporary/app.env"
 export MSTOCKS_PUBLIC_ENV_FILE="$temporary/public.env"
 printf 'API_HOST=localhost\n' > "$temporary/public.env"
 printf 'DATABASE_URL=postgresql://synthetic@unavailable.invalid/postgres\nSESSION_SECRET=%048d\n' 0 > "$temporary/app.env"
-compose=(docker compose --env-file "$temporary/public.env" -f deploy/lightsail/compose.yml)
+compose=(docker compose -p mstocks-arena-ci --env-file "$temporary/public.env" -f deploy/lightsail/compose.yml)
 "${compose[@]}" config --quiet
 "${compose[@]}" config --format json > "$temporary/config.json"
 python3 - "$temporary/config.json" <<'PY'

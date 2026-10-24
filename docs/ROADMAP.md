@@ -10,6 +10,8 @@ The MVP runs on Discord and Telegram by Nov 20, closed beta follows, and public 
 | 3 · Launch and Season 1 | From Dec 8      | Public launch on both platforms; Season 1 leaderboard and rewards; Weekly Fantasy Portfolio; account linking                                                                                  | —                                                            |
 | 4 · Season 2            | January 2027    | Stock Card collection, Dividend Farm, more xStocks as they list on Fluxion                                                                                                                    | —                                                            |
 
+Ohio priority (24/10): Hadukem created Lightsail mstocks-arena/77.114.44.78 and Supabase mstocks-arenaUS/fhslaelrgoiibblgfinu in us-east-2. Prepare the operator runbook/content-only copy/secret rotation/cutover in chore-lightsail-ohio before T34, after T33 synchronization and the T31 follow-up. Actual migrations, copy, deployment and manual tests remain operator actions. Pre-launch accounts/ledger/staff/rewards restart in the new database. No live operation is claimed.
+
 ## Who does what
 
 Hosting priority (22/10/2026): prepare the API/worker move to Lightsail in
@@ -21,7 +23,7 @@ T28 is integrated via PR #23 and T29 via PR #25. T30 is integrated via PR #26: g
 and database-backed seasons with migration `0011`. Synthetic review captures and
 local/API/database/browser checks accompany the PR; live operations are not claimed.
 
-Current implementation order: **T26 → T28 → T29 → T30 → T31 → T27**. Each task
+Current implementation order: **T31 follow-up → T33 synchronization/review → Ohio hosting preparation → T34 → T27**. Each task
 has its own branch/PR, reviewed by Claude and merged by Hadukem. T28–T31 cannot
 start until T26 is integrated. T14 is superseded by T28–T30; T21 Daily Call is
 cancelled and merged into T26's 15-minute Up/Down prediction. T27's complete Flyer
@@ -34,7 +36,7 @@ T28's admin foundation is integrated via PR #23:
 standalone Discord web login, revocable admin sessions, four Staff roles,
 owner-managed team and append-only audit. It requires migration `0009`, the new
 Discord web redirect, `ADMIN_WEB_ORIGIN` and `OWNER_DISCORD_ID` after merge.
-Real owner login/revocation and T29 smoke tests remain pending deployment. T30 live smoke tests remain pending. T31 is implemented on `t31-rewards`, pending review; T27 has not started. The
+Real owner login/revocation and T29 smoke tests remain pending deployment. T30 live smoke tests remain pending. T31 is integrated via PR #27; T27 has not started. The
 implementation order is unchanged. Official Season 1 dates still need Mantle
 confirmation; the admin hub records audited date changes without rewriting points.
 
