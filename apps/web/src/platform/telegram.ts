@@ -17,6 +17,7 @@ export interface TelegramBridge {
   ready(): void;
   expand(): void;
   openLink(url: string): void;
+  openTelegramLink?(url: string): void;
   onEvent(event: "themeChanged", callback: () => void): void;
   setHeaderColor(color: string): void;
   setBackgroundColor(color: string): void;
@@ -130,6 +131,17 @@ export function createTelegramAdapter(
       if (!app) throw new PlatformError("HOST_UNAVAILABLE");
       try {
         app.openLink(target);
+      } catch {
+        throw new PlatformError("LINK_FAILED");
+      }
+    },
+    async shareInvite(_code, url, message) {
+      if (!app?.openTelegramLink) throw new PlatformError("LINK_FAILED");
+      const share = new URL("https://t.me/share/url");
+      share.searchParams.set("url", externalUrl(url));
+      share.searchParams.set("text", message);
+      try {
+        app.openTelegramLink(share.toString());
       } catch {
         throw new PlatformError("LINK_FAILED");
       }

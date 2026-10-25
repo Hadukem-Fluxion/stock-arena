@@ -4,7 +4,7 @@ import { PlatformError, sessionSchema } from "./types.js";
 export function createLoginClient(request: typeof fetch = fetch) {
   return async function exchange<P extends "discord" | "telegram">(
     platform: P,
-    input: P extends "discord" ? { code: string } : { initData: string },
+    input: P extends "discord" ? { code: string; customId?: string } : { initData: string },
   ) {
     let response: Response;
     try {

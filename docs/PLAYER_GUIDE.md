@@ -27,7 +27,7 @@ Home has the daily stock, check-in, games and today's top three. Markets shows
 catalog prices; Ranks opens the full leaderboard; Profile shows your account.
 Each game opens its own screen. Use Back to home (or Telegram's native back
 button) to leave it. Higher or Lower predictions remain saved when the app closes.
-Flyer and Invite friends show Soon until their releases. Full notices are under
+Invite friends is available from Home. Flyer shows Soon until its release. Full notices are under
 Not financial advice · Legal in the footer.
 
 ## Your first day
@@ -80,3 +80,13 @@ than 15 minutes. Pool quotes do not decide results.
 | Telegram shows a blank screen         | Close the game, update Telegram and open it again from the bot                            |
 | Prices say Paused                     | Price updates are being checked. Games that use prices wait; check-in and quiz still work |
 | My points look wrong                  | Open Profile, then History. If something is still off, tag a mod in #stock-arena-support  |
+
+## Invite friends
+
+Open Invite friends on Home, then Copy or Share invite. A new friend must open
+your platform link at their first login, or enter your code before playing and
+within 24 hours of creating their account. Your friend gets +20 at first check-in;
+you get +50 when they earn 200 game points. Your friend keeps their own points.
+Referral bonuses and administrative points do not count toward the milestone.
+No percentage commissions or recurring rewards. The How it works details explain
+maintenance and the UTC daily qualification cap.

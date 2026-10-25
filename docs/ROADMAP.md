@@ -17,10 +17,9 @@ Ohio status (24/10): PRs #30/#31 are integrated. Hadukem reports cutover complet
 Priority update (24/10): PR #32 quiz option ordering is integrated. It keeps
 bank/schema/rules unchanged: new frozen sets use a private seed and stable
 per-player/day/question presentation; existing sets retain their old order for
-safe rollout. Next is **T35 public stats → T34 → T27**, one branch/PR at a time.
+safe rollout. Next is **T34 → T27**, one branch/PR at a time.
 T35 publishes only anonymous aggregates for Mantle Synch, with a 60-second cache,
-exact-origin CORS and an IP quota. PR #33 on t35-public-stats is synchronized with
-main/#32 for review. Ohio cutover was reported complete by Hadukem at 9fe93dc;
+exact-origin CORS and an IP quota. PR #33 is integrated. T34 is in implementation on t34-referrals. Ohio cutover was reported complete by Hadukem at 9fe93dc;
 operator fixes are integrated via PR #31. Codex performs no live database,
 merge or deployment operations.
 
@@ -31,7 +30,7 @@ review and integrated via PR #24; instance, DNS, new provider credentials and li
 smoke tests remain pending. Railway resources/configuration are retained.
 T28, T29 and T30 are integrated via PRs #23, #25 and #26. T31 reward registration and frozen payout snapshots are integrated via PR #27; live migration/smoke tests pending. No real database change or deployment is claimed.
 
-T31 and its follow-up are integrated via PRs #27/#29; T33 is integrated via PR #28 with dedicated screens, the new home and Flyer/Invite cards disabled as Soon. Ohio PRs #30/#31 are integrated and the cutover reported complete by Hadukem. T34 follows the quiz option ordering/public stats work and replaces the historical T13 referral brief: first-check-in qualification and inviter/invitee rewards will be implemented in that task. T27 then activates hold-to-rise/release-to-fall Flyer with deterministic 60 Hz press/release replay, outside-canvas release and mobile gesture blocking, using screen 4 of the approved six-screen mockup. T14 remains superseded by T28–T30 and T21 cancelled into T26. These dependencies do not confirm launch dates.
+T31 and its follow-up are integrated via PRs #27/#29; T33 is integrated via PR #28 with dedicated screens, the new home and Flyer/Invite cards disabled as Soon. Ohio PRs #30/#31 are integrated and the cutover reported complete by Hadukem. T34 follows the quiz option ordering/public stats work and replaces the historical T13 referral brief: Hadukem confirmed simplified rewards on 25/10: +20 at the invitee first check-in, +50 to the inviter at 200 gameplay points; no percentage commissions. The daily inviter qualification cap stays 50 and capped claims remain pending. T27 then activates hold-to-rise/release-to-fall Flyer with deterministic 60 Hz press/release replay, outside-canvas release and mobile gesture blocking, using screen 4 of the approved six-screen mockup. T14 remains superseded by T28–T30 and T21 cancelled into T26. These dependencies do not confirm launch dates.
 
 T28's admin foundation is integrated via PR #23:
 standalone Discord web login, revocable admin sessions, four Staff roles,

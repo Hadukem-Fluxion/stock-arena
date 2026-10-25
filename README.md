@@ -11,7 +11,7 @@ Free-to-play mini games about tokenized US stocks, running as a **Discord Activi
 | Daily Check-in                   | Once per UTC day. Reveals the Stock of the Day (live price, 24h change, one fact). Streak bonuses on day 7 and day 30. |
 | Daily Quiz                       | 3 multiple-choice questions, 30 s each, one attempt per day.                                                           |
 | Higher or Lower                  | Predict one stock Up or Down over 15 minutes. Three parallel runs, up to 10 correct per run; +5 per correct pick.      |
-| Invite friends                   | Referral counts after the friend checks in on 3 different days.                                                        |
+| Invite friends                   | +20 to the friend at first check-in; +50 to the inviter when the friend earns 200 game points.                         |
 | Weekly Fantasy Portfolio (later) | Pick 3 stocks plus a captain; scored on weekly % change.                                                               |
 
 Launch asset set: AAPL, MSFT, GOOGL, AMZN, META, NVDA, TSLA (their xStocks on Fluxion).
@@ -37,7 +37,7 @@ Full rules and point values: `docs/GAME_RULES.md`, implemented in `packages/game
 ## Project status
 
 - Done: scaffold, game rules and scoring in `packages/game-core` (tested), TWAP and price health checks in `packages/fluxion-oracle` (tested).
-- T26 predictions and T28–T30 admin controls are integrated. T31 rewards are integrated via PR #27. Current queue: T31 → T33 (new home) → T34 (referrals) → T27 (Flyer). Track review and dependencies in `docs/TASKS.md`.
+- T26 predictions and T28–T30 admin controls are integrated. T31 rewards are integrated via PR #27. T33, quiz option ordering and T35 are integrated. T34 referrals are implemented for review; next is T27 (Flyer). Track review and dependencies in `docs/TASKS.md`.
 - T28 adds the standalone `/admin` hub: Discord web login, revocable 12-hour admin
   sessions, four staff roles, owner-managed team access and append-only audit.
   Setup is in [DEPLOY.md](docs/DEPLOY.md#admin-hub-t28); the English
@@ -355,7 +355,7 @@ The existing API handles private bot chats at `POST /api/telegram/webhook`,
 authenticated by `TELEGRAM_WEBHOOK_SECRET`, without a player session or database.
 It answers /start, /help and other text with an inline Play web_app button by
 returning `sendMessage` in the webhook response. No new service or polling loop.
-The start payload is parsed for future T13 referrals but is not stored or echoed.
+The webhook start payload is not stored or echoed. T34 attribution uses the signed Mini App start_param at login.
 All bot copy is in `apps/web/src/copy/en.ts`.
 
 After Railway recovers and the API is deployed, Hadukem runs `pnpm telegram:setup`
@@ -441,7 +441,7 @@ Home, Markets, Ranks and Profile share bottom navigation from 360px to 1440px.
 Quiz and Higher or Lower have dedicated screens with a Back to home button,
 plus Telegram native BackButton support. Hash navigation preserves platform launch
 data across reloads. Home shows a compact daily stock, games and today's top three.
-Flyer and Invite friends are disabled with Soon until T27/T34; direct links show
+Flyer is disabled with Soon until T27; direct links show
 waiting screens. Higher or Lower keeps three run tabs, large Up/Down controls,
 pending countdowns and expandable rules. All price/ranking/game state still comes
 from existing APIs; this frontend change has no migration. The app keeps the approved brand palette,
@@ -577,3 +577,21 @@ change an already recorded answer or award twice. The UI only displays server
 results, resumes through GET after errors, and refreshes the ledger balance on
 completion. Browser previews cannot start quizzes. Real quiz acceptance on Discord
 and Telegram remains pending the post-merge seed and platform checks.
+
+## Invite friends (T34)
+
+Your friend gets +20 on their first check-in. You get +50 when they earn 200
+points from games. No percentage commissions. Check-in/streak, quiz and Higher
+or Lower awards count; referral bonuses and admin adjustments do not.
+Share the platform link/code from Home. New players must register it before
+playing, within 24 hours. A signed Telegram start_param or Discord SDK customId
+can attach it at first login; manual entry is the fallback. The assignment stays
+fixed even after an audited void.
+
+Migration 0013 upgrades existing referral records and adds immutable random invite
+codes. Apply it before the matching API/worker. Both use the shared database
+helper inside game award transactions. At 50 qualifications per inviter/UTC day,
+extra claims stay pending for retry on a later game action. Invite maintenance
+pauses claims/bonuses while games remain playable. Admin voids append negative
+corrections for paid bonuses and an audit event. No real database operation is
+part of implementation; all tests/captures use synthetic data.

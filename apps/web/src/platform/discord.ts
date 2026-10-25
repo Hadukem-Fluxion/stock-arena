@@ -3,6 +3,7 @@ import { externalUrl, PlatformError, waitForHost } from "./types.js";
 import type { PlatformAdapter, PlatformUser, Session } from "./types.js";
 
 export interface DiscordBridge {
+  readonly customId?: string | null;
   ready(): Promise<void>;
   commands: {
     authorize(options: {
@@ -13,6 +14,7 @@ export interface DiscordBridge {
     }): Promise<{ code: string | null }>;
     authenticate(options: { access_token: string }): Promise<unknown>;
     openExternalLink(options: { url: string }): Promise<unknown>;
+    shareLink?(options: { message: string; custom_id: string }): Promise<{ success: boolean }>;
   };
 }
 
@@ -60,7 +62,10 @@ export function createDiscordAdapter(
           scope: ["identify"],
         });
         if (!code) throw new PlatformError("LOGIN_FAILED");
-        const result = await exchange("discord", { code });
+        const result = await exchange("discord", {
+          code,
+          ...(sdk.customId ? { customId: sdk.customId } : {}),
+        });
         if (!result.accessToken) throw new PlatformError("INVALID_RESPONSE");
         await sdk.commands.authenticate({ access_token: result.accessToken });
         session = result.session;
@@ -75,6 +80,14 @@ export function createDiscordAdapter(
       if (!sdk) throw new PlatformError("HOST_UNAVAILABLE");
       try {
         await sdk.commands.openExternalLink({ url: target });
+      } catch {
+        throw new PlatformError("LINK_FAILED");
+      }
+    },
+    async shareInvite(code, _url, message) {
+      if (!sdk?.commands.shareLink) throw new PlatformError("LINK_FAILED");
+      try {
+        await sdk.commands.shareLink({ message, custom_id: code });
       } catch {
         throw new PlatformError("LINK_FAILED");
       }

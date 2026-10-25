@@ -7,6 +7,7 @@ import { verifyTelegram } from "./telegram.js";
 import { createSessions } from "./session.js";
 import { createIdentityStore } from "./store.js";
 import { AuthError } from "./types.js";
+import { referralCode } from "../referrals.js";
 
 export type AuthOptions = {
   database?: DatabaseConnection;
@@ -15,7 +16,9 @@ export type AuthOptions = {
   now?: () => Date;
 };
 
-const discordBody = z.object({ code: z.string().min(1).max(4096) }).strict();
+const discordBody = z
+  .object({ code: z.string().min(1).max(4096), customId: z.string().max(256).optional() })
+  .strict();
 const telegramBody = z.object({ initData: z.string().min(1).max(16_384) }).strict();
 
 export function registerAuth(app: FastifyInstance, options: AuthOptions = {}) {
@@ -81,7 +84,11 @@ export function registerAuth(app: FastifyInstance, options: AuthOptions = {}) {
       },
       options.fetch,
     );
-    const user = await identityStore().login(result.identity);
+    const invite = referralCode.safeParse(input.data.customId);
+    const user = await identityStore().login(result.identity, {
+      now: now(),
+      code: invite.success ? invite.data : undefined,
+    });
     return { access_token: result.accessToken, session: await sessionManager.issue(user) };
   });
 
@@ -90,7 +97,14 @@ export function registerAuth(app: FastifyInstance, options: AuthOptions = {}) {
     if (!input.success) throw new AuthError("INVALID_INPUT", 400);
     const sessionManager = sessions();
     const identity = verifyTelegram(input.data.initData, configured(env.TELEGRAM_BOT_TOKEN), now());
-    const user = await identityStore().login(identity);
+    // Read start_param only after its inclusion in the signed initData was verified.
+    const invite = referralCode.safeParse(
+      new URLSearchParams(input.data.initData).get("start_param"),
+    );
+    const user = await identityStore().login(identity, {
+      now: now(),
+      code: invite.success ? invite.data : undefined,
+    });
     return { session: await sessionManager.issue(user) };
   });
 

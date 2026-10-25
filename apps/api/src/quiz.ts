@@ -5,6 +5,7 @@ import type { FastifyInstance } from "fastify";
 import { GAME_CONFIG, gameDay, quizAnswerInTime, quizPoints } from "@stock-arena/game-core";
 import type { QuizFeedback, QuizView } from "@stock-arena/game-core";
 import {
+  rewardReferral,
   pointsLedger,
   quizAttempts,
   quizDailySets,
@@ -60,7 +61,7 @@ export function createQuizStore(
   if (Buffer.byteLength(optionOrderSecret) < 32) throw new AuthError("AUTH_UNAVAILABLE", 503);
   return async (userId: string, action: Action): Promise<QuizView> =>
     connection.db.transaction(async (tx) => {
-      const [user] = await tx.select().from(users).where(eq(users.id, userId)).for("update");
+      const [user] = await tx.select().from(users).where(eq(users.id, userId)).for("no key update");
       if (!user) throw new AuthError("UNAUTHORIZED", 401);
       if (user.status !== "active") throw new AuthError("ACCOUNT_UNAVAILABLE", 403);
       const maintenance = await gamePaused(tx, "quiz");
@@ -217,6 +218,7 @@ export function createQuizStore(
             refId: `quiz:${day}`,
             createdAt: instant,
           });
+        if (answers.length === total) await rewardReferral(tx, userId, instant);
         attempt = { ...attempt, answers, score };
       }
       const answered = attempt.answers.length;

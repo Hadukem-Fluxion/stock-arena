@@ -1,6 +1,7 @@
 import { and, asc, eq, gt, gte, isNotNull, isNull, lte } from "drizzle-orm";
 import { GAME_CONFIG, predictionResult } from "@stock-arena/game-core";
 import {
+  rewardReferral,
   hlPredictions,
   hlRuns,
   pointsLedger,
@@ -31,7 +32,7 @@ export async function settlePredictions(connection: DatabaseConnection, now = ne
         .select()
         .from(users)
         .where(eq(users.id, info.run.userId))
-        .for("update");
+        .for("no key update");
       const [run] = await tx.select().from(hlRuns).where(eq(hlRuns.id, info.run.id)).for("update");
       let [round] = await tx
         .select()
@@ -75,6 +76,7 @@ export async function settlePredictions(connection: DatabaseConnection, now = ne
             refId: `hl:${id}`,
             createdAt: now,
           });
+        if (state === "won") await rewardReferral(tx, run.userId, now);
       };
       if (!user || user.status !== "active") {
         await finish("void");

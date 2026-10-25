@@ -838,3 +838,99 @@ dd {
   margin: 12px 0 0;
   padding-left: 20px;
 }
+
+.invite-screen {
+  display: grid;
+  gap: 16px;
+}
+.invite-screen button {
+  min-height: 44px;
+  min-width: 44px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px 16px;
+  background: var(--surface-2);
+}
+.invite-screen .primary-button {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.invite-hero {
+  text-align: center;
+  border: 1px solid var(--accent);
+  border-radius: 18px;
+  padding: 24px 16px;
+  background: var(--accent-tint);
+}
+.invite-hero strong {
+  font-size: 36px;
+  color: var(--accent-text);
+}
+.invite-hero p {
+  margin: 8px 0 0;
+}
+.invite-link-row {
+  display: flex;
+  gap: 8px;
+  min-width: 0;
+}
+.invite-screen input {
+  width: 100%;
+  min-width: 0;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  font: inherit;
+  min-height: 44px;
+}
+.invite-screen input:focus-visible,
+.invite-screen summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+.invite-counts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 0;
+}
+.invite-counts div {
+  background: var(--surface-2);
+  padding: 16px;
+  border-radius: 14px;
+}
+.invite-counts dt {
+  color: var(--muted);
+  font-size: 13px;
+}
+.invite-counts dd {
+  margin: 8px 0 0;
+  color: var(--accent-text);
+  font-size: 24px;
+}
+.invite-steps {
+  padding-left: 24px;
+  display: grid;
+  gap: 12px;
+}
+.invite-screen details {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0 12px;
+}
+.invite-screen summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.invite-screen details p {
+  margin: 0 0 12px;
+}
+.invite-screen form {
+  display: grid;
+  gap: 12px;
+  padding-bottom: 12px;
+}

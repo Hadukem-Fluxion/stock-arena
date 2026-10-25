@@ -18,6 +18,7 @@ import {
   tickerStatus,
   users,
   gamePaused,
+  rewardReferral,
 } from "@stock-arena/db";
 import type { DatabaseConnection } from "@stock-arena/db";
 import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
@@ -48,7 +49,7 @@ export function createCheckinStore(
     connection.db.transaction(async (tx) => {
       // Serialize actions for this player before reading the streak. Unique action
       // and ledger constraints remain the final protection against duplicate awards.
-      const [user] = await tx.select().from(users).where(eq(users.id, userId)).for("update");
+      const [user] = await tx.select().from(users).where(eq(users.id, userId)).for("no key update");
       if (!user) throw new AuthError("UNAUTHORIZED", 401);
       if (user.status !== "active") throw new AuthError("ACCOUNT_UNAVAILABLE", 403);
       const maintenance = await gamePaused(tx, "checkin");
@@ -73,6 +74,7 @@ export function createCheckinStore(
             createdAt: instant,
           })),
         );
+        await rewardReferral(tx, userId, instant);
       }
       const [current] = await tx
         .select()

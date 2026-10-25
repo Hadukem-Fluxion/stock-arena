@@ -27,6 +27,7 @@ export interface PlatformAdapter {
   init(): Promise<void>;
   login(): Promise<PlatformUser>;
   openExternal(url: string): Promise<void>;
+  shareInvite?(code: string, url: string, message: string): Promise<void>;
   setBackButton?(handler: (() => void) | null): () => void;
 }
 

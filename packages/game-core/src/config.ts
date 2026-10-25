@@ -43,9 +43,9 @@ export const GAME_CONFIG = {
   },
   referrals: {
     pointsPerQualifiedFriend: 50,
-    maxPerSeason: 10,
-    /** The invited friend must check in on this many distinct days. */
-    qualifyingCheckinDays: 3,
+    pointsPerInvitee: 20,
+    maxRewardsPerDay: 50,
+    qualifyingGamePoints: 200,
   },
   prices: {
     pollSeconds: 15,

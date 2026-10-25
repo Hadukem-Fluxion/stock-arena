@@ -130,3 +130,18 @@ Só após tudo verde e aprovação do Hadukem: pausar projeto antigo djlyrllwnvv
 retirar variáveis/serviços antigos da Railway pelos painéis e remover a variável
 de compatibilidade da Vercel com rebuild/health. Procedimento histórico Railway
 permanece nos arquivos railway.json e no histórico Git; nunca é destino ativo.
+
+## Convites (T34)
+
+Aplique a migration 0013 antes de implantar a API/worker correspondentes. Não há
+script de configuração ou registro novo de comandos. Na API, configure
+TELEGRAM_BOT_USERNAME=mStocksArenaBot (sem @), junto do DISCORD_CLIENT_ID já
+existente. Esses identificadores públicos geram os links; nenhum token é enviado
+ao cliente. Sem um identificador válido, a tela informa que o link está pendente
+e mantém o código manual disponível.
+
+A atribuição no Telegram usa o start_param do initData assinado no login, não o
+payload do /start no webhook. Após a implantação pelo operador, valide uma conta
+nova em cada plataforma: convite registrado no login, +20 no primeiro check-in
+e +50 ao convidador somente após 200 pontos de jogos do amigo. O controle
+Invite friends no admin pausa cadastro/bônus sem interromper os outros jogos.

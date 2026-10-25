@@ -19,6 +19,7 @@ import { registerAdmin } from "./admin/index.js";
 import { AdminError } from "./admin/permissions.js";
 import { GameControlError } from "./game-control.js";
 import { registerPublicStats } from "./public-stats.js";
+import { registerReferrals, ReferralError } from "./referrals.js";
 
 export const VERSION = "0.1.0";
 
@@ -61,6 +62,11 @@ export function buildServer(
 
   app.get("/api/health", async () => ({ ok: true, version: VERSION, tickers: TICKERS }));
   const auth = registerAuth(app, options.auth);
+  registerReferrals(app, {
+    database: auth.database,
+    now: options.auth?.now ?? (() => new Date()),
+    env: options.auth?.env ?? process.env,
+  });
   registerPublicStats(app, {
     database: auth.database,
     now: options.auth?.now,
@@ -99,7 +105,8 @@ export function buildServer(
       error instanceof QuizError ||
       error instanceof HlError ||
       error instanceof AdminError ||
-      error instanceof GameControlError
+      error instanceof GameControlError ||
+      error instanceof ReferralError
     ) {
       return reply.code(error.statusCode).send({ error: { code: error.code } });
     }

@@ -390,3 +390,21 @@ history. A code rollback must retain a compatible schema and payout records.
 After review/merge, test with synthetic recipients: registration, lock, masked
 support view, freeze, approval/void/delivery and export audit. Real campaign
 snapshots/payouts require explicit operator review; none are performed by this PR.
+
+## Invites (T34)
+
+All Staff roles can read Invites. Filter by inviter user ID, invitee user ID and
+Pending/Rewarded/Void status; use pagination for more records. Players receive
++20 on first check-in; inviters receive +50 at 200 gameplay points. Referral and
+admin adjustment rows do not count toward qualification. There is no percentage
+commission. Game maintenance includes Invite friends and defers new claims and
+bonuses; underlying game awards continue when those games are active.
+
+Only owner/admin can Void. Enter a required reason and confirm. A void is final:
+it keeps the original inviter and qualification time, reverses each paid bonus
+with a negative admin_adjustment, and appends referral.voided to the audit log.
+This also handles a pending invite with only the +20 welcome bonus paid. Retrying
+cannot reverse twice. Original ledger/audit rows cannot be changed or deleted.
+Voids do not free daily quota. At 50 qualifications per inviter/UTC day, pending
+claims retry on a later game action after the next UTC day; do not manually add
+points to work around that cap. No automated multi-account detection is included.
