@@ -21,6 +21,8 @@ export const PERMISSIONS = [
   "rewards:read",
   "rewards:write",
   "rewards:export",
+  "referrals:read",
+  "referrals:write",
 ] as const;
 export type Permission = (typeof PERMISSIONS)[number];
 
@@ -42,6 +44,8 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "rewards:read",
     "rewards:write",
     "rewards:export",
+    "referrals:read",
+    "referrals:write",
   ],
   moderator: [
     "overview:read",
@@ -50,8 +54,16 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
     "flags:read",
     "flags:write",
     "rewards:read",
+    "referrals:read",
   ],
-  support: ["overview:read", "audit:read", "players:read", "flags:read", "rewards:read"],
+  support: [
+    "overview:read",
+    "audit:read",
+    "players:read",
+    "flags:read",
+    "rewards:read",
+    "referrals:read",
+  ],
 };
 
 export function allowed(role: Role, permission: Permission): boolean {

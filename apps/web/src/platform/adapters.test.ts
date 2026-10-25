@@ -44,6 +44,33 @@ function telegram() {
 }
 
 describe("Discord adapter", () => {
+  it("sends the SDK launch customId at login and shares through the official command", async () => {
+    const sdk = { ...discord(), customId: "ref_synthetic_invite_code_01" };
+    const shareLink = vi.fn(async () => ({ success: true }));
+    const bridge = { ...sdk, commands: { ...sdk.commands, shareLink } };
+    const request = vi.fn<typeof fetch>(async () =>
+      Response.json({ session: session("discord"), access_token: "synthetic-access" }),
+    );
+    const adapter = createDiscordAdapter(
+      "123456789012345678",
+      async () => bridge,
+      createLoginClient(request),
+    );
+    await adapter.login();
+    expect(JSON.parse(String(request.mock.calls[0]![1]?.body))).toEqual({
+      code: "mock-oauth-code",
+      customId: sdk.customId,
+    });
+    await adapter.shareInvite?.(
+      sdk.customId,
+      "https://discord.com/activities/123456789012345678",
+      "Synthetic share message",
+    );
+    expect(shareLink).toHaveBeenCalledWith({
+      message: "Synthetic share message",
+      custom_id: sdk.customId,
+    });
+  });
   it("stops waiting for an unresponsive host", async () => {
     vi.useFakeTimers();
     try {
@@ -125,6 +152,25 @@ describe("Discord adapter", () => {
     await expect(adapter.login()).rejects.toMatchObject({ code: "CONFIGURATION_REQUIRED" });
     expect(makeSdk).not.toHaveBeenCalled();
   });
+});
+
+it("shares Telegram invites with openTelegramLink and an encoded share URL", async () => {
+  const openTelegramLink = vi.fn(),
+    app = { ...telegram(), openTelegramLink };
+  const request = vi.fn<typeof fetch>(async () => Response.json({ session: session("telegram") }));
+  const adapter = createTelegramAdapter(
+    async () => app,
+    createLoginClient(request),
+    () => {},
+  );
+  await adapter.login();
+  const url = "https://t.me/SyntheticArenaBot?startapp=ref_synthetic_invite_code_01";
+  await adapter.shareInvite?.("ref_synthetic_invite_code_01", url, "Synthetic & safe share");
+  const sent = new URL(openTelegramLink.mock.calls[0]![0] as string);
+  expect(sent.origin + sent.pathname).toBe("https://t.me/share/url");
+  expect(sent.searchParams.get("url")).toBe(url);
+  expect(sent.searchParams.get("text")).toBe("Synthetic & safe share");
+  expect(app.openLink).not.toHaveBeenCalled();
 });
 
 describe("Telegram adapter", () => {

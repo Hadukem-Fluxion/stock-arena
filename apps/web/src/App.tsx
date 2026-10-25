@@ -1,4 +1,5 @@
 import { RewardProfile } from "./rewards/RewardProfile.js";
+import { InvitePanel } from "./referrals/InvitePanel.js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { MouseEvent, ReactNode } from "react";
 import { ASSETS, GAME_CONFIG, assetTickers, gameDay, stockOfTheDay } from "@stock-arena/game-core";
@@ -268,7 +269,7 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
                   </button>
                 ))}
               </div>
-              <button className="game-tile invite-tile" disabled>
+              <button className="game-tile invite-tile" onClick={() => navigate("invite")}>
                 <span className="game-icon" aria-hidden="true">
                   ♧
                 </span>
@@ -276,7 +277,7 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
                   <span className="game-name">{en.games.invite.name}</span>
                   <span className="caption muted">{en.games.invite.rule}</span>
                 </span>
-                <span className="game-badge">{en.navigation.soon}</span>
+                <span className="game-badge">{en.navigation.play}</span>
               </button>
             </section>
             <section className="card ranking-card">
@@ -306,10 +307,15 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
             />
           </section>
         )}
-        {(screen === "flyer" || screen === "invite") && (
+        {screen === "invite" && (
+          <section className="card game-screen">
+            <InvitePanel platform={platform} enabled={login.state === "ready"} />
+          </section>
+        )}
+        {screen === "flyer" && (
           <section className="card game-screen">
             <span className="game-badge">{en.navigation.soon}</span>
-            <p>{screen === "flyer" ? en.navigation.flyerPending : en.navigation.invitePending}</p>
+            <p>{en.navigation.flyerPending}</p>
           </section>
         )}
         {screen === "markets" && (

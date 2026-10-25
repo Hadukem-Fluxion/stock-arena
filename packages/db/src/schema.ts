@@ -278,13 +278,16 @@ export const tickerStatus = pgTable("ticker_status", {
 export const gameControls = pgTable(
   "game_controls",
   {
-    game: text("game", { enum: ["checkin", "quiz", "higher_lower"] }).primaryKey(),
+    game: text("game", { enum: ["checkin", "quiz", "higher_lower", "invite"] }).primaryKey(),
     paused: boolean("paused").default(false).notNull(),
     reason: text("reason").default("").notNull(),
     updatedAt: instant("updated_at").defaultNow().notNull(),
   },
   (table) => [
-    check("game_controls_game", sql`${table.game} IN ('checkin', 'quiz', 'higher_lower')`),
+    check(
+      "game_controls_game",
+      sql`${table.game} IN ('checkin', 'quiz', 'higher_lower', 'invite')`,
+    ),
   ],
 );
 
@@ -448,6 +451,13 @@ export const pointsLedger = pgTable(
   ],
 );
 
+export const inviteCodes = pgTable("invite_codes", {
+  userId: uuid("user_id")
+    .primaryKey()
+    .references(() => users.id),
+  code: text("code").notNull().unique(),
+});
+
 export const referrals = pgTable(
   "referrals",
   {
@@ -458,8 +468,21 @@ export const referrals = pgTable(
       .primaryKey()
       .references(() => users.id),
     qualifiedAt: instant("qualified_at"),
+    inviteeBonusAt: instant("invitee_bonus_at"),
+    code: text("code")
+      .notNull()
+      .references(() => inviteCodes.code),
+    platform: platform("platform"),
+    createdAt: instant("created_at").defaultNow().notNull(),
+    status: text("status", { enum: ["pending", "rewarded", "void"] })
+      .default("pending")
+      .notNull(),
   },
-  (table) => [check("referrals_no_self_invite", sql`${table.inviterId} <> ${table.inviteeId}`)],
+  (table) => [
+    check("referrals_no_self_invite", sql`${table.inviterId} <> ${table.inviteeId}`),
+    check("referrals_status", sql`${table.status} IN ('pending', 'rewarded', 'void')`),
+    index("referrals_inviter_idx").on(table.inviterId, table.qualifiedAt),
+  ],
 );
 
 export const flags = pgTable("flags", {

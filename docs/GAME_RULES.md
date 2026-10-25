@@ -12,12 +12,12 @@ A game day runs from 00:00 to 23:59 UTC. Daily games reset at 00:00 UTC. The sto
 
 ## Season 1 games
 
-| Game            | How it works                                                                                                                                                                                    | Points                                                               |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| Daily Check-in  | Open the app and tap Check in. You get the Stock of the Day: its live price, 24h change and one fact about the company.                                                                         | 10 per day. Streak bonus: +50 on day 7, +300 on day 30               |
-| Daily Quiz      | Three multiple-choice questions on tokenized stocks, RWA, Mantle and Fluxion. 30 seconds per question, one attempt per day.                                                                     | 20 per correct answer, +15 if all three are right (max 75)           |
-| Higher or Lower | Predict whether one server-chosen stock will rise or fall in the next 15 minutes. First wrong pick ends the run; ten correct complete it. Three runs may start per UTC day and run in parallel. | 5 per correct pick, up to 50 per run; at most 3 runs started per day |
-| Invite friends  | Share your invite link. Your friend counts once they check in on 3 different days.                                                                                                              | 50 per friend, up to 10 friends per season                           |
+| Game            | How it works                                                                                                                                                                                    | Points                                                                   |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Daily Check-in  | Open the app and tap Check in. You get the Stock of the Day: its live price, 24h change and one fact about the company.                                                                         | 10 per day. Streak bonus: +50 on day 7, +300 on day 30                   |
+| Daily Quiz      | Three multiple-choice questions on tokenized stocks, RWA, Mantle and Fluxion. 30 seconds per question, one attempt per day.                                                                     | 20 per correct answer, +15 if all three are right (max 75)               |
+| Higher or Lower | Predict whether one server-chosen stock will rise or fall in the next 15 minutes. First wrong pick ends the run; ten correct complete it. Three runs may start per UTC day and run in parallel. | 5 per correct pick, up to 50 per run; at most 3 runs started per day     |
+| Invite friends  | Share your code before your friend plays. Your friend gets +20 at first check-in; you get +50 when they earn 200 game points.                                                                   | 50 per qualified friend; 20 welcome bonus; 50 qualifications per UTC day |
 
 Missing a day resets your check-in streak to zero.
 
@@ -122,3 +122,22 @@ at export, so operators lock them during delivery review.
 Quiz maintenance preserves the original 30-second deadline. Replies are blocked
 while paused; a reply after resumption may time out on that original deadline.
 T31 verifies/documents this existing policy without changing points or timers.
+
+## Invite friends
+
+Your friend gets +20 on their first check-in. You get +50 when they earn 200
+points from games. There is no percentage or recurring commission.
+
+Register one invite before playing and within 24 hours of account creation,
+through a platform link or the manual code field. No self-invites, reassignment,
+or repeat welcome bonuses. Only check-in/streak, completed quiz and Higher or
+Lower points count toward 200; referral and administrative points are excluded.
+A friend who reaches 200 before checking in can receive the welcome bonus later.
+
+An inviter can qualify up to 50 friends per UTC day. Capped claims remain pending
+until a later game action can retry. A maintenance pause defers claims/bonuses;
+it does not pause the other games. Voiding an invite reverses paid bonuses with
+new ledger corrections and a required staff note, never deletes history, and
+never frees previously used daily qualification quota. These are points only;
+registration does not promise a monetary reward. No multi-account detection is
+claimed by this feature.

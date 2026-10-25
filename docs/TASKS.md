@@ -2,7 +2,7 @@
 
 One brief = one pull request. Paste the whole brief into Codex together with AGENTS.md. This file and `docs/ROADMAP.md` are the official Task Board; there is no external board. Keep them updated with implementation/review status and dependencies. Non-code tasks (T00, T01, T05, T06, T17, T20) are done by people or Claude and are not listed here.
 
-## Task Board updates — 2026-10-24
+## Task Board updates — 2026-10-25
 
 | Task              | State / dependency                                                                                   |
 | ----------------- | ---------------------------------------------------------------------------------------------------- |
@@ -17,8 +17,8 @@ One brief = one pull request. Paste the whole brief into Codex together with AGE
 | T31 follow-up     | Integrated via PR #29: atomic snapshot lock and CSV marker                                           |
 | T33               | Integrated via PR #28; dedicated home/screens and review adjustments; live smoke test pending        |
 | Quiz option order | Integrated via PR #32; deterministic per-player/day/question presentation and legacy sets preserved  |
-| T35 public stats  | PR #33 synchronized with main/#32; review pending, before T34                                        |
-| T34               | Referrals, after T35 and integrated quiz option ordering/T33; not started                            |
+| T35 public stats  | Integrated via PR #33; anonymous stats before T34                                                    |
+| T34               | Implemented on t34-referrals; simplified 200-point qualification, review pending                     |
 | T27 mStocks Flyer | After T34; hold-to-rise with approved screen 4; not started                                          |
 | T32               | Settlement query optimization; required before T19 load test; not part of T26                        |
 
@@ -702,14 +702,19 @@ Implementation branch: `t31-rewards`. No merge, deploy or real database writes b
 
 ## T34 — Invite friends (referrals)
 
-**Dependency**: after T33, before T27. One branch/PR; no merge/deploy/live database changes. Use screen 5 of the approved mockup.
+**Dependency**: T33, quiz ordering and T35 are integrated. Before T27. One branch/PR; no merge/deploy/live database changes. Use screen 5 of the approved mockup, with the updated reward copy below.
 
-- Each user has a fixed non-sequential invite code (for example ref_XXXXXX). New migration for referrals: inviter_id, unique invitee_id, code, platform, created_at and status pending/rewarded/void. Administrative voids append an admin_actions audit row.
-- Telegram deep link t.me/<bot>?startapp=ref_CODE: validate signed initData start_param on login. Discord SDK shareLink custom_id=ref_CODE: send launch customId on login and validate server-side. Manual "Got an invite code?" POST /api/referral/claim fallback only within the first 24 hours of account creation.
-- Only new accounts created from the link/code with no previous games qualify. No self-invite, one immutable inviter per invitee. First check-in awards inviter +50 and invitee +20, configured in GAME_CONFIG, through idempotent ledger reference ref:<inviteeId>. No multi-account detection in this task. Configure a daily inviter reward limit (initial product default 50), and add invite to the T30 game pause controls.
-- UI: "+50 pts" hero, invite link with Copy, Share invite (Telegram openTelegramLink share URL; Discord shareLink), Friends joined / Points earned counters, three steps and manual claim details.
-- Admin: filter referrals by inviter/invitee/status; void requires a note, never deletes a record. Update ADMIN_GUIDE and GAME_RULES.
-- Tests: validated platform entry/manual cutoff, new-account/no-games rule, self-invite and reassignment rejection, first check-in awards once, daily cap, pause behavior and audited void. Simulated Discord/Telegram/browser e2e and 390px/desktop screenshots in docs/review/t34.
+**Product decision confirmed by Hadukem on 2026-10-25**: keep it simple. Invitee gets +20 at their first check-in. Inviter gets +50 once the invitee earns 200 gameplay points. No percentage, commission window or recurring commission. This replaces first-check-in qualification, the historical three-check-in/season cap, and all intermediate percentage proposals.
+
+- Fixed random, non-sequential per-user codes. Migration 0013 upgrades the existing referrals table without deleting old assignments/qualification dates; new invite_codes table, stored code/platform/creation/status (pending/rewarded/void) and invitee_bonus_at. Assignment and codes are immutable; no referral deletion. Legacy platform may be null when not known.
+- Telegram deep link t.me/<bot>?startapp=ref_CODE: read start_param only after verifying the signed raw initData at login. Discord SDK shareLink with custom_id; SDK customId travels with the OAuth login and is validated against stored codes. Capture only on new account creation. Unknown/paused launch codes never block login.
+- Manual fallback POST /api/referral/claim before any prior check-in, quiz attempt, HL run or ledger activity, within the first 24 hours. No self-invite, inactive inviter or reassignment. One immutable inviter per account, including after a void.
+- GAME_CONFIG.referrals owns +50/+20/200 and maxRewardsPerDay (50 qualifications per inviter/UTC day). Check-in/streak, completed quiz and settled Higher or Lower points count; referral bonuses and admin adjustments never count. The invitee keeps every gameplay point. Qualify inside the game award transaction. No multi-account detection in this task.
+- Award each bonus once with ledger reason referral and reference ref:<inviteeId>, unique per user. Bonus times are independent: an invitee who qualifies before their first check-in can still get +20 later. Invite maintenance blocks claims and both bonuses, not the underlying games; a later game action retries pending bonuses after resume. Inactive inviters cannot receive referral awards.
+- At the daily qualification cap, retain pending status; retry on a later game award/check-in after UTC rollover. Voided qualifications retain their original timestamp and never free daily quota.
+- UI: +50 pts hero, plain 200-point condition, invitee +20 explanation, Copy/Share, Friends joined and net inviter Points earned, three steps, manual code details and full rules in How it works. Activate Home Invite card; Flyer remains Soon. All copy in en.ts, provider branding unchanged.
+- Admin: filter by inviter/invitee/status, paginated list. All Staff roles read; owner/admin void with a required note. Void reverses every paid bonus (including a welcome-only pending invite) through new negative admin_adjustment rows, never ledger edits. One transactional audit row; retries cannot reverse twice. Never delete or reassign.
+- Tests: signed platform entry/tampering, new-account/no-games/manual cutoff, self-invite/reassignment, stable random codes, 199/200 boundary, exclusion of referral/admin points, separate bonuses, qualification via check-in/quiz/worker, concurrent/double awards, cap/UTC retry, pause, permissions, audit/void reversals and immutable records. Isolated PGlite only. Discord/Telegram/browser e2e, catalogs 3/30 and 390px/desktop screenshots in docs/review/t34. Update README, GAME_RULES, PLAYER_GUIDE and ADMIN_GUIDE.
 
 ### T31 follow-up — atomic snapshot locks and CSV change marker
 

@@ -63,7 +63,7 @@ export function registerControls(
   });
   app.post("/api/admin/games", { config: { adminPermission: "games:write" } }, async (req) => {
     const input = parse(
-      toggle.extend({ game: z.enum(["checkin", "quiz", "higher_lower"]) }).strict(),
+      toggle.extend({ game: z.enum(["checkin", "quiz", "higher_lower", "invite"]) }).strict(),
       req.body,
     );
     return write(req, "games:write", async (tx, ctx) => {

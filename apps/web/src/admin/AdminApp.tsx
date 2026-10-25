@@ -1,4 +1,5 @@
 import { Rewards } from "./Rewards.js";
+import { ReferralOperations } from "./Referrals.js";
 import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { en } from "../copy/en.js";
@@ -20,7 +21,8 @@ type Screen =
   | "games"
   | "tickers"
   | "seasons"
-  | "rewards";
+  | "rewards"
+  | "referrals";
 function message(error: unknown): string {
   const code = error instanceof AdminClientError ? error.code : "generic";
   return Object.hasOwn(copy.error, code)
@@ -108,6 +110,7 @@ export function AdminApp() {
     ...(session?.permissions.includes("games:write") ? ["games", "tickers"] : []),
     ...(session?.permissions.includes("seasons:write") ? ["seasons"] : []),
     ...(session?.permissions.includes("rewards:read") ? ["rewards"] : []),
+    ...(session?.permissions.includes("referrals:read") ? ["referrals"] : []),
     "audit",
   ] as Screen[];
   return (
@@ -271,6 +274,15 @@ export function AdminApp() {
                   </section>
                 </div>
               </>
+            )}
+            {screen === "referrals" && (
+              <ReferralOperations
+                session={session}
+                busy={busy}
+                revision={revision}
+                write={write}
+                onError={operationError}
+              />
             )}
             {screen === "rewards" && (
               <Rewards

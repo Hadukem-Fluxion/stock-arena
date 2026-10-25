@@ -2,6 +2,9 @@
  * Every player-facing string lives here. English only.
  * Keep the tone short, friendly and plain. No investment advice.
  */
+import { GAME_CONFIG } from "@stock-arena/game-core";
+
+const referralRules = GAME_CONFIG.referrals;
 const providers = {
   xstocks: {
     name: "xStocks",
@@ -37,7 +40,42 @@ export const en = {
     runTabs: "Runs",
     soon: "Soon",
     flyerPending: "mStocks Flyer is coming soon.",
-    invitePending: "Invites are coming soon.",
+  },
+  referrals: {
+    hero: `+${referralRules.pointsPerQualifiedFriend} pts`,
+    milestone: `when your friend earns ${referralRules.qualifyingGamePoints} points from games.`,
+    welcome: `They get +${referralRules.pointsPerInvitee} on their first check-in.`,
+    rule: `Your friend gets +${referralRules.pointsPerInvitee} on their first check-in. You get +${referralRules.pointsPerQualifiedFriend} when they earn ${referralRules.qualifyingGamePoints} points from games.`,
+    link: "Your invite link",
+    copy: "Copy",
+    copied: "Copied",
+    share: "Share invite",
+    shareMessage: "Join me in mStocks Arena! Play daily games and earn points.",
+    joined: "Friends joined",
+    points: "Points earned",
+    code: "Invite code",
+    steps: [
+      "Share your link in Discord or Telegram",
+      "Your friend checks in and plays games",
+      `Earn +${referralRules.pointsPerQualifiedFriend} when they reach ${referralRules.qualifyingGamePoints} game points`,
+    ],
+    details: "Got an invite code?",
+    claim: "Apply invite code",
+    cutoff: "New accounts only: apply before playing, within your first 24 hours.",
+    claimed: "Invite code saved. Check in and play to earn points.",
+    alreadyClaimed: "Your invite is already registered.",
+    loading: "Loading invites…",
+    retry: "Try again",
+    preview: "Open in Discord or Telegram to invite friends.",
+    configuration: "Invite links are being configured. You can still share your code.",
+    limit: `Up to ${referralRules.maxRewardsPerDay} qualified friends per UTC day. Extra qualifications stay pending until a later game action. Referral bonuses and admin adjustments do not count toward the milestone.`,
+    errors: {
+      INVITE_INVALID: "That code is unavailable or belongs to you.",
+      INVITE_INELIGIBLE: "Codes must be applied before playing and within your first 24 hours.",
+      INVITE_CLAIMED: "An invite is already registered for your account.",
+      INVALID_INPUT: "Check the invite code and try again.",
+      generic: "Could not complete this action. Please try again.",
+    },
   },
   rewards: {
     title: "Reward destinations",
@@ -66,6 +104,23 @@ export const en = {
     actors: { player: "Changed by you", staff: "Changed by staff" },
   },
   admin: {
+    referrals: "Invites",
+    referralOps: {
+      intro:
+        "Review invite registrations and qualification. Voiding reverses all paid invite bonuses with audited ledger corrections.",
+      inviter: "Inviter user ID",
+      invitee: "Invitee user ID",
+      status: "Status",
+      all: "All statuses",
+      pending: "Pending",
+      rewarded: "Rewarded",
+      void: "Void",
+      voidAction: "Void invite",
+      confirm: "Void this invite and reverse its paid bonuses? This cannot be undone.",
+      registered: "Registered (UTC)",
+      qualified: "Qualified (UTC)",
+      code: "Code",
+    },
     title: "Admin hub",
     subtitle: "Your team. Your arena.",
     loginProvider: "Discord OAuth",
@@ -264,9 +319,15 @@ export const en = {
       "reward.destinations_locked": "Reward destination lock changed",
       "reward.destination_changed": "Reward destination corrected",
       "reward.exported": "Reward CSV exported",
+      "referral.voided": "Invite voided and bonuses reversed",
     },
     gameControls: {
-      names: { checkin: "Daily Check-in", quiz: "Daily Quiz", higher_lower: "Higher or Lower" },
+      names: {
+        checkin: "Daily Check-in",
+        quiz: "Daily Quiz",
+        higher_lower: "Higher or Lower",
+        invite: "Invite friends",
+      },
       gameIntro:
         "Pause or resume player actions. Paused games do not consume new daily attempts or runs.",
       pendingNotice:
@@ -454,7 +515,7 @@ export const en = {
     },
     invite: {
       name: "Invite friends",
-      rule: "+50 pts for each friend who checks in",
+      rule: `+${referralRules.pointsPerQualifiedFriend} when a friend earns ${referralRules.qualifyingGamePoints} game points`,
     },
     flyer: { name: "mStocks Flyer", rule: "Hold to fly through real charts" },
   },

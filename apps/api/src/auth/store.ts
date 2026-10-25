@@ -3,6 +3,8 @@ import type { DatabaseConnection } from "@stock-arena/db";
 import { and, eq } from "drizzle-orm";
 import { AuthError } from "./types.js";
 import type { AuthenticatedUser, VerifiedIdentity } from "./types.js";
+import { claimReferral, ReferralError } from "../referrals.js";
+import { GameControlError } from "../game-control.js";
 
 export function createIdentityStore(connection: DatabaseConnection) {
   const selectIdentity = {
@@ -26,7 +28,10 @@ export function createIdentityStore(connection: DatabaseConnection) {
     };
   }
   return {
-    async login(identity: VerifiedIdentity): Promise<AuthenticatedUser> {
+    async login(
+      identity: VerifiedIdentity,
+      invite?: { code?: string; now: Date },
+    ): Promise<AuthenticatedUser> {
       return connection.db.transaction(async (tx) => {
         const identityWhere = and(
           eq(identities.platform, identity.platform),
@@ -40,7 +45,11 @@ export function createIdentityStore(connection: DatabaseConnection) {
         if (existing) return activeUser(existing, identity);
         const [created] = await tx
           .insert(users)
-          .values({ displayName: identity.displayName, avatarUrl: identity.avatarUrl })
+          .values({
+            displayName: identity.displayName,
+            avatarUrl: identity.avatarUrl,
+            ...(invite ? { createdAt: invite.now } : {}),
+          })
           .returning();
         if (!created) throw new AuthError("INTERNAL_ERROR", 500);
         const inserted = await tx
@@ -53,7 +62,18 @@ export function createIdentityStore(connection: DatabaseConnection) {
           })
           .onConflictDoNothing()
           .returning();
-        if (inserted.length) return activeUser(created, identity);
+        if (inserted.length) {
+          if (invite?.code) {
+            // An invalid/paused invite never prevents an otherwise valid login.
+            try {
+              await claimReferral(tx, created.id, invite.code, identity.platform, invite.now);
+            } catch (error) {
+              if (!(error instanceof ReferralError || error instanceof GameControlError))
+                throw error;
+            }
+          }
+          return activeUser(created, identity);
+        }
         // Another login won the unique identity race; discard only this unused user.
         await tx.delete(users).where(eq(users.id, created.id));
         const [winner] = await tx

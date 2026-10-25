@@ -12,6 +12,7 @@ import {
   flags,
   hlRuns,
   identities,
+  inviteCodes,
   pointsLedger,
   priceSnapshots,
   quizAttempts,
@@ -106,6 +107,7 @@ describe("migrations and typed client", () => {
       "hl_rounds",
       "hl_runs",
       "identities",
+      "invite_codes",
       "points_ledger",
       "price_snapshots",
       "quiz_attempts",
@@ -245,19 +247,25 @@ describe("identity and referral constraints", () => {
     const inviter = await player();
     const invitee = await player();
     const anotherInviter = await player();
-    await connection.db.insert(referrals).values({ inviterId: inviter.id, inviteeId: invitee.id });
+    const code = `ref_${randomUUID()}`;
+    await connection.db.insert(inviteCodes).values({ userId: inviter.id, code });
+    await connection.db
+      .insert(referrals)
+      .values({ inviterId: inviter.id, inviteeId: invitee.id, code });
     await rejectsWithCode(
       connection.db
         .insert(referrals)
-        .values({ inviterId: anotherInviter.id, inviteeId: invitee.id }),
+        .values({ inviterId: anotherInviter.id, inviteeId: invitee.id, code }),
       "23505",
     );
   });
 
   it("rejects self-invites", async () => {
     const user = await player();
+    const code = `ref_${randomUUID()}`;
+    await connection.db.insert(inviteCodes).values({ userId: user.id, code });
     await rejectsWithCode(
-      connection.db.insert(referrals).values({ inviterId: user.id, inviteeId: user.id }),
+      connection.db.insert(referrals).values({ inviterId: user.id, inviteeId: user.id, code }),
       "23514",
     );
   });
