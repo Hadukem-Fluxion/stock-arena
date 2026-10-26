@@ -83,7 +83,7 @@ export function measure({
     entries,
   };
   writeFileSync(join(output, `${label}.json`), JSON.stringify(report, null, 2) + "\n");
-  const table = `\n### Typecheck RSS: ${label} (${report.revision})\n\n| Package | Config | Exit | Peak RSS MiB |\n| --- | --- | --- | --- |\n${entries.map((e) => `| ${e.name} | ${e.config} | ${e.exitCode} | ${e.peakRssMiB} |`).join("\n")}\n`;
+  const table = `\n### Typecheck RSS: ${label} (${report.revision})\n\n| Package | Config | Exit | Peak RSS MB | Peak RSS MiB |\n| --- | --- | --- | --- | --- |\n${entries.map((e) => `| ${e.name} | ${e.config} | ${e.exitCode} | ${e.peakRssMB} | ${e.peakRssMiB} |`).join("\n")}\n`;
   console.info(table);
   if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, table);
   if (!allowFailure && entries.some((e) => !e.passed))
