@@ -11,7 +11,7 @@ Free-to-play mini games about tokenized US stocks, running as a **Discord Activi
 | Daily Check-in                   | Once per UTC day. Reveals the Stock of the Day (live price, 24h change, one fact). Streak bonuses on day 7 and day 30. |
 | Daily Quiz                       | 3 multiple-choice questions, 30 s each, one attempt per day.                                                           |
 | Higher or Lower                  | Predict one stock Up or Down over 15 minutes. Three parallel runs, up to 10 correct per run; +5 per correct pick.      |
-| mStocks Flyer                    | Hold to rise through real primary-price charts. Your daily best earns 1 point per pipe, up to 50 per UTC day.          |
+| mStocks Flyer                    | Hold to fly through an S&P 500 stock per building. Your daily best earns 1 point per pipe, up to 50 per UTC day.       |
 | Invite friends                   | +20 to the friend at first check-in; +50 to the inviter when the friend earns 200 game points.                         |
 | Weekly Fantasy Portfolio (later) | Pick 3 stocks plus a captain; scored on weekly % change.                                                               |
 
@@ -38,7 +38,7 @@ Full rules and point values: `docs/GAME_RULES.md`, implemented in `packages/game
 ## Project status
 
 - Done: scaffold, game rules and scoring in `packages/game-core` (tested), TWAP and price health checks in `packages/fluxion-oracle` (tested).
-- T26 predictions and T28–T30 admin controls are integrated. T31 rewards are integrated via PR #27. T33, quiz option ordering and T35 are integrated. T34 referrals are integrated via PR #34. T27 Flyer is integrated via PR #35; its closed-market history follow-up is under review. Track review and dependencies in `docs/TASKS.md`.
+- T26 predictions and T28–T30 admin controls are integrated. T31 rewards are integrated via PR #27. T33, quiz option ordering and T35 are integrated. T34 referrals are integrated via PR #34. T27 Flyer and its history follow-up are integrated via PRs #35/#36. T36 adds the Daylight Market extended catalog and v2 course; review/live acceptance remain separate. Track dependencies in `docs/TASKS.md`.
 - T28 adds the standalone `/admin` hub: Discord web login, revocable 12-hour admin
   sessions, four staff roles, owner-managed team access and append-only audit.
   Setup is in [DEPLOY.md](docs/DEPLOY.md#admin-hub-t28); the English
@@ -596,19 +596,32 @@ pauses claims/bonuses while games remain playable. Admin voids append negative
 corrections for paid bonuses and an audit event. No real database operation is
 part of implementation; all tests/captures use synthetic data.
 
-## mStocks Flyer (T27)
+## mStocks Flyer — Daylight Market (T27/T36)
 
-Hold to rise, release to fall. The canonical 360×480 playfield uses integer physics
-at 60 Hz on both client and server, with touch/mouse/Space controls. Ten pipes per
-segment follow ten points sampled by position from the latest primary xstocks
-observations, bounded to one day's polling budget (24h / configured poll interval).
-Closed-market gaps do not consume that budget, so a reopening combines the new
-session with earlier stored observations. At least ten distinct timestamps are
-required; hourly retained history remains usable. Charts whose newest observation
-is more than 120 seconds old are labeled "Last session". The API
-selects and freezes catalog order, prices, provider metadata and config version;
-missing/incomplete stocks are skipped and pools never enter the course. With no
-complete chart the game clearly waits for more history, without starting a session.
+Hold to fly, release to drop. The canonical 360×480 playfield uses the same integer
+physics at 60 Hz, with touch/mouse/Space controls; a recorded three-second countdown
+precedes v2 motion. Daylight Market renders a sky, buildings, unchanged official
+logos and the Fluxion bird, with optional gesture-activated sound and Telegram
+haptics. Reduced motion suppresses decorative movement and vibration.
+
+Each building represents a different stock from the **versioned S&P 500 ∩ xStocks
+catalog** (468 in the 2026-10-26 snapshot), without repetition until exhaustion.
+Higher positive 24h/last-session changes put gaps higher; negative changes lower.
+The ±5% clamp maps centers to 160–320px. Existing speed/gap ramps still apply every
+ten buildings. One immutable daily course freezes order, heights and company
+metadata for every player on that UTC day. Sessions reference that shared course
+instead of copying hundreds of assets. Results show the best/worst movers passed.
+
+The seven core stocks and their 15-second poll remain unchanged for Home,
+check-in and Higher or Lower. Extended collection defaults to 300 seconds, four
+concurrent requests and a reserved core request budget. It stores a last-quote/
+reference/change summary plus only 26h of temporary primary reference samples;
+closed sessions preserve their last summary. New assets need real reference data,
+normally a day of polling, before becoming eligible. Missing history shows
+"Flyer is getting today's charts ready. Try again soon." without consuming a session.
+Pools never feed the course. Reproduction, dated inputs, logo-color extraction and
+source attribution: [catalog README](packages/game-core/data/sp500/README.md).
+`pnpm catalog:generate` reproduces it offline; refresh is an explicit reviewed action.
 
 Each user's daily best earns one point per pipe, capped at 50 per UTC day. Only
 new best-point deltas are inserted into points_ledger with reason flyer_best;
@@ -617,7 +630,10 @@ Flyer also has best-score rankings for Today/Week/Season. Finish time defines th
 UTC day. After reaching the points cap players can keep improving their score,
 subject to the privately configured finish limit.
 
-Migration 0014 adds frozen, nondeletable sessions and the Flyer maintenance switch.
+Migration 0014 adds frozen, nondeletable sessions and the Flyer maintenance switch;
+0015 adds extended summaries/references and immutable daily courses. Open flyer-1
+sessions remain playable/replayable with their original physics and stored charts.
+See the compatibility rollout notes in docs/DEPLOY.md before enabling v2 on the API.
 Set FLYER_MAX_FINISHES_PER_DAY and FLYER_MAX_SESSION_SECONDS privately on the API;
 no defaults or operational thresholds are committed. Missing/invalid values leave
 the rest of the app working and show Flyer as being prepared. Session length must

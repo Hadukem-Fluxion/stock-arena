@@ -1,16 +1,26 @@
 import { randomBytes } from "node:crypto";
 import {
-  ASSETS,
+  EXTENDED_ASSETS,
+  EXTENDED_CATALOG_VERSION,
   STOCK_FACTS,
   GAME_CONFIG,
   flyerCourse,
+  flyerV2Course,
   gameDay,
   predictionChange,
   replayFlyer,
 } from "@stock-arena/game-core";
-import type { AssetCatalog, FlyerInput, FlyerSegment } from "@stock-arena/game-core";
+import type {
+  ReferenceCatalog,
+  FlyerCourse,
+  StoredFlyerCourse,
+  FlyerInput,
+  FlyerSegment,
+} from "@stock-arena/game-core";
 import {
   flyerSessions,
+  flyerDailyCourses,
+  extendedQuotes,
   gamePaused,
   pointsLedger,
   rewardReferral,
@@ -18,7 +28,7 @@ import {
   users,
 } from "@stock-arena/db";
 import type { DatabaseConnection } from "@stock-arena/db";
-import { and, desc, eq, gt, lte, sql } from "drizzle-orm";
+import { and, desc, eq, gt, lte, sql, inArray } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { AuthError } from "./auth/types.js";
@@ -82,7 +92,11 @@ export async function flyerDayTotals(tx: FlyerTx, userId: string, day: string) {
     );
   return { best: best?.score ?? 0, pointsToday: paid?.points ?? 0 };
 }
-async function courseFromPrices(tx: FlyerTx, catalog: AssetCatalog, now: Date) {
+export async function legacyFlyerCourseFromPrices(
+  tx: FlyerTx,
+  catalog: ReferenceCatalog,
+  now: Date,
+) {
   const refs = [...new Set(Object.values(catalog).map((a) => a.referenceTicker))];
   if (!refs.length) throw new FlyerError("FLYER_UNAVAILABLE", 503);
   // A day's polling budget spans market closures and survives hourly retention.
@@ -145,6 +159,96 @@ async function courseFromPrices(tx: FlyerTx, catalog: AssetCatalog, now: Date) {
   if (!segments.length) throw new FlyerError("FLYER_UNAVAILABLE", 503);
   return flyerCourse(randomBytes(4).readUInt32LE(), segments);
 }
+async function dailyCourse(
+  tx: FlyerTx,
+  catalog: ReferenceCatalog,
+  now: Date,
+): Promise<FlyerCourse> {
+  const day = gameDay(now),
+    [existing] = await tx.select().from(flyerDailyCourses).where(eq(flyerDailyCourses.day, day));
+  if (existing) return existing.course;
+  const tickers = Object.keys(catalog);
+  if (!tickers.length) throw new FlyerError("FLYER_UNAVAILABLE", 503);
+  const quotes = await tx
+    .select()
+    .from(extendedQuotes)
+    .where(
+      and(
+        inArray(extendedQuotes.ticker, tickers),
+        lte(extendedQuotes.takenAt, now),
+        eq(extendedQuotes.halted, false),
+      ),
+    );
+  const segments: FlyerSegment[] = [];
+  for (const q of quotes) {
+    const asset = catalog[q.ticker];
+    if (
+      !asset ||
+      q.symbol !== (asset.priceSymbol ?? asset.symbol) ||
+      q.referencePrice === null ||
+      q.change24hPct === null
+    )
+      continue;
+    const compact = {
+      name: asset.name,
+      provider: asset.provider,
+      symbol: asset.symbol,
+      referenceTicker: asset.referenceTicker,
+      logo: asset.logo,
+      tradeUrl: asset.tradeUrl,
+      primaryColor: asset.primaryColor,
+    };
+    const candidate: FlyerSegment = {
+      ticker: q.ticker,
+      asset: compact,
+      prices: [q.referencePrice, q.priceUsd],
+      centers: [],
+      changePct: q.change24hPct,
+      fact: null,
+      windowEndsAt: q.takenAt.toISOString(),
+      lastSession:
+        q.lastSession ||
+        now.getTime() - q.takenAt.getTime() > GAME_CONFIG.extendedPrices.pollSeconds * 2000,
+    };
+    try {
+      flyerV2Course(0, day, EXTENDED_CATALOG_VERSION, [candidate]);
+      segments.push(candidate);
+    } catch {
+      /* A corrupt quote cannot disable the remaining catalog. */
+    }
+  }
+  if (!segments.length) throw new FlyerError("FLYER_UNAVAILABLE", 503);
+  segments.sort((a, b) => a.ticker.localeCompare(b.ticker));
+  const course = flyerV2Course(
+    randomBytes(4).readUInt32LE(),
+    day,
+    EXTENDED_CATALOG_VERSION,
+    segments,
+  );
+  const [inserted] = await tx
+    .insert(flyerDailyCourses)
+    .values({ day, course, createdAt: now })
+    .onConflictDoNothing()
+    .returning();
+  if (inserted) return inserted.course;
+  const [winner] = await tx.select().from(flyerDailyCourses).where(eq(flyerDailyCourses.day, day));
+  if (!winner) throw new FlyerError("FLYER_UNAVAILABLE", 503);
+  return winner.course;
+}
+async function resolveCourse(tx: FlyerTx, stored: StoredFlyerCourse): Promise<FlyerCourse> {
+  if (!("dailyDay" in stored)) return stored;
+  const [day] = await tx
+    .select()
+    .from(flyerDailyCourses)
+    .where(eq(flyerDailyCourses.day, stored.dailyDay));
+  if (!day || day.course.seed !== stored.seed) throw new FlyerError("FLYER_INVALID_REPLAY", 422);
+  return day.course;
+}
+export type FlyerOptions = {
+  catalog?: ReferenceCatalog;
+  /** Dependency injection for legacy protocol regression tests, never client input. */
+  createCourse?: (tx: FlyerTx, catalog: ReferenceCatalog, now: Date) => Promise<FlyerCourse>;
+};
 const empty = z.object({}).strict(),
   idBody = z.object({ sessionId: z.string().uuid() }).strict();
 const finishBody = idBody
@@ -170,11 +274,10 @@ export function registerFlyer(
     database: () => DatabaseConnection;
     now: () => Date;
     env: Record<string, string | undefined>;
-    catalog?: AssetCatalog;
-  },
+  } & FlyerOptions,
 ) {
   const db = () => options.database().db,
-    catalog = options.catalog ?? ASSETS;
+    catalog = options.catalog ?? EXTENDED_ASSETS;
   async function view(userId: string) {
     return db().transaction(async (tx) => {
       const now = options.now(),
@@ -259,7 +362,7 @@ export function registerFlyer(
               .where(and(eq(flyerSessions.userId, userId), eq(flyerSessions.day, gameDay(now))));
             if ((count?.n ?? 0) >= limits!.maxFinishes) throw new FlyerError("FLYER_LIMIT");
             // Use this transaction for a coherent course; no network price calls.
-            const course = await courseFromPrices(tx, catalog, now);
+            const course = await (options.createCourse ?? dailyCourse)(tx, catalog, now);
             const [session] = await tx
               .insert(flyerSessions)
               .values({
@@ -267,7 +370,11 @@ export function registerFlyer(
                 startedAt: now,
                 expiresAt: new Date(now.getTime() + c.sessionExpirySeconds * 1000),
                 maxTicks: limits!.seconds * c.ticksPerSecond,
-                course,
+                course:
+                  course.version === "flyer-2"
+                    ? { version: "flyer-2", dailyDay: course.day!, seed: course.seed }
+                    : course,
+                dailyCourseDay: course.version === "flyer-2" ? course.day : null,
               })
               .returning();
             return {
@@ -304,8 +411,9 @@ export function registerFlyer(
           )
             throw new FlyerError("FLYER_INVALID_REPLAY", 422);
           let result;
+          const course = await resolveCourse(tx, session.course);
           try {
-            result = replayFlyer(session.course, finish.inputs, finish.ticks, session.maxTicks);
+            result = replayFlyer(course, finish.inputs, finish.ticks, session.maxTicks);
           } catch {
             throw new FlyerError("FLYER_INVALID_REPLAY", 422);
           }
@@ -350,7 +458,7 @@ export function registerFlyer(
             pointsAwarded: award,
             pointsToday: before.pointsToday + award,
             newBest: result.score > before.best,
-            course: session.course,
+            course,
           };
         });
       },

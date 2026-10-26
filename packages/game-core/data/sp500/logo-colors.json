@@ -1,0 +1,2342 @@
+{
+  "A": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/Ax.png",
+    "color": "#008ffe",
+    "sha256": "16f87ab50e0e8d507740114a5c19f2bef17d784de08a469df9dc1fee8b8c282f"
+  },
+  "AAPL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AAPLx.png",
+    "color": "#7c8b9e",
+    "sha256": "930db19951493787ee286650222311b5158317bdb811205b450cfb412ab89295"
+  },
+  "ABBV": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ABBVx.png",
+    "color": "#082848",
+    "sha256": "a891d93422ec764e67a73aca05ae1bfd7bb056bcb8e8bbf2d4ff41abed1bdbce"
+  },
+  "ABNB": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ABNBx.png",
+    "color": "#ff385c",
+    "sha256": "360fc754c8ee2fbcd2f9dd8cc45ba63abed17a00c354a3a62a422c95dc84658c"
+  },
+  "ABT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ABTx.png",
+    "color": "#159bd7",
+    "sha256": "9e7c418611e173bd90bd35b8c8513330ad6b8facddb3cf7cdd338f02775b7124"
+  },
+  "ACN": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ACNx.png",
+    "color": "#a306ff",
+    "sha256": "fea13bedb26f5c3c6b965358f4601534cd47831b3c00639bf40d5ac6bff7d44f"
+  },
+  "ADBE": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ADBEx.png",
+    "color": "#ed1c24",
+    "sha256": "701c102be33b3e32e61b24a722ab2a8c54c098932f1199cf223e0bfa28b43719"
+  },
+  "ADI": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ADIx.png",
+    "color": "#0868b8",
+    "sha256": "425f579be1b43f2879572f900a7a37a6b27b0df91e3a320ebb08f896544046f9"
+  },
+  "ADM": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ADMx.png",
+    "color": "#212c65",
+    "sha256": "663cd2ab95c630e252192653cbea89351f5a9b0a815ea3c80f105c6fc9d43d0b"
+  },
+  "ADP": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ADPx.png",
+    "color": "#ee2722",
+    "sha256": "53b74c6f0f86df3d4a3d57371cf4e67cc0fcf1c38e586a18fd08c60c5495ec2e"
+  },
+  "ADSK": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ADSKx.png",
+    "color": "#7c8b9e",
+    "sha256": "fb5d5e8652d81586195255ac8472b13487bb286b47342f67eda224d6977ba66f"
+  },
+  "AEE": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AEEx.png",
+    "color": "#3e9b2b",
+    "sha256": "bace98e06c2782531072152aa96f69ef447e7f73215177ed0d78cf9c6c98245a"
+  },
+  "AEP": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AEPx.png",
+    "color": "#ed3e26",
+    "sha256": "a7fe4dbf6555e2654f80a62526e4a8d2a66ebc495301d00b493c4bd70200cc0f"
+  },
+  "AFL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AFLx.png",
+    "color": "#00a7e1",
+    "sha256": "aed08aae3269a735332973aa6517669df122727ededbd62c24bcf3a98afb4f4a"
+  },
+  "AIG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AIGx.png",
+    "color": "#001871",
+    "sha256": "9bb56f4e233a9e969b2fd3095e7c0b9cf5c8d99eec32fb183e448c457a861379"
+  },
+  "AIZ": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AIZx.png",
+    "color": "#f89c0e",
+    "sha256": "45a721a1b696d295fbab42b3807bf566ed5f0e4384456a9153d53ff4933e22dc"
+  },
+  "AJG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AJGx.png",
+    "color": "#6dacdb",
+    "sha256": "c3186e3132c7a0f4dbda5b6c3cbd9f672f19205a726d8cde1ecb0bec1abb7a12"
+  },
+  "AKAM": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AKAMx.png",
+    "color": "#ff9933",
+    "sha256": "42c3266237f6cd7c7e2fe13d53ccdb0b10738c477637f72e0a0a524b3dcab4b7"
+  },
+  "ALB": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ALBx.png",
+    "color": "#008676",
+    "sha256": "ec57fd0cd9866854397e29a6be61ac5003cbfd7331dca52df5711780ff090342"
+  },
+  "ALGN": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ALGNx.png",
+    "color": "#009acd",
+    "sha256": "5e990ef7a64b7d01b9e00fb650c0866ae672aa41f194e09130d10e92e365bc6c"
+  },
+  "ALL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ALLx.png",
+    "color": "#0076b8",
+    "sha256": "99450ea74f750eee9f3c865cec2e3e4601fc9d269b28127714efe11ac2782f28"
+  },
+  "AMAT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AMATx.png",
+    "color": "#1d8dc5",
+    "sha256": "cc046e519458b1cc7a631b569be2628f469821118cd6ab3eb92868bde09a7108"
+  },
+  "AMD": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AMDx.png",
+    "color": "#7c8b9e",
+    "sha256": "d4b3a6dc338de3d4e6574d106ee937595557a4aa5a7dfb94a323163be2e9bbbf"
+  },
+  "AME": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AMEx.png",
+    "color": "#ec2227",
+    "sha256": "c26ddb8f9749388df3c757189e3543a15f717d9e97af9ce420aa9de574639199"
+  },
+  "AMGN": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AMGNx.png",
+    "color": "#2868a8",
+    "sha256": "9333b598b5e9068d98833837d3be82b76c6e9e7aecfa4b55d465abfeb2041a40"
+  },
+  "AMP": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AMPx.png",
+    "color": "#0b3865",
+    "sha256": "898b2f4cba90f5948f66cc2351a54cc6c5a9977b307c96de228b8df8eab12ad1"
+  },
+  "AMT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AMTx.png",
+    "color": "#d21241",
+    "sha256": "3860a9d0169ffb160d9e920905ea33b5fc6f85a775fa4668174e0ea9813d93ae"
+  },
+  "AMZN": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AMZNx.png",
+    "color": "#f89808",
+    "sha256": "dbf6bfee7c8cd38e53a9191a5a3df6bbd69690c84a39330228b8cbe203f0d478"
+  },
+  "ANET": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ANETx.png",
+    "color": "#183858",
+    "sha256": "12edc2c295249680fc9d552ed8183eea8d2f0582046308b7b9f712242b3f6159"
+  },
+  "AON": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AONx.png",
+    "color": "#e71d1c",
+    "sha256": "c926de7cc2a8beb555cd7475787d5e19056d9d7fc6698fcbf2a352a791f048e1"
+  },
+  "AOS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AOSx.png",
+    "color": "#007933",
+    "sha256": "cae7b120de6d2d0283ad011a5384d4c7176d7b6df9c7684a72189037e9896274"
+  },
+  "APA": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/APAx.png",
+    "color": "#dba925",
+    "sha256": "addebae2484b819fff514ac12503dcf2c7d1be9aab5708585a132f3804926eb2"
+  },
+  "APD": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/APDx.png",
+    "color": "#009539",
+    "sha256": "c55b9d696ff775f0a663dd68b82bb591120289eba4eb14b783eb4cb74bf9f7b2"
+  },
+  "APH": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/APHx.png",
+    "color": "#0858b8",
+    "sha256": "99af3aa6d3835aa11c1969b74a69fc48103ff354f755dbd97a34cbc92f380291"
+  },
+  "APO": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/APOx.png",
+    "color": "#087868",
+    "sha256": "c0b892c84d476fcd33914d7f7511d2ffa3af50b874779221e60a170aefdfdefd"
+  },
+  "APP": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/APPx.png",
+    "color": "#04aedb",
+    "sha256": "e0e108b151699aa16364591227f9b1bf3a2071c982a90f1a8595ec685807269b"
+  },
+  "ARE": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AREx.png",
+    "color": "#184878",
+    "sha256": "6b2d28c06721a371c808e6994f628245a49f54cd353c76659e719b6a4c83a18a"
+  },
+  "ARES": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ARESx.png",
+    "color": "#1a6594",
+    "sha256": "e0894af50933b7cc7dda10d9932456f2ba6bc97df2b581ff79b2a08fad1f6e59"
+  },
+  "ATO": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ATOx.png",
+    "color": "#0878c8",
+    "sha256": "86abc09f973a7725caafb9a92ef8963bceb3594bde761a8441491036347a7706"
+  },
+  "AVGO": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AVGOx.png",
+    "color": "#c80828",
+    "sha256": "ce27288249edbe36b246d21b661a583b92da9c10a388f2de43b3e5512c0ca95a"
+  },
+  "AVY": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AVYx.png",
+    "color": "#e31c24",
+    "sha256": "cdbaead89d9bb74bdf8f969acc84ed04011d58c5db82bd1b327da2a6bbc35223"
+  },
+  "AWK": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AWKx.png",
+    "color": "#005595",
+    "sha256": "e86a5aaa878132cc776f00c4f9727a46edac763a47140e8e1ee87ee8f35c6c55"
+  },
+  "AXON": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AXONx.png",
+    "color": "#ffd600",
+    "sha256": "ed1a8989d3f3864ae5a0ef558ca1bf4537948ba184bce9e9b4120767f17d5e27"
+  },
+  "AXP": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AXPx.png",
+    "color": "#016fd0",
+    "sha256": "5ca3ff36b9a16978e6371ab9566f495faaba3a24c49fe799e4118df44b3314d6"
+  },
+  "AZO": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/AZOx.png",
+    "color": "#d52b1e",
+    "sha256": "710452b0cf6bbc6f23506d534463f8bb5e3cb7e69990ad70840fc891c1ae9228"
+  },
+  "BA": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/BAx.png",
+    "color": "#0065b3",
+    "sha256": "8605a1abc3d1589b312ce5de748a4f3c502a4653d1dabfebb50d34047708af20"
+  },
+  "BAC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/BACx.png",
+    "color": "#012169",
+    "sha256": "d5ee924462a16288f6908945806344111fbdb8a5ea0e6a50f7d12a80fd66779f"
+  },
+  "BALL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/BALLx.png",
+    "color": "#1140fe",
+    "sha256": "8f788b4879c316cbb1dc5be8b1fd81249fbed5c3403f98f1ac13ea2f3c419fd7"
+  },
+  "BAX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/BAXx.png",
+    "color": "#184898",
+    "sha256": "5dc55e187dbc19b6e2497cfde8aaf630e1edb86aab5b24940b30c824218a90f9"
+  },
+  "BBY": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/BBYx.png",
+    "color": "#0818a8",
+    "sha256": "f3800dafa356b5aeea226bf63308f5edf711ba0e97babe86e7f73b585e5ed88c"
+  },
+  "BDX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/BDXx.png",
+    "color": "#f45b24",
+    "sha256": "4f89f021bd1425ba6bd1b527460db4740f3ce832f321d211bd0b6a1ab67a60e9"
+  },
+  "BE": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/BEx.png",
+    "color": "#30d261",
+    "sha256": "9553cccb0354f5cc67fcac7f08a441c0ee3fea030de1e222c53a3af73a66e17b"
+  },
+  "BEN": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/BENx.png",
+    "color": "#7c8b9e",
+    "sha256": "6b081c514c566922ed2ec788da051b1a530f843e660f0691c8db8694407f8647"
+  },
+  "BIIB": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/BIIBx.png",
+    "color": "#598ac2",
+    "sha256": "4d3f80d9c2667dece9846dffc2ea71ad798c9c438f5f4c19ed15422673bae740"
+  },
+  "BKNG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/BKNGx.png",
+    "color": "#00aeef",
+    "sha256": "b02aeee30deb789130c27158e94cf64ccae515ec6c546db73b4ba2c5269ac837"
+  },
+  "BKR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/BKRx.png",
+    "color": "#013c2d",
+    "sha256": "e1ef49be7f3fe853e86d46b549555cdaf5de57800c04eb9cac8fc667aa68cb4b"
+  },
+  "BLK": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/BLKx.png",
+    "color": "#7c8b9e",
+    "sha256": "072a0a31e481cc49eb1159e9f2ffbafb9d0808702d16a11e33fefdc30bc91da7"
+  },
+  "BMY": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/BMYx.png",
+    "color": "#b828b8",
+    "sha256": "7fb660339fd3295021abcdc78a006e74445bd90c28e19099ee9b85370d0b064f"
+  },
+  "BNY": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/BNYx.png",
+    "color": "#5098ab",
+    "sha256": "38cc5dc4d74fc4a5a70ea57cf66a796446c55a429cd5ed9acf8f13d33b468b32"
+  },
+  "BR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/BRx.png",
+    "color": "#085888",
+    "sha256": "eac16226e70f936d7023ce10d718ed2191e780cfa00d8659a5d01182864781b6"
+  },
+  "BRK.B": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/BRK.Bx.png",
+    "color": "#2b3191",
+    "sha256": "a53d19dce2f6bd8750dc9dfac78801cba6e06ec325122af483d9cc2b3150df16"
+  },
+  "BRO": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/BROx.png",
+    "color": "#002954",
+    "sha256": "e4d6441bf11f705e9f4dc1305b8d1459cce212df9ba49955e201fecbf5e76978"
+  },
+  "BSX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/BSXx.png",
+    "color": "#183858",
+    "sha256": "dd65703272375e80007ec7b0102fac5bfcf2b21c50eed7d9ff11607e84355984"
+  },
+  "BX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/BXx.png",
+    "color": "#7c8b9e",
+    "sha256": "7ef034770187267ef97de84ba9f70a42b31afb0e549252c942f055a4c55d6476"
+  },
+  "BXP": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/BXPx.png",
+    "color": "#28a6de",
+    "sha256": "86df7add6f179703b5f8a2da1497ee577b3b3049707f2382362e221697165a39"
+  },
+  "C": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/Cx.png",
+    "color": "#083878",
+    "sha256": "7dd3cfa0ce1345c980d7fd5015605ab9c2295421ec39b1a0d18228ae2a259f7b"
+  },
+  "CAH": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CAHx.png",
+    "color": "#e41e35",
+    "sha256": "278d6aa860c3cd6148e57f90aa3cc98796d7ee4cc604fb2423ac5bc1c9e6fdc6"
+  },
+  "CARR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CARRx.png",
+    "color": "#152c73",
+    "sha256": "03575cd612e8c1981c7d1e80f4cbdbe10452973a8f0e7987c5a6936d21b9952b"
+  },
+  "CASY": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CASYx.png",
+    "color": "#fb0303",
+    "sha256": "4eb1ee95cfd52395794e7ada5c9690b7d1b8fca3282e7d62d75e1e81bb95370e"
+  },
+  "CAT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CATx.png",
+    "color": "#fec40e",
+    "sha256": "051bd013e6e305eedc0e51bbad2283d3923037bda9fd04b89bf5624979f27ec8"
+  },
+  "CB": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CBx.png",
+    "color": "#08c8d8",
+    "sha256": "fc8cc5c0d664bee78ba3b460f5d60064d462bab081f907ebc5c049e9706298c8"
+  },
+  "CBRE": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CBREx.png",
+    "color": "#003f2d",
+    "sha256": "5ce8398e489cd951b36a88225d5a777abfb700a58db58bb2c213bfd0a9be1a76"
+  },
+  "CCI": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CCIx.png",
+    "color": "#520a90",
+    "sha256": "c17fff2720a6204517141b6913fc940eac94381b377fa9e9ba601baf046a223a"
+  },
+  "CDNS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CDNSx.png",
+    "color": "#e31636",
+    "sha256": "a12ea395fb4190dcb7a201331b195cdf3a52641ee5d4631ed9aae0a6802f3a6b"
+  },
+  "CDW": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CDWx.png",
+    "color": "#e31836",
+    "sha256": "bab658048f005c1bfaafe9ef988ec548f3560f460e69adf0e32aa38fb57ae498"
+  },
+  "CEG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CEGx.png",
+    "color": "#ec7833",
+    "sha256": "fea6ae639982fe8d1814ecaa8f0a7965e8ae8bab80df361e3265587fce7cbf02"
+  },
+  "CF": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CFx.png",
+    "color": "#1574c4",
+    "sha256": "843a09c4baf201ab3c7b2a94006d2af0d503ddc81b2b917a5e925d576fcefe03"
+  },
+  "CFG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CFGx.png",
+    "color": "#00a271",
+    "sha256": "76c60c461de76893b9ef4734e91661e31f5ffb4a78406fa13dd0090526de1a8e"
+  },
+  "CHD": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CHDx.png",
+    "color": "#ba0c2f",
+    "sha256": "554ff19d46aac72f957409b1b5d069a48e0e1fad63ed6cb55c84e41ab9489f9a"
+  },
+  "CHRW": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CHRWx.png",
+    "color": "#27adea",
+    "sha256": "dc22c0a5c87c3fce27b30ade23afc689570528232859c29aa583466e530f3e1c"
+  },
+  "CHTR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CHTRx.png",
+    "color": "#186898",
+    "sha256": "4a2a1b36157cf7c3f407d37c59f6e8c5b25cf98085de3d39c80117e89280bf23"
+  },
+  "CI": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CIx.png",
+    "color": "#0982c6",
+    "sha256": "6858c6983984303151e8954fb391eec679841c7a5c7c11faeea308888ce0dbdf"
+  },
+  "CIEN": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CIENx.png",
+    "color": "#c92027",
+    "sha256": "ad72c15ddb579baaeaadb6296466c99ff0b4fb9055c13a3e42a4042e83016383"
+  },
+  "CINF": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CINFx.png",
+    "color": "#153869",
+    "sha256": "cbf39f1c1943277d6fb69526cc42593640f6a324da4b37ee7c587dc9b7e08879"
+  },
+  "CL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CLx.png",
+    "color": "#0878c8",
+    "sha256": "a26bbbe58e0969946b65dd9d63251fb3279707742ab279efad2e531f5eb82906"
+  },
+  "CLX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CLXx.png",
+    "color": "#0082c0",
+    "sha256": "501768f0d053953ceb577b2d045643722754b63f30936d12d7f142d7f11825cb"
+  },
+  "CMCSA": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CMCSAx.png",
+    "color": "#0089cf",
+    "sha256": "0deb38588a107d9e0cd6004d5f8022e244847c4fc29c4da03756ab3e2c643a56"
+  },
+  "CME": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CMEx.png",
+    "color": "#0480ca",
+    "sha256": "2af764e3ec02e5c43ec4c629fcfff01bd6cf060e64da046cb1d0286c0ea59d96"
+  },
+  "CMG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CMGx.png",
+    "color": "#451400",
+    "sha256": "b2fa405dd74c50a21172f804cc5c014648a5d9fc43b99d98e36340fc8390390b"
+  },
+  "CMI": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CMIx.png",
+    "color": "#c11a1c",
+    "sha256": "ae842842bc890440fa73328c719f726d6dbb8781a100ca981c6ba658301a7905"
+  },
+  "CMS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CMSx.png",
+    "color": "#3893ce",
+    "sha256": "d11dc0ff4a5449759ca655ac7ac45ac610f54a12f5e916ae31204502f3f247cb"
+  },
+  "CNC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CNCx.png",
+    "color": "#084868",
+    "sha256": "e106b6a6e6a22af0a2946598de85a6f97fad029772a345ec0e5ea036947b4c43"
+  },
+  "CNP": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CNPx.png",
+    "color": "#029adb",
+    "sha256": "f9bff3d60c5ea58337ef62a244ae3739425480541f05b7d17a7029d4192a2434"
+  },
+  "COF": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/COFx.png",
+    "color": "#083878",
+    "sha256": "24f13c7e5839142a8b04372545dfc9ad19e8d7392078ab134b797dbba560bd5c"
+  },
+  "COHR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/COHRx.png",
+    "color": "#1838f8",
+    "sha256": "7023d83305e2f266859be6fb7f6f6de869e4a3df77af8718d37e26b59868d047"
+  },
+  "COIN": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/COINx.png",
+    "color": "#0052fe",
+    "sha256": "7b028dd209022659803a269eb4a35f61995249e9e2c17635ffe2db41eefce6d6"
+  },
+  "COO": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/COOx.png",
+    "color": "#01a8b8",
+    "sha256": "f51f0cf91e1765efa4c0dac2ea3157c5e309dd6787954afeb9ff574f72c3c1b3"
+  },
+  "COP": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/COPx.png",
+    "color": "#ff151f",
+    "sha256": "55c37b7be4723f3c3b39e5d01a9a3b76e0aa1f46b523102c0c2e0018faacf709"
+  },
+  "COR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CORx.png",
+    "color": "#481898",
+    "sha256": "fddd38c552e99cc4782867c33a579f90d30a9a98893895d814965607dc5fe2e5"
+  },
+  "COST": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/COSTx.png",
+    "color": "#0858a8",
+    "sha256": "ff98469e4000897030eb0179bf5c5b83b269ca329a8f92069f9f5fa17e6e7380"
+  },
+  "CPAY": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CPAYx.png",
+    "color": "#bd1549",
+    "sha256": "ae1944a73744dc42bb1f4bdaf2aad8b5efae3d18c814472dcf96247451bb9d47"
+  },
+  "CPRT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CPRTx.png",
+    "color": "#0d5db8",
+    "sha256": "dacfe6ad9db3a4715dc88466a26bb8b94ebb9b1890cc120de2e6f7dbc985869a"
+  },
+  "CPT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CPTx.png",
+    "color": "#81be27",
+    "sha256": "c356679f1636ad3f6ebce108bd2898ad160110ec80c46231df2d6a98b7a2e550"
+  },
+  "CRH": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CRHx.png",
+    "color": "#0e188a",
+    "sha256": "8874f0cada4da3bc99ca2bc95c6c3f98cdbb0dbf4578fa0c787b9f40201cfbca"
+  },
+  "CRM": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CRMx.png",
+    "color": "#009cdb",
+    "sha256": "0d861c222fc5bc188e84a6c661c200d7174c2926458319686f1a745d2a664c7b"
+  },
+  "CRWD": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CRWDx.png",
+    "color": "#f80808",
+    "sha256": "33299b93e019c0a48198e7fa2f12aa3150bab356e4f14c7b51e14d72d698a0ec"
+  },
+  "CSCO": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CSCOx.png",
+    "color": "#18a8d8",
+    "sha256": "c8e140cf292c37769f2ab10be88fdfbdfe00d1505c81a88e095108344fcac44b"
+  },
+  "CSGP": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CSGPx.png",
+    "color": "#7c8b9e",
+    "sha256": "7cf1638f046f5f7d237aae28b6aaf820a6a6278cb784ebe0d9c6265dc7706c76"
+  },
+  "CSX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CSXx.png",
+    "color": "#104f8c",
+    "sha256": "50cd6860fcc1585a90176c6954a23d64108151530b63c6fa8628b1087dfc53fd"
+  },
+  "CTAS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CTASx.png",
+    "color": "#022169",
+    "sha256": "35dbcaa7cae44801392cd4ced09f88af98573b57d08908e49dbe83de56a983e2"
+  },
+  "CTSH": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CTSHx.png",
+    "color": "#3897cf",
+    "sha256": "83002509778a35b74db151d064d19397a8e44b365218f33670c4d8f1b9c109d3"
+  },
+  "CVNA": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CVNAx.png",
+    "color": "#39acd6",
+    "sha256": "cf97f3ad9dba6cd918ec546bb04bdd0d5838f859a14a4ab2ca7c61b47a92abf5"
+  },
+  "CVS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CVSx.png",
+    "color": "#c80808",
+    "sha256": "78fb6db024a71ac4aecb80368b7024a99a034e35c4409de7412a714e2367d9d6"
+  },
+  "CVX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/CVXx.png",
+    "color": "#00a3e9",
+    "sha256": "0b6fbe039b63a817026bb9c241d394f33238beffbbd4e92516f83d4aa207d769"
+  },
+  "D": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/Dx.png",
+    "color": "#2c6cbe",
+    "sha256": "cde98f3051af5835b69790d0d7b66af751331e4cca751a9ba6ac744128f6a70d"
+  },
+  "DAL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DALx.png",
+    "color": "#081135",
+    "sha256": "6a145f3956c440f727b2fdab266be08040fe3d75224947da146f2e7ac1c137d6"
+  },
+  "DASH": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DASHx.png",
+    "color": "#ff3109",
+    "sha256": "a093a9e129c97b9624fb7792203a8c3711cfa6df7836e98edb9093ebc9d8d9b4"
+  },
+  "DDOG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DDOGx.png",
+    "color": "#632ca6",
+    "sha256": "75893969ab69549adaf04d6a103df902f9d25179ac6a1869ce778b2fd6b458f9"
+  },
+  "DE": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DEx.png",
+    "color": "#287818",
+    "sha256": "0a2fd139a46d20fece2b3f00e663da7c8e42c69ec7ba87cdfc7aa31c7e5c01f9"
+  },
+  "DECK": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DECKx.png",
+    "color": "#233d42",
+    "sha256": "8a2741d82670e00f2e80e5fc477448c65f5fb93789ea567aef9b3d7abb2a4fe1"
+  },
+  "DELL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DELLx.png",
+    "color": "#007db8",
+    "sha256": "95adcc037abadc475ca053f3f030bc6e9ea6b8818fc49bc87d655a78c2520396"
+  },
+  "DG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DGx.png",
+    "color": "#f8e808",
+    "sha256": "416aaae4b99c01c1e267d73da3abebb267c50143444423237927b4e5b98f87bb"
+  },
+  "DGX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DGXx.png",
+    "color": "#97b72d",
+    "sha256": "f748b63daa4bd64646e40fc14750cde0b58276831cee78a3c3ca7324fcf923aa"
+  },
+  "DHI": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DHIx.png",
+    "color": "#00205b",
+    "sha256": "10fbdf7cea58aefe13237cbe1d77ff26b747c39375449c4a5c401f664edab56e"
+  },
+  "DHR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DHRx.png",
+    "color": "#7c8b9e",
+    "sha256": "ee36b33baa08801328ba7d77d6a6b327ef7d5f42a93a7a98f9de845c2c99e980"
+  },
+  "DIS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DISx.png",
+    "color": "#187be0",
+    "sha256": "79000e1940e1f14cfd1ff3405b9e4a5b4904fca11e1e49f073ce40942ddef476"
+  },
+  "DLR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DLRx.png",
+    "color": "#7c8b9e",
+    "sha256": "fcb9de2e463aef9e40b01fe872adc752a95b894238e443a445768a8ae56b9e80"
+  },
+  "DLTR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DLTRx.png",
+    "color": "#6fbe49",
+    "sha256": "9b8bc32d3ecc591d869ef6320381cc1ecf4387b26da9d5b34e84351ec295183f"
+  },
+  "DOC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DOCx.png",
+    "color": "#7c8b9e",
+    "sha256": "c808a038b853c35b326c1017d98145b7910eddbac47a0e87e1eabc5a9fa67c67"
+  },
+  "DOV": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DOVx.png",
+    "color": "#004c9a",
+    "sha256": "832e8086ce633d4f980c4e29e6a408fc814c74c66691358ea1f63b74a1a7c7b7"
+  },
+  "DOW": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DOWx.png",
+    "color": "#e81828",
+    "sha256": "47b533808ae2b932c68879ccfe8a78f7fff5ff69ea022514b863105099b89fd4"
+  },
+  "DPZ": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DPZx.png",
+    "color": "#0090e2",
+    "sha256": "94ef808f9c99d3866084ed68103d25d7d21f073cf2bccdbc6e8c20c5eff36f64"
+  },
+  "DRI": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DRIx.png",
+    "color": "#8b171a",
+    "sha256": "93486eb9d8fdff55a3baf4341640471c97809bb9d4b28dd8aba76484d41ef44c"
+  },
+  "DTE": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DTEx.png",
+    "color": "#00477f",
+    "sha256": "f7f38dc104fcb195ed4815db4193f2fb27a556ed3d18d117d72986feab7e9e0f"
+  },
+  "DUK": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DUKx.png",
+    "color": "#26bcd7",
+    "sha256": "e8ca45ace3312c3694cb5252ad0e08f1e57d8531aaf3004878c6d707e92c6dd8"
+  },
+  "DVA": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DVAx.png",
+    "color": "#036ab4",
+    "sha256": "41637da5c81f6c95000a9aa1ca36bfa43a26105fff12f206ace31a3f8f94507e"
+  },
+  "DVN": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DVNx.png",
+    "color": "#f04105",
+    "sha256": "76c9d09405a402f08af2b71ac1bd85312608dbb53284737978ca787d3c1b548b"
+  },
+  "DXCM": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/DXCMx.png",
+    "color": "#63a844",
+    "sha256": "62aa3fb64111a54f74de7e95237599da15b36e353524d5e955e836be961a74b2"
+  },
+  "EBAY": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/EBAYx.png",
+    "color": "#0968f6",
+    "sha256": "55cf998f61f43aa302a38cbd2a04b4168513bc227ca9bf2fe11ed0a13ed8a628"
+  },
+  "ECL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ECLx.png",
+    "color": "#0098cc",
+    "sha256": "9e984d4e8b925ef8389d4aa7a4f59118cf785fa2e4fbef720660dbbe6480c798"
+  },
+  "ED": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/EDx.png",
+    "color": "#0898d8",
+    "sha256": "145c592adba8126614a51333e407784e3fc2988251cedda10426d67872f256e2"
+  },
+  "EFX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/EFXx.png",
+    "color": "#ff0200",
+    "sha256": "f3460525b16355c74d9be5461c630dc9c4095ef6fb4c087c2e3605f18538e30e"
+  },
+  "EG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/EGx.png",
+    "color": "#2858f8",
+    "sha256": "dcc483649d86c857d58f8fc5489edb088d3e3f08c1d5a5193a931ab87c4985e3"
+  },
+  "EIX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/EIXx.png",
+    "color": "#ffd046",
+    "sha256": "f75ab73eafc457800d59a10799a2e24cc59c0cbf677b32d9444313719a1201cb"
+  },
+  "EL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ELx.png",
+    "color": "#0d3469",
+    "sha256": "5699e18dfc6611a3d57be4ceed1d06e6604a2de5bfe38edefd9bfea658ad6416"
+  },
+  "ELV": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ELVx.png",
+    "color": "#1a3673",
+    "sha256": "08b7ac12f2f6afd654db761207e745d0be7655dfd805aac87df9d52b840e5c8e"
+  },
+  "EME": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/EMEx.png",
+    "color": "#018286",
+    "sha256": "bf72644bdab6eb802a2a0e9e1c9da05f4c59462966552f15d70f35b37c6bb81b"
+  },
+  "EMR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/EMRx.png",
+    "color": "#014785",
+    "sha256": "b6ee19a4c090545a44a23d0936edae255ccd56bc362169c9ad13a8cb638b22f8"
+  },
+  "EOG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/EOGx.png",
+    "color": "#e33437",
+    "sha256": "e4b2167055e31591b117397e7cd9bb14947d04775d0f1b2e6c820e57960b2174"
+  },
+  "EQIX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/EQIXx.png",
+    "color": "#e91b25",
+    "sha256": "656af805347dd329a245cb81dd6cabe5e9bf7c618c49dbd7779321727228a8c7"
+  },
+  "EQT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/EQTx.png",
+    "color": "#182858",
+    "sha256": "e0ba640b33eeae8cadf62c54da40938cde95b8bd921d3a02a086b4e40b988f11"
+  },
+  "ES": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ESx.png",
+    "color": "#00b042",
+    "sha256": "21329b029192bb99aeb6d4e16527c74c47c8d08f421fd47ec3c0db38456aa9f8"
+  },
+  "ESS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ESSx.png",
+    "color": "#00828f",
+    "sha256": "8046974860dc17b24c026f0054a3ca7bec5899491672e4d85c3534f5d2f65e92"
+  },
+  "ETN": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ETNx.png",
+    "color": "#1878c8",
+    "sha256": "be0fffdfd27371946df902f8c72a1ebec17ec6ab2b7129773b505731bb227e6d"
+  },
+  "ETR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ETRx.png",
+    "color": "#ff1a58",
+    "sha256": "3e1db827f32e2515a32625e4efd7b9c8de8525457dd3dc64d62d45149ad2fbcb"
+  },
+  "EVRG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/EVRGx.png",
+    "color": "#307cc0",
+    "sha256": "643748bd11e77bfc39087f39446fdaa9be597e601d5e10f8c77b5770faec2eaf"
+  },
+  "EW": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/EWx.png",
+    "color": "#7c8b9e",
+    "sha256": "c3578748b46f066c19c0112bed9ea191c3e45f18ea8ab2977bd15c9d3e47fb07"
+  },
+  "EXC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/EXCx.png",
+    "color": "#181868",
+    "sha256": "cf1d96996e1acdec378702a11a137246e60de82b573bed26aed85c4278327750"
+  },
+  "EXE": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/EXEx.png",
+    "color": "#30a4dc",
+    "sha256": "1c2e9aac44f6fb66b14c98cc38b8508d028c56a1bd24a77cfbc7bf68e43c4df2"
+  },
+  "EXPD": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/EXPDx.png",
+    "color": "#fe0000",
+    "sha256": "22e3df870de72fbe70bd1079f3ab29773a59e1cac9b70bddf867c6f07c157ae2"
+  },
+  "EXPE": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/EXPEx.png",
+    "color": "#181898",
+    "sha256": "420325ea8b75c702bb2464269a7612a354ca29d8590bddf840df1f79df5490e2"
+  },
+  "EXR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/EXRx.png",
+    "color": "#92c528",
+    "sha256": "569df1fc4bf3efe96321eaab47ccf78c3ce91e77643fbc535c1d5057bd51e77d"
+  },
+  "F": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/Fx.png",
+    "color": "#181868",
+    "sha256": "def5b76d61e911efcdab4ac46034b5d6224eee426869abd1da1af11129ed1144"
+  },
+  "FANG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/FANGx.png",
+    "color": "#a96c13",
+    "sha256": "60925e207316ac27e48d50466a8b608f6e1b0724445142155b53680c6a3b3ff0"
+  },
+  "FAST": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/FASTx.png",
+    "color": "#1868b8",
+    "sha256": "d86e9e34da5994bc634b39945f0e1b0a52923d7f9801cb09451b02fb7b1b98f9"
+  },
+  "FCX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/FCXx.png",
+    "color": "#4eade3",
+    "sha256": "e1d9f1daa9f8214a226ca4ed1c0ff3581e19d6283999f1b176af2aede3eb5530"
+  },
+  "FDS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/FDSx.png",
+    "color": "#41b3dc",
+    "sha256": "9555dbfde4d579d192cf5092e6f99026c803aca64ae12596a6a1bc7390e9fdad"
+  },
+  "FDX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/FDXx.png",
+    "color": "#481888",
+    "sha256": "4f85426b7dc36d022a33fe2f9c7ecad42de6c6b4bea81045328cdfc1e47555a9"
+  },
+  "FDXF": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/FDXFx.png",
+    "color": "#ff6201",
+    "sha256": "7936fc4a89c2878a2a178fce77126202bfcfb8d56ff5060e28e00a91f14e10e6"
+  },
+  "FE": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/FEx.png",
+    "color": "#0159a9",
+    "sha256": "ea9faf890c3fbe70352400bb5aa9028dad30f0f8dab1cff5b9056ef95aeac7b6"
+  },
+  "FERG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/FERGx.png",
+    "color": "#084868",
+    "sha256": "ced4caeccdebd7c8e9783ccd61978bdcb02fd919924e142b9c2825c3f0701f6f"
+  },
+  "FFIV": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/FFIVx.png",
+    "color": "#e21d38",
+    "sha256": "bc396a1df809971c3c6db290e9d51fc9a034c56f1ea3d06ef7a26bfd9378cc63"
+  },
+  "FICO": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/FICOx.png",
+    "color": "#0868e8",
+    "sha256": "7914bba7c16fcb04b489fb1c69946208f973f5f7096fe180571c2bf7cc6f749e"
+  },
+  "FIS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/FISx.png",
+    "color": "#78b828",
+    "sha256": "48fbea4d42895fd72d774d698e9b31bcc985ba6a1932b3da423a39d4df3cd3a2"
+  },
+  "FISV": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/FISVx.png",
+    "color": "#ff6600",
+    "sha256": "ec7f1e56441e2f9f65a01e906b82a0dacc6c100869b0952654ff24ed2fdae623"
+  },
+  "FITB": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/FITBx.png",
+    "color": "#1c4094",
+    "sha256": "08946078a54475768ae9d85a3e380f749e3eeddb91e39ed35d55101559182f51"
+  },
+  "FIX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/FIXx.png",
+    "color": "#c82a34",
+    "sha256": "e06e2aa16989b0a72ab9d0ef54039ac1eaaaebf87c095c557919f89b7fd8f1b0"
+  },
+  "FLEX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/FLEXx.png",
+    "color": "#0099de",
+    "sha256": "bf953fc09082a5d82ecdbebf67c0a3dacaaa21acd36031421a82d6e5108be506"
+  },
+  "FRT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/FRTx.png",
+    "color": "#f93b25",
+    "sha256": "67f653ad9eec5439f89ec9f05095419da353293de6748cd1fc3b345a0b22891b"
+  },
+  "FSLR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/FSLRx.png",
+    "color": "#d42e24",
+    "sha256": "24966d98d12cafc257f6915a62e9f868c17101bf098c02a021e2148e6c0a3ebe"
+  },
+  "FTNT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/FTNTx.png",
+    "color": "#f80808",
+    "sha256": "f0113c0f90b6ca468e45c8ad05d2ae5b2bd13fd6f2e10692d57a8272b02e64b4"
+  },
+  "FTV": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/FTVx.png",
+    "color": "#68b848",
+    "sha256": "60fdb45d59b013ce3263868af2937d9303a94a8d5348ec08dd2edca764246bd0"
+  },
+  "GD": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/GDx.png",
+    "color": "#184898",
+    "sha256": "dcda18135be2b74bfd3a7e2fbef074dbdb8591641fe6d69dcf01eafc1a49e282"
+  },
+  "GDDY": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/GDDYx.png",
+    "color": "#1bdbdb",
+    "sha256": "86f6a82d6488928fd62ccb02fa0171abc5b4f882c1451b5dd9703a7b4e618675"
+  },
+  "GE": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/GEx.png",
+    "color": "#000233",
+    "sha256": "ec0ffdd5dea7535663c54808b8b1319e14c26100e9eefec5c46a4988ca513581"
+  },
+  "GEHC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/GEHCx.png",
+    "color": "#640acd",
+    "sha256": "0ec5c6d426b9f2a4653a45c19fa3e787a5dc3a7591b8a9fe87f90b5cb6b470e0"
+  },
+  "GEN": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/GENx.png",
+    "color": "#0000ff",
+    "sha256": "7e74b2d7f56e28037df8d6f9447abd979254349dd9b4074917fd108e15b202d5"
+  },
+  "GEV": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/GEVx.png",
+    "color": "#005e60",
+    "sha256": "13c577c97bc6ac07369b32472cf36231c0c97436c53727818ca0d551abe912d0"
+  },
+  "GILD": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/GILDx.png",
+    "color": "#d81848",
+    "sha256": "63ccf79aa682386816802ceab40a803f06b43c6ede65092f7c474fe648778780"
+  },
+  "GIS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/GISx.png",
+    "color": "#284898",
+    "sha256": "77f981516cdcb7130296d4767059603557cf2a6b7399733de7d1d9184cf86d61"
+  },
+  "GL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/GLx.png",
+    "color": "#005c8e",
+    "sha256": "c77c06799e82b1efa68850d2cbd1cf9596bc639a9bae25023ece2f2ff4503d25"
+  },
+  "GLW": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/GLWx.png",
+    "color": "#0848c8",
+    "sha256": "31c2406ac71d001d1a2162d9b8ac8ea15b488ee84fe49915183435cb6c06867a"
+  },
+  "GM": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/GMx.png",
+    "color": "#0878d8",
+    "sha256": "32571432bb87b73af5b44f2253344def00ec9f8fc6f465cffbdd2baad4185092"
+  },
+  "GNRC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/GNRCx.png",
+    "color": "#d35e13",
+    "sha256": "a6f3a3d6862f1a198210807b28e034e13bfa798224909b669ba64de27a392c4b"
+  },
+  "GOOGL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/GOOGLx.png",
+    "color": "#f71603",
+    "sha256": "b9240e1eb8a5174f437d82eb7852e54f318ae05f55409be38df3b851f9a8e876"
+  },
+  "GPC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/GPCx.png",
+    "color": "#102e87",
+    "sha256": "f76b47b60efb7abd4340755f2ab35ad342340ba542b9f5bc3792dbad467ba61a"
+  },
+  "GPN": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/GPNx.png",
+    "color": "#084878",
+    "sha256": "2f4ed277a255f90464a59e419d7dabf6695f67bf7436c2c1d9403348303cd22d"
+  },
+  "GS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/GSx.png",
+    "color": "#6898b8",
+    "sha256": "6192e03bcbc0a890dcd9f22a687102bfb85ab11c46d4fa0813133ba59595b79d"
+  },
+  "GWW": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/GWWx.png",
+    "color": "#ed1b2d",
+    "sha256": "2978382b5df65381a97681bcf36b84911237d763f7f655ef3615d05584a06b7b"
+  },
+  "HAL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/HALx.png",
+    "color": "#c82838",
+    "sha256": "21f78da112ac03e2f5a91b5489af2ae9cfd5995f4049fd7b86f7f36d020e373c"
+  },
+  "HAS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/HASx.png",
+    "color": "#0878b8",
+    "sha256": "fa42bacb16d36b2123acf218275043adcec12c2ec95c3514106bb6db4976c79f"
+  },
+  "HBAN": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/HBANx.png",
+    "color": "#58a838",
+    "sha256": "4689724a904cf5bf94d4421b4a719f264bf6cf99f3345f5655c4c37b798498e2"
+  },
+  "HCA": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/HCAx.png",
+    "color": "#e05929",
+    "sha256": "c79dd38e9bd12821db167ceda5a0344fa68f973659d90763ea7ab2b229a57bcb"
+  },
+  "HD": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/HDx.png",
+    "color": "#eb7c16",
+    "sha256": "1d2c4dffe489a52f42bffff6bc3e9d5ee0be7b7a97d628f843d95e8a4d704830"
+  },
+  "HIG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/HIGx.png",
+    "color": "#38c8f8",
+    "sha256": "60797e6f9b49373293dfd58e03d941c4eb8633285d81b6f0347cb6dcda3a294a"
+  },
+  "HII": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/HIIx.png",
+    "color": "#003b4d",
+    "sha256": "b4cec8bb4591ab69a963f136ef34e93365008d49c70bc42fd1b218bc8da37d2b"
+  },
+  "HLT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/HLTx.png",
+    "color": "#7c8b9e",
+    "sha256": "4b2c5831f6b5598f55452ddece3ea3d117e76f51d9f8c7a42226c19bd9a99282"
+  },
+  "HON": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/HONx.png",
+    "color": "#de1e34",
+    "sha256": "906846f16b7e9624fb47a8d71be46cd41cf13dac4dbf4d2d32a7a0058b54a818"
+  },
+  "HOOD": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/HOODx.png",
+    "color": "#caff00",
+    "sha256": "aa5cb6f961da95ca81791268e5c0f7e5e309c8156303920c6c45b74aa1e49d2a"
+  },
+  "HPE": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/HPEx.png",
+    "color": "#08b888",
+    "sha256": "59aee1aa4d95b81cc5afaec243df008486a36710f60fd9c94e929f21945f6024"
+  },
+  "HPQ": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/HPQx.png",
+    "color": "#0096d6",
+    "sha256": "a6e5901da691ccc4e1811d7204db9c73cbc47bef446dac542495015cfd4a2989"
+  },
+  "HRL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/HRLx.png",
+    "color": "#ed1c24",
+    "sha256": "4b88785f59bbb92f2bc8f06c03fb4483de2869afc4952f3e54a30e92e686fedd"
+  },
+  "HSIC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/HSICx.png",
+    "color": "#eb2a2d",
+    "sha256": "726f6be928da25401d8892f01f80522df018d7678bf111fa0f3e000d4813ea11"
+  },
+  "HST": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/HSTx.png",
+    "color": "#001745",
+    "sha256": "30d08404aa64648f272d5701ce7ae8695461c8d55f8964a4357e29a73237aca9"
+  },
+  "HSY": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/HSYx.png",
+    "color": "#3e000f",
+    "sha256": "912cc40d95116ae87bfd7f84374578851f8abf8087c0aaeec5cd79027080c820"
+  },
+  "HUBB": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/HUBBx.png",
+    "color": "#ffdd00",
+    "sha256": "2eb4415d4c098faace6150bd19d774de090df523da934ada2a387f02cf71e40a"
+  },
+  "HUM": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/HUMx.png",
+    "color": "#78b818",
+    "sha256": "483a603567abde1f47506d63b15e2589c8d5df61d716ddc1de8959899f618f8f"
+  },
+  "HWM": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/HWMx.png",
+    "color": "#00abc8",
+    "sha256": "d86773f8ee99555ea57f8280949e786c5496eb23f926bf4d59d53342b1f12566"
+  },
+  "IBKR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/IBKRx.png",
+    "color": "#d81222",
+    "sha256": "8406178dc7b469e4e5b0bfeb63706d3be28910ed9f6959b79ca9c9f69de4fe98"
+  },
+  "IBM": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/IBMx.png",
+    "color": "#0f62fe",
+    "sha256": "5cd2d8e2e55ba9bfcdc7e3b24fdcee9387e8b1e6c8f65c7d7f4c55508f457412"
+  },
+  "ICE": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ICEx.png",
+    "color": "#79cdf4",
+    "sha256": "bce0a0510b5d6f4ee9d4de3fb591803f76b6d7f4f73717fdc8b463423c4b8194"
+  },
+  "IDXX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/IDXXx.png",
+    "color": "#7c8b9e",
+    "sha256": "bc1825f2cdc075b099fead5ea79421f21fea53d42758effdc91194a9f5e043f7"
+  },
+  "IEX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/IEXx.png",
+    "color": "#007dc3",
+    "sha256": "ede7ea3f34527f61367561997403209b791765153ceba50c1707ef25cd1d419b"
+  },
+  "IFF": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/IFFx.png",
+    "color": "#0175ce",
+    "sha256": "5998ebcbe8a51a3dec2db6e71121a0613035c9138592e4e602aede0d443eb432"
+  },
+  "ILMN": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ILMNx.png",
+    "color": "#feb441",
+    "sha256": "b7eef07c8ebe1608b5be9d01861fbf7bde0e49a1c8f6c3108fb3090d405cba5c"
+  },
+  "INCY": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/INCYx.png",
+    "color": "#3366b8",
+    "sha256": "69b715c82012d3649e0b77b9a5dc275ad145c53f3220296c3c0bce8be6e86934"
+  },
+  "INTC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/INTCx.png",
+    "color": "#1858a8",
+    "sha256": "9d2a44123644f9dc5380fa51b2db887fbf9a0e16ec395ae29c088a85f64ee44f"
+  },
+  "INTU": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/INTUx.png",
+    "color": "#3858b8",
+    "sha256": "71355b03402671445015f5f68945f3a3621e9aaed915fafd5952e912c39341bc"
+  },
+  "INVH": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/INVHx.png",
+    "color": "#9fcc3b",
+    "sha256": "5548c456ea54c111f772809ea86ddb0d546ca7bd4a0d082a2a5d9c82582d62d6"
+  },
+  "IP": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/IPx.png",
+    "color": "#006963",
+    "sha256": "6cf4ee866b4c7b55d1042de2709c3a34b4e13995d723da507302eca1ef050ea6"
+  },
+  "IQV": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/IQVx.png",
+    "color": "#7ea9c3",
+    "sha256": "d8af8bc9e2c3900dcd216b8084a3717b8287f4132425abc94b975b487ac8f22d"
+  },
+  "IR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/IRx.png",
+    "color": "#d52b1e",
+    "sha256": "5ac28bd4aa8534555e698af144c4131890b78f40c5ae46418f2b5fcd2b6f09de"
+  },
+  "IRM": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/IRMx.png",
+    "color": "#7bb7dc",
+    "sha256": "64c0ec1bc7d522a9614ea3471e2a5a4a72158e3145b7fae66b6dd32f3b8b3b4b"
+  },
+  "ISRG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ISRGx.png",
+    "color": "#1d22ba",
+    "sha256": "d49dc90c5d666d3f1a54c14c74921c8ea2f2e9040018b30c9fe3da5edc4e99bc"
+  },
+  "IT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ITx.png",
+    "color": "#082868",
+    "sha256": "d24db0b5abe14241b940ea8d6b0a40a3475d53bf56783fec2135467e476b5d8e"
+  },
+  "ITW": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ITWx.png",
+    "color": "#b82818",
+    "sha256": "e2afa319afe355ff7e9027cbaa806d879b7dbf02d2a6dad58af5be334ffcfd04"
+  },
+  "IVZ": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/IVZx.png",
+    "color": "#000ad2",
+    "sha256": "ef8778ce76e2300a44cc6bd6a263336d9dac6acbfff4f09da1e8a419e7c87ee6"
+  },
+  "J": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/Jx.png",
+    "color": "#7c8b9e",
+    "sha256": "290c08fbd0184bdfa342645727ef019edf934b7252364144241d8beb0d33cd75"
+  },
+  "JBHT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/JBHTx.png",
+    "color": "#ffe211",
+    "sha256": "ff77b88a35aaeb223424c2f8cedeab9b07f64288d1f97043c267ebf3d73cf282"
+  },
+  "JBL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/JBLx.png",
+    "color": "#002b49",
+    "sha256": "6f4e9433d71960df378627488a5f80032b9370363cfc48d9dba12a7a279145b6"
+  },
+  "JCI": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/JCIx.png",
+    "color": "#0554a3",
+    "sha256": "e4852f6ccd4a6517ecef19733a3b3546cebdcfa67310d6238b59dbb6d815e0e2"
+  },
+  "JKHY": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/JKHYx.png",
+    "color": "#06175e",
+    "sha256": "a8b5724ec5dfae4d105c79920e3f6672b3ba74bbbab4489386c94bba0b021728"
+  },
+  "JNJ": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/JNJx.png",
+    "color": "#e80808",
+    "sha256": "da30d05f6023b5cad28ab890ba8bee909b84739eae9c1ff1002183cbe1b15f45"
+  },
+  "JPM": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/JPMx.png",
+    "color": "#734026",
+    "sha256": "003f276ba1adc8e2bcaba17ab76757a5f13b264a21714b51e22ddbb4e41028e3"
+  },
+  "KDP": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/KDPx.png",
+    "color": "#df2655",
+    "sha256": "a8ad0990bb5e701a1ef4c0f628bac771eab8686073c79683eb22715674884581"
+  },
+  "KEY": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/KEYx.png",
+    "color": "#b30100",
+    "sha256": "d58e9363afadff652cda767fe61a08cb811ae715dc2da36956f5e8c16ab1097c"
+  },
+  "KEYS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/KEYSx.png",
+    "color": "#e90029",
+    "sha256": "a3fe32d2bda5564369cd7e6d2f31779e66973a06b155c6052497e69210005a91"
+  },
+  "KHC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/KHCx.png",
+    "color": "#1d3c6d",
+    "sha256": "c87d8d431243c39f73a0bba0f1570037b9dc1f3734ef03fe2925fb23bd459383"
+  },
+  "KIM": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/KIMx.png",
+    "color": "#0c3063",
+    "sha256": "f6acdaae5640f86de24a21b7e19bfcbdac5739c3b5113afe3e119c22028ad903"
+  },
+  "KKR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/KKRx.png",
+    "color": "#5c165f",
+    "sha256": "55528a0e3d317ae43cfaa2b43c55d04029bb7436eae4c88622b176b8d3bd690a"
+  },
+  "KLAC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/KLACx.png",
+    "color": "#41007f",
+    "sha256": "2288e8f0188ba78d79402780df2759ca672c7f3a8bbbf4deb45b3326488cf30e"
+  },
+  "KMB": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/KMBx.png",
+    "color": "#0046c8",
+    "sha256": "2a8c7f9bd356e0691670075e67ad81a1db1bb78832ab40f3bf7ff6890f7f892c"
+  },
+  "KMI": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/KMIx.png",
+    "color": "#f37659",
+    "sha256": "cbdfe2ae5d26790216a8c40e7b20dd40d4ac951cb81e3d14185194ea9bce2723"
+  },
+  "KO": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/KOx.png",
+    "color": "#e81828",
+    "sha256": "389e72a18b8e1f84392b517d4b5926685f6eac9e6db7841888246a151887f39a"
+  },
+  "KR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/KRx.png",
+    "color": "#0468b3",
+    "sha256": "38274b55da7ed399bc30058f3cede1262ba2071ca5f7d664909844c8eccb6410"
+  },
+  "KVUE": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/KVUEx.png",
+    "color": "#008570",
+    "sha256": "127631e99ff924ad2bc04a35bcff098f22269a087503df4f8aff90c87a84202b"
+  },
+  "L": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/Lx.png",
+    "color": "#2e65b0",
+    "sha256": "c00e687d7e171ae223d042b51c315b03e363ec382886d18bbac937ee004574d3"
+  },
+  "LDOS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/LDOSx.png",
+    "color": "#8e2787",
+    "sha256": "52e986c8abc8483a2635d439542e05545f41f068fa688c76abbe39d42712eb8f"
+  },
+  "LEN": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/LENx.png",
+    "color": "#005daa",
+    "sha256": "f2b041c3ee9e936b18f682c06bcb236a570c4b2e239ecd176e73fc50fe94ebc9"
+  },
+  "LHX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/LHXx.png",
+    "color": "#ed1c24",
+    "sha256": "873505d2df3897929e769a8cc7fc325018936f5a709b0eb7a25825b46b830080"
+  },
+  "LII": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/LIIx.png",
+    "color": "#a41c27",
+    "sha256": "1c749514ea7eae74a2707d846ee665247e66f1f934b4e66435b31289a1737e09"
+  },
+  "LIN": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/LINx.png",
+    "color": "#005590",
+    "sha256": "3b6b1fd0bdffb8044eeb80c0718456c2ff5316bb6c57527b9c5f1bcbb6f19ce7"
+  },
+  "LITE": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/LITEx.png",
+    "color": "#ed6727",
+    "sha256": "0eec760113478c9bce2103c2bb4813414a21caccd8f8a007b84ae14f3824b83e"
+  },
+  "LLY": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/LLYx.png",
+    "color": "#ed1c24",
+    "sha256": "ca392fbba859972096157e15f8ed412753b409f266a81c05b5bb6fda841e2d3d"
+  },
+  "LMT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/LMTx.png",
+    "color": "#003e69",
+    "sha256": "b73a6168828950e5fc2b71d7cfa8d5c9f3fce30f81a80e98b10d6593105f3126"
+  },
+  "LNT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/LNTx.png",
+    "color": "#0886c8",
+    "sha256": "e55c077d74b53e1eb397148b29a88b90a54640d36ecefaa8810ea8fa8597f569"
+  },
+  "LOW": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/LOWx.png",
+    "color": "#004990",
+    "sha256": "18d33c364eb18720a3c38b0b5dc8fccf6f66f1f998fd68a1397e2e8035ef7282"
+  },
+  "LRCX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/LRCXx.png",
+    "color": "#085888",
+    "sha256": "b218eef5f04458dc87b1d0db9707fdaff39254ba5368e9ecbaf0952ead20879c"
+  },
+  "LULU": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/LULUx.png",
+    "color": "#d81838",
+    "sha256": "cc556d288cead7bb26b34e023ed6b6092d56af1a5220e1359db843817502cdc5"
+  },
+  "LUV": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/LUVx.png",
+    "color": "#1b2d81",
+    "sha256": "162c1862389739955a7f54a73e2f43585a7f41c34756e46743e19b0aea67d3e0"
+  },
+  "LVS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/LVSx.png",
+    "color": "#b79859",
+    "sha256": "2fbde2f83059eb65e393e64636db8726d5ad72d73b464c77364c43985cfadd58"
+  },
+  "LYV": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/LYVx.png",
+    "color": "#e02038",
+    "sha256": "200de4a84a3af59157de38b88affc013f451a2fda7b3f9390e4a737189d20a63"
+  },
+  "MA": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MAx.png",
+    "color": "#eb001b",
+    "sha256": "32fad8f562705792c25a8054035b701dcd92e48c37af61ab7d8a21b49d4293c1"
+  },
+  "MAA": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MAAx.png",
+    "color": "#f26829",
+    "sha256": "bad84482cb80618492115bd40ffdd7e5bce7bbc8e4ea0d34dd0ad02ec5b85786"
+  },
+  "MAR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MARx.png",
+    "color": "#a11d2b",
+    "sha256": "fbb25c2156e6e197c497a0a83e16c17d207766b3142d1dc3ceb2e544a5d4247f"
+  },
+  "MAS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MASx.png",
+    "color": "#004a98",
+    "sha256": "6bd727dafbd6dd959e2d61196ccde9d002fd00883fc25b0550250aa5eeedf66f"
+  },
+  "MCD": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MCDx.png",
+    "color": "#e80808",
+    "sha256": "fd9f9b59bf59e57ef526d30e1dc46e10aa7451067849bc37fa5d96ce90570762"
+  },
+  "MCHP": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MCHPx.png",
+    "color": "#ee2223",
+    "sha256": "680f7ff24b7eb6ad248b612c67403de00739752edc05ade9ee5951fda3885184"
+  },
+  "MCK": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MCKx.png",
+    "color": "#084898",
+    "sha256": "b095f377f2beb7db5cdfaf4d2d3f7377303bfab2b1de79f2a0452a219d6a377d"
+  },
+  "MCO": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MCOx.png",
+    "color": "#283878",
+    "sha256": "7b5ab1de173a45991cc07d48298ca09291b031206155954648b54b4f4105cbc7"
+  },
+  "MDLZ": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MDLZx.png",
+    "color": "#472380",
+    "sha256": "5e2531c9e5665c7564ad00c5a7cd90ba8b6cf06f03c552b026e337b5c8773930"
+  },
+  "MDT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MDTx.png",
+    "color": "#2363c4",
+    "sha256": "8d98fc4704a9738c468c713fbf491c47e00d370173357a440e31dfa5819681a7"
+  },
+  "MET": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/METx.png",
+    "color": "#239de0",
+    "sha256": "317249799927c8a402009bb7c4b6d1708cc5d753cc8719dc5ee7c9c4b0b8b8d3"
+  },
+  "META": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/METAx.png",
+    "color": "#0181fa",
+    "sha256": "52cb2a0719cdc068ccccc28ba2f6451d4db43e48734a2e7832da7e66b0d7e806"
+  },
+  "MGM": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MGMx.png",
+    "color": "#9e7a38",
+    "sha256": "b77f55635b11d4204c6145def23494400be6006fc4b93466ae42a4233b546523"
+  },
+  "MKC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MKCx.png",
+    "color": "#0c2e8b",
+    "sha256": "68746c49233431ec321454958b3a4677bf6ea64ab07a3ed3869978b146105226"
+  },
+  "MLM": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MLMx.png",
+    "color": "#008acd",
+    "sha256": "03e90e0f1758d671605d9cad76e1c4970da172a47cb9dd66e45c08c716e8f0b8"
+  },
+  "MMM": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MMMx.png",
+    "color": "#ee1b2d",
+    "sha256": "21faf98f999e91ca3db3575ebb2010055c28ba8b8ca10d197ba344722ec56ed2"
+  },
+  "MNST": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MNSTx.png",
+    "color": "#00fe00",
+    "sha256": "a940d8f42b36b0ebab59906e0434bec7e6638ffa6d3ecf9adfc9ade7e5d2bebc"
+  },
+  "MO": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MOx.png",
+    "color": "#ed1c24",
+    "sha256": "c9beec591d138f4324ddc8f2fc51f2857cf659f5b07eb4dab226213ac4df1c72"
+  },
+  "MOS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MOSx.png",
+    "color": "#b84b16",
+    "sha256": "6bd9986c2f3cedc97dab4e92757b7c1caf305e9e3480b592b0f76c952921018e"
+  },
+  "MPC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MPCx.png",
+    "color": "#1e59ae",
+    "sha256": "f24395b3b6ac14a4012107c4c1f4201a07ddf911fd3466cfef20b1c3af2490a8"
+  },
+  "MPWR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MPWRx.png",
+    "color": "#1c4eff",
+    "sha256": "7819e5a79471d4079210bdb6f8ee440e8cc028254007a5e209603bbf17f68f3f"
+  },
+  "MRK": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MRKx.png",
+    "color": "#009c97",
+    "sha256": "4f6605c6c8bf60d458344fdcc14a88a7833716b1ebf433ba81f14a31f50986ea"
+  },
+  "MRNA": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MRNAx.png",
+    "color": "#e31b37",
+    "sha256": "25826607307cd2c9dea488328c2fd09fc52254f4df986ba91b25bb9e01203640"
+  },
+  "MRSH": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MRSHx.png",
+    "color": "#000e48",
+    "sha256": "d2099d9c938410770d7a7879fc3e6a8a5c4e4340636a919e9582f7bd6d077bef"
+  },
+  "MRVL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MRVLx.png",
+    "color": "#7c8b9e",
+    "sha256": "188d8dd81f407ea6e17ca901952944b84302526fb5215ef0588305343bfb51da"
+  },
+  "MS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MSx.png",
+    "color": "#082858",
+    "sha256": "8e9875cd1393da6de8733f3ff5834bc71175d917ef6886979b9aed433377a850"
+  },
+  "MSCI": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MSCIx.png",
+    "color": "#1226aa",
+    "sha256": "1d293e94735cb4fcf6f32253bf1f55accfa3679bf9a774bcb9362bcab03bd7e1"
+  },
+  "MSFT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MSFTx.png",
+    "color": "#fdb92c",
+    "sha256": "254e57a4c746213c9773c00933ab360ff81ba023c3cc7ed9f2a3fd5224e4e3c2"
+  },
+  "MSI": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MSIx.png",
+    "color": "#7c8b9e",
+    "sha256": "d3fc8953fd763979e9e087fc900ba6a795090e4c7233a6043a58815b931019f7"
+  },
+  "MTB": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MTBx.png",
+    "color": "#007855",
+    "sha256": "de6d119f887e08bc920d63c96cf4288ccca1cc1e52767eb7eb3c5e82b7025596"
+  },
+  "MTD": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MTDx.png",
+    "color": "#2848a8",
+    "sha256": "f4dacff3018d11666bf306da57fa2689a63f5c5173dd150130c7dcca5f0fdb3d"
+  },
+  "MU": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/MUx.png",
+    "color": "#184878",
+    "sha256": "580adef0a2b7c9623e545933b1a20c4c3a15ce8c6dca8b5694fb17979beecc32"
+  },
+  "NCLH": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/NCLHx.png",
+    "color": "#00558a",
+    "sha256": "25e189d088df1ff1e6c86d8fec0c331da2c9add88537c9ee6ee00fa30aeea81d"
+  },
+  "NDAQ": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/NDAQx.png",
+    "color": "#0090ba",
+    "sha256": "559a973716dfb2f5553895b408719327894a9902ba318899ee19f16263d1b9da"
+  },
+  "NDSN": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/NDSNx.png",
+    "color": "#0170bd",
+    "sha256": "697a3dc7c1c7b259ea15f29a784c7639c1aca2bddd058045b1835d1fda51142a"
+  },
+  "NEE": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/NEEx.png",
+    "color": "#0096d6",
+    "sha256": "e72fbd19f829c6cab71562453b66b6cbc3be63d5ba995404f46d5e70c39f51e0"
+  },
+  "NEM": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/NEMx.png",
+    "color": "#142d7a",
+    "sha256": "0a51db6376d24e21c0bba418a98176b45465e757b7006cc15ce9567a3acaf0ff"
+  },
+  "NFLX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/NFLXx.png",
+    "color": "#b1060f",
+    "sha256": "c2bf0dec601909d4b5228d28dd3d3682517d4cdccfcf42707c0ac7a4d617c44a"
+  },
+  "NI": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/NIx.png",
+    "color": "#00639f",
+    "sha256": "3c8394426de3833eda627e77dbb1abb70e646c26d5c3e59155ce78bd04097e7f"
+  },
+  "NKE": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/NKEx.png",
+    "color": "#7c8b9e",
+    "sha256": "66db334ba818174a44035289dcddd4da39530b1f2f09edf3efb4c0e00eb309fe"
+  },
+  "NOC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/NOCx.png",
+    "color": "#7c8b9e",
+    "sha256": "36fc7066c1d0003f2542982ae3dbb6744095f12d3e40c9f023337611b0bbf399"
+  },
+  "NOW": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/NOWx.png",
+    "color": "#81b5a1",
+    "sha256": "c741f92764245f5eaa1933dd71d9047c1c1da6be55aeaf66955f0819d58cadaf"
+  },
+  "NRG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/NRGx.png",
+    "color": "#ffd200",
+    "sha256": "df6ff59a001582c6782b385dea73b87ae73ed8a8ab3c5ffc5c9d629663c0e591"
+  },
+  "NSC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/NSCx.png",
+    "color": "#7c8b9e",
+    "sha256": "fbf6f1f5b8b895dd1a30476ee39402d3f14db18c8940a5a7fc07b7e3672f31c7"
+  },
+  "NTAP": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/NTAPx.png",
+    "color": "#0067c5",
+    "sha256": "5fd4ccff042a86a71a26c1491e51ccc5acd652a176d11349fbaa5493e3eab520"
+  },
+  "NTRS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/NTRSx.png",
+    "color": "#115840",
+    "sha256": "95fd3f2df2dc516320b3090d3c86fd2e47a97a0e652fa357d7679a854ba6904c"
+  },
+  "NUE": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/NUEx.png",
+    "color": "#009a66",
+    "sha256": "b362eb3bde4cd80e678193861b50aeaca0c2c8a57351c527ea3169ccb4fe324d"
+  },
+  "NVDA": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/NVDAx.png",
+    "color": "#78b808",
+    "sha256": "6b639eff0158850c474d378ed8580375c396dda494cfff9040e6b1735b8ef623"
+  },
+  "NVR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/NVRx.png",
+    "color": "#860038",
+    "sha256": "5e390d3645c4a3b51664074ed9f903f19eb9a4189363124830929ccb93883387"
+  },
+  "NWS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/NWSx.png",
+    "color": "#7c8b9e",
+    "sha256": "2a42b3273927620263ea3e1b58361fd7169782c6daba535c50a4539d23368b0d"
+  },
+  "NWSA": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/NWSAx.png",
+    "color": "#7c8b9e",
+    "sha256": "2a42b3273927620263ea3e1b58361fd7169782c6daba535c50a4539d23368b0d"
+  },
+  "O": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/Ox.png",
+    "color": "#ee1b2e",
+    "sha256": "c89b5899be3853e76717435b3c3d8cd96884be19113cedcb21bff60502cc24d9"
+  },
+  "ODFL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ODFLx.png",
+    "color": "#00683d",
+    "sha256": "a9073de44a67e4b5ecde53d06dc9e6ff9252fc55350ccff8d6e9b0fb1fd0e9f4"
+  },
+  "OKE": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/OKEx.png",
+    "color": "#0593d2",
+    "sha256": "e7c58ac1936696ded39c4c78e7280dab33730d8ea0a164390603588e6935b48f"
+  },
+  "OMC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/OMCx.png",
+    "color": "#7c8b9e",
+    "sha256": "8515b46b94e50171aad1fc3850dfe0a772d06feafb4035353a4bddc437a9a2cc"
+  },
+  "ON": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ONx.png",
+    "color": "#3db049",
+    "sha256": "9e6daa621c4fc081f816a9aebdf0c13b5b1f3408c7f0e4de12e3323d49f3349d"
+  },
+  "ORCL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ORCLx.png",
+    "color": "#e80818",
+    "sha256": "33f8faea39d4ad48654be04de6a4679a4c9dbbfecccdbd7c5c872b4609cf0877"
+  },
+  "ORLY": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ORLYx.png",
+    "color": "#089858",
+    "sha256": "97814088ee0a5e09afb4224a13751aed41a683960bf42a8e5c746a907a40ea7b"
+  },
+  "OTIS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/OTISx.png",
+    "color": "#082848",
+    "sha256": "cef8fae63e18a5293635b9eee377a18cfbbab5fa5f23076b6216eb9eecf4c564"
+  },
+  "OXY": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/OXYx.png",
+    "color": "#005bab",
+    "sha256": "5fcba05238ab89ac1e936b8d69a5602d180fbd8cb36dd8bda770e9accc70aef5"
+  },
+  "P": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/Px.png",
+    "color": "#f55002",
+    "sha256": "886e8309b7dd4858fb10d8c6e6811d2609089e3a190443d745b0ca094e037a09"
+  },
+  "PANW": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PANWx.png",
+    "color": "#f85828",
+    "sha256": "dc744ecfd3ca17f1f1bce37b084f4006945a1020f596899e8e0c9c6278fefa83"
+  },
+  "PAYX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PAYXx.png",
+    "color": "#004b8d",
+    "sha256": "5672deee232d361a8a5f7dca2f8084c12e222c91aeddffd0c3b3aa6eff781aad"
+  },
+  "PCAR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PCARx.png",
+    "color": "#1c65c5",
+    "sha256": "ab5be3b4889f0deb7e66e1324ddc1619af77dd58fc5fbb010aac82da916642a0"
+  },
+  "PCG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PCGx.png",
+    "color": "#0089c4",
+    "sha256": "7b2a5c5175212872d5241567d0a47452629298e6ef2c9455fbd2b152ca18e0e6"
+  },
+  "PEG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PEGx.png",
+    "color": "#f35e19",
+    "sha256": "4526fc6a090285d10f63c2f608e564c751fd6d57a1b024f23e5b1f4168d84f4c"
+  },
+  "PEP": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PEPx.png",
+    "color": "#0096d6",
+    "sha256": "81b04d0012d7f465e9a2af1f13485d475fdc73ccb64f863d5c31e9e8d96ec790"
+  },
+  "PFE": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PFEx.png",
+    "color": "#0000c9",
+    "sha256": "ee73a6bc13bc78ef6c642cd7426ff537b49cd373ac95ed8fac7656e00457d328"
+  },
+  "PFG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PFGx.png",
+    "color": "#33b7d7",
+    "sha256": "4294df5a79eb1ccca3e265138fa28799122bc2fa330602a601c321890f5104ca"
+  },
+  "PG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PGx.png",
+    "color": "#186dbf",
+    "sha256": "6ae1508501248aca77f74150047ebd2e52f7e7bf9134a6155f5fe1fa45704719"
+  },
+  "PGR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PGRx.png",
+    "color": "#2480fe",
+    "sha256": "abf89370ac6e2dffcf14fe5a3f1a485409d28ab7c107df1002c0bd0a8cb30b0a"
+  },
+  "PH": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PHx.png",
+    "color": "#7c8b9e",
+    "sha256": "1f0635aa293012aead79325f8970628d1b42035a9843405eb0abc25f7ac676bc"
+  },
+  "PKG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PKGx.png",
+    "color": "#002c72",
+    "sha256": "e146c464c6ad004b5797533fe3648760197ada8c63289843e60f58a074dc090e"
+  },
+  "PLD": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PLDx.png",
+    "color": "#2cb5e5",
+    "sha256": "e1b7dba2618440286c43b7b1942c343a16298f1d939ec1133cb5c3b02a085baf"
+  },
+  "PLTR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PLTRx.png",
+    "color": "#7c8b9e",
+    "sha256": "edada1087693ec0de61c5386c0a166617b8b140658d6532326133a563441fd6e"
+  },
+  "PM": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PMx.png",
+    "color": "#4ba0da",
+    "sha256": "cd8b8165ddbc25477345201025ebbca82bbe3a29a373520f283620ea726e281a"
+  },
+  "PNC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PNCx.png",
+    "color": "#f48023",
+    "sha256": "8e84eafcebf3874b849810e859d6fdd572ed353cc9172f2a5ee5bbdeb5ba7db2"
+  },
+  "PNW": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PNWx.png",
+    "color": "#006f7a",
+    "sha256": "e808f05ac6e9e7d1157796348aae594ac812929ea91e274546a7af8bcd75fc6d"
+  },
+  "PODD": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PODDx.png",
+    "color": "#7838b8",
+    "sha256": "902b7985313f18d349001aba828f4cc80aeaf2025518c6974dec33f53a425d95"
+  },
+  "PPG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PPGx.png",
+    "color": "#0272a6",
+    "sha256": "ba5b39edc4f0af7a9b81c17a6543becf9daaa7e63252b5a05c2fee5f7c7764db"
+  },
+  "PPL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PPLx.png",
+    "color": "#001378",
+    "sha256": "3375e8e632cfeb74f36d9268d668e9313034f40741c16f77331dd8fa62ee35b2"
+  },
+  "PRU": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PRUx.png",
+    "color": "#007ac3",
+    "sha256": "cc86fc38cfde28897bd2633ced0ace2b8751e8b9716bf1aed059fb76df07771b"
+  },
+  "PSA": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PSAx.png",
+    "color": "#ff6200",
+    "sha256": "560207a9f7f5723c68de4d13fdaecf387e67feba05d4f94c662afdabca2e340b"
+  },
+  "PSX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PSXx.png",
+    "color": "#ec1c24",
+    "sha256": "23660326fd8f3843a48d77e5deafaef8fa7c777ac7f79a418dc8cac410dcdf6f"
+  },
+  "PTC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PTCx.png",
+    "color": "#6ebe4b",
+    "sha256": "fefe6f1e91ae424490ae159ece40afd770c7c8b2b729272b5f440a1a5132341c"
+  },
+  "PWR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PWRx.png",
+    "color": "#ab5902",
+    "sha256": "0cc82ffb1fdaa8f0551be7900e8c5380bc3884b8e7c961e56c3ddca4038f19bf"
+  },
+  "PYPL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/PYPLx.png",
+    "color": "#002991",
+    "sha256": "19bf7081918ee3b7d0a535463830b6a8b36f8cc9f4d51d25426cbd619795b41a"
+  },
+  "Q": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/Qx.png",
+    "color": "#beff00",
+    "sha256": "968ab0caa5161605d39cbb201bf2edb1c1f9002a00b5346b54d2f8a57f097d03"
+  },
+  "QCOM": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/QCOMx.png",
+    "color": "#3858d8",
+    "sha256": "5cd3de479345289ed670f8db1055fe16827ff54a9230bfa0acbd6e98c60a888b"
+  },
+  "RCL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/RCLx.png",
+    "color": "#173378",
+    "sha256": "08d17a124dad68add81c89b12cc2ed1c2e281016c7204b9e5d91e40be21407db"
+  },
+  "RDDT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/RDDTx.png",
+    "color": "#fc4604",
+    "sha256": "bf11485b2810f71deeaad84d41cd906e83a2d64c2fd72b0b4c433669524786e2"
+  },
+  "REG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/REGx.png",
+    "color": "#da9a19",
+    "sha256": "46d549c6539f4c29122a0517da31575434409f5f5439ef0875bdc75be26f740a"
+  },
+  "REGN": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/REGNx.png",
+    "color": "#005c9e",
+    "sha256": "74bc9648000bdad5dd849d32128a8bc23e56739c368f840ed6c097b37e67b2f8"
+  },
+  "RF": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/RFx.png",
+    "color": "#6ec72e",
+    "sha256": "1d2923210888bbff7f6843cceec3b17f708248049f616bb675214eb89f3aa402"
+  },
+  "RJF": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/RJFx.png",
+    "color": "#07365a",
+    "sha256": "2c8faa2d2cc24131665126ba75aa23aea1e6b2468bfc5807d120af8e421e529d"
+  },
+  "RL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/RLx.png",
+    "color": "#7c8b9e",
+    "sha256": "0de8fd5aa6d1444878377d5acf2a2ff7fcadeaae92c3e45775355bfadfe1d357"
+  },
+  "RMD": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/RMDx.png",
+    "color": "#eb1a5c",
+    "sha256": "bf921ade62343624e528d1d7ca3496104da0dd3376c26696b91722b5bb40a9a2"
+  },
+  "ROK": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ROKx.png",
+    "color": "#ab2534",
+    "sha256": "58e1b0cd7122724e0eb060a35901b7911f38956810e29d3c9d6f7bd37469ea8b"
+  },
+  "ROL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ROLx.png",
+    "color": "#ce0d2c",
+    "sha256": "1c8e98b6d05806009bb112026b320fd8187602404f7b9b0c71144c9500de73a6"
+  },
+  "ROP": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ROPx.png",
+    "color": "#00213c",
+    "sha256": "de8c496731ce3a21e15469460ae788f027a21838114839a1b9e47eea1c84c6c7"
+  },
+  "ROST": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ROSTx.png",
+    "color": "#0f7fca",
+    "sha256": "d6c9831765eeb2e195187a3c31f05cc5a7e099f1faee2914c646e7baf1ea0493"
+  },
+  "RSG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/RSGx.png",
+    "color": "#d23252",
+    "sha256": "3c13018a90862846c8c773e1b1abde68f26553a7fdb9151da0ea557f8966c766"
+  },
+  "RTX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/RTXx.png",
+    "color": "#7c8b9e",
+    "sha256": "d2f3f49c2b4c64a13f1c97e00f997541fe88f2762322cc268a15f0b5d3d9f194"
+  },
+  "RVTY": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/RVTYx.png",
+    "color": "#7c8b9e",
+    "sha256": "63995d0f4dcb6b276c3fc39a65778437ee60b23ac178a02ca2221bbb0c226861"
+  },
+  "SBAC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/SBACx.png",
+    "color": "#024b8e",
+    "sha256": "94da5ba1b5672803262ba3d1e085ac08fc4cbf5ac1df355eec78e0e15d57a920"
+  },
+  "SBUX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/SBUXx.png",
+    "color": "#007042",
+    "sha256": "4268cf46f0fc33df44505955880dacba9dce465972517173a578d865f394295d"
+  },
+  "SCHW": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/SCHWx.png",
+    "color": "#00a0df",
+    "sha256": "3b8d13c1137012567038986912544d3435a32a4d986f2edb75a98131a0069310"
+  },
+  "SHW": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/SHWx.png",
+    "color": "#0369b8",
+    "sha256": "ab7c1a462ee644f5b80411e56927b8a32a78c36fef65c27b1f5d2403c68d8193"
+  },
+  "SJM": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/SJMx.png",
+    "color": "#e71324",
+    "sha256": "7c212313b2f370f7f60152fa2303e972b8e3817d8575c51a7305b80787af131d"
+  },
+  "SLB": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/SLBx.png",
+    "color": "#0000d3",
+    "sha256": "61bc64c22a1be113e17155e56dc7da2ac35e8058873b9ec20133c0821c621164"
+  },
+  "SMCI": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/SMCIx.png",
+    "color": "#01953b",
+    "sha256": "d0fd01269b7626292ece0518a8a72a94fcf91dacda32cfff23e04539310fae6f"
+  },
+  "SNA": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/SNAx.png",
+    "color": "#ed2024",
+    "sha256": "812b45b86377b2fc9c2dd4f56c7eec0fcee5ceef1e60cf72e6cf7826aa26f400"
+  },
+  "SNDK": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/SNDKx.png",
+    "color": "#e80808",
+    "sha256": "60a690470a0b21675c393557245c51619c696e8fd4dc0373bec3111ec512c28b"
+  },
+  "SNPS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/SNPSx.png",
+    "color": "#593988",
+    "sha256": "b8252e170ef6baeafe314a0163486657e4ff94edf46b72b1292a6d14f7e9e1f2"
+  },
+  "SO": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/SOx.png",
+    "color": "#ed1c24",
+    "sha256": "6291a7fc728235820ed70f8e5c079b1de60f9256478a730a06d6817bc4b49e28"
+  },
+  "SPG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/SPGx.png",
+    "color": "#7c8b9e",
+    "sha256": "a5034f932a8d9968c223615c0d877eb5c98a8d46ead323512e1b06cdb64a27f9"
+  },
+  "SPGI": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/SPGIx.png",
+    "color": "#d80828",
+    "sha256": "7a06a62edcef6db73e912428657cf26f161010d512f8479d6807246062f6ce78"
+  },
+  "SRE": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/SREx.png",
+    "color": "#df134c",
+    "sha256": "9c2f430ac30cd9cab20a8a6aa344eb73d1cfc21dba5c91811bd92142bab428e2"
+  },
+  "STLD": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/STLDx.png",
+    "color": "#b82838",
+    "sha256": "40270f5bf9ded969cabdf7385830b73447a1c333d773e2e4f2c201076ed9e35a"
+  },
+  "STT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/STTx.png",
+    "color": "#001aff",
+    "sha256": "83c5db1a3c9d82482b9422bf1f850f1efe8af0ca9ed9455cb71f7830ad16b5c4"
+  },
+  "STZ": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/STZx.png",
+    "color": "#022c6c",
+    "sha256": "6058a34a06bc8f560c7f818d105df89e366dbabc2600ba93f9bdc6514ee8aee9"
+  },
+  "SWK": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/SWKx.png",
+    "color": "#ffd30b",
+    "sha256": "3e47e3df4a4289e405777f7034bad3a40ea510ce38de55eaffbf38b4999bd117"
+  },
+  "SYF": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/SYFx.png",
+    "color": "#f6c800",
+    "sha256": "92621a3befc94a4247e660a062740b45b9c822640aa8cf508cc322711112f848"
+  },
+  "SYK": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/SYKx.png",
+    "color": "#f5b123",
+    "sha256": "4935df3252721f13d4f3090dda82f16cf21efa139a53be3ad28d48d28ed43088"
+  },
+  "SYY": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/SYYx.png",
+    "color": "#0081c6",
+    "sha256": "572583f845e625192b394ff4ddcdd898f95bc78e94f9f0a7ca62b2d99dc37d81"
+  },
+  "T": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/Tx.png",
+    "color": "#00a8e0",
+    "sha256": "3ce2a864cd2ae10808f567aaf5cff744e826724bd428ab812fccf992acd6eff7"
+  },
+  "TDG": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TDGx.png",
+    "color": "#264355",
+    "sha256": "0146d254f70f4de9361a34fbceb19eadafa43559d44fcc7d5bf9ad93a7f6dab7"
+  },
+  "TDY": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TDYx.png",
+    "color": "#0076c0",
+    "sha256": "f55bc736d11e146884b0db9af27bd36e14559695af0dbd4b29d35906b1a8b8ec"
+  },
+  "TER": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TERx.png",
+    "color": "#284898",
+    "sha256": "927a761fa2d4df065737ffaa1e5aa3033fc2eca1dc281245f9d431987a884271"
+  },
+  "TFC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TFCx.png",
+    "color": "#2e1a47",
+    "sha256": "78cf7d82e61c967863b46e3736d39b5aaeeab290546b2a9fbd74c7e46a3f109f"
+  },
+  "TGT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TGTx.png",
+    "color": "#cc0000",
+    "sha256": "dea34ec3b8aaad099e3a408480d68408401762749a66ab7090bc2d2c3e76750c"
+  },
+  "TJX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TJXx.png",
+    "color": "#981828",
+    "sha256": "2def940db1733b35becc85a30dbe4af264248a21318ca09a79cffd44e34c73cd"
+  },
+  "TMO": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TMOx.png",
+    "color": "#e84838",
+    "sha256": "541e9d3a18dd9c3edec85e4fb92863cdb6b3a501c32936957628b83e42b406a6"
+  },
+  "TMUS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TMUSx.png",
+    "color": "#e80888",
+    "sha256": "b2a997721d90a0b02dc90289c9d7ca3dd07211aa2db5bebf2dc3a7f0c8653401"
+  },
+  "TPL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TPLx.png",
+    "color": "#752839",
+    "sha256": "afd510d0ba7c4440f39dd14600eec09797d1ffd74e894d27ee786255a629e504"
+  },
+  "TPR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TPRx.png",
+    "color": "#ffdd00",
+    "sha256": "808bde57b87bfc33edc80c6ab26012ed9ba333c771a3a2767269662417c7e2c9"
+  },
+  "TRGP": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TRGPx.png",
+    "color": "#1c4379",
+    "sha256": "71e3a05c510d1bc1463c97fbf23d3c3a1f7fd857149d1abb9c31dae8ea7bb8ed"
+  },
+  "TRMB": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TRMBx.png",
+    "color": "#004277",
+    "sha256": "ded582cd5ab6e1bfb582e54cb802c0b22d944e904e94c475bdd301dcd9890b96"
+  },
+  "TROW": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TROWx.png",
+    "color": "#2fbad7",
+    "sha256": "ee7800fafbf3ee01079cc7752ea481b623bafbceb337b4fa852001ad6d0781f2"
+  },
+  "TRV": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TRVx.png",
+    "color": "#cb2d2f",
+    "sha256": "4020c070aa956f9f205e5fe03333220fe069fa875a354e5856b53c587f0cb174"
+  },
+  "TSCO": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TSCOx.png",
+    "color": "#d02027",
+    "sha256": "25e8525b3b307c4cd91776de1975f1e53e592ea8b6532aaf666448fb6f846de5"
+  },
+  "TSLA": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TSLAx.png",
+    "color": "#ef0027",
+    "sha256": "42cb949ac9a7e6385df10a59bcd47576260c6a78bf54df0eea962343644d7fd8"
+  },
+  "TSN": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TSNx.png",
+    "color": "#c81838",
+    "sha256": "d316481f7af6a71a3399a4a6c742252546e140fac6c52765f35ae869b090d638"
+  },
+  "TT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TTx.png",
+    "color": "#6400ff",
+    "sha256": "64d577139e14f9bd620bdafe77d21e3174a3a7f21de3c3d44c3f524da588aa87"
+  },
+  "TTWO": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TTWOx.png",
+    "color": "#7c8b9e",
+    "sha256": "123573fd35e2cebf21275e0731e3ee45eaea3167d54f6da4f041e7403f6534df"
+  },
+  "TWLO": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TWLOx.png",
+    "color": "#f12e45",
+    "sha256": "c853efcd525b1829c5dbdec658b2a787839c0b3380159dfc6ce2ed92efe7c9c6"
+  },
+  "TXN": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TXNx.png",
+    "color": "#cc0000",
+    "sha256": "a3782e99078853a8dd068beeed98abe530a73c8a65a4bcc6db48faeb075f0a4c"
+  },
+  "TXT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TXTx.png",
+    "color": "#004f85",
+    "sha256": "5a677789e8b7970ac7048c2bb4cef6a085c30ce6392b8067157e5b4a8b9b9f75"
+  },
+  "TYL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/TYLx.png",
+    "color": "#a1aa41",
+    "sha256": "df5b88a8b35ba40fdba11b38b3bf6f0343c08c8db145fe0615c60fa518518991"
+  },
+  "UAL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/UALx.png",
+    "color": "#1414d2",
+    "sha256": "ab8fa4898048bb421565169e3bf197a3fa3d749a9ae10d7497e9825392351da0"
+  },
+  "UBER": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/UBERx.png",
+    "color": "#7c8b9e",
+    "sha256": "d48bc1150fe1fdd027cba96e0f08d829db2a6e40d614cdbc59028f0f760e425e"
+  },
+  "UDR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/UDRx.png",
+    "color": "#087838",
+    "sha256": "c9ea6be1e1014a6118c2665a41a57fb449d3f5cfc827b0fa19dafe601d50d64e"
+  },
+  "UHS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/UHSx.png",
+    "color": "#91012a",
+    "sha256": "d939ecee1615ad2f63f3b76d4ae9f7eca75904d27db2c54e7379089637be5e80"
+  },
+  "ULTA": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ULTAx.png",
+    "color": "#f47d38",
+    "sha256": "aef79ff916bc7828df2361086a44772730e0766d63b7e7a941acfbbe64a873ae"
+  },
+  "UNH": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/UNHx.png",
+    "color": "#1a4687",
+    "sha256": "3dd26b2b5afc1f11a936946159dac3cfcf1b3ba9c8ccc2773f713eb153353015"
+  },
+  "UNP": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/UNPx.png",
+    "color": "#f7b80a",
+    "sha256": "e2e2ae76f58b712cf777765fbc80887eed07dbf90ce72c08e88230381a3b3feb"
+  },
+  "UPS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/UPSx.png",
+    "color": "#fab80a",
+    "sha256": "a19b1895c07f541626598dfb498d18ee6130be5cb383a9710797c72e4560fb6a"
+  },
+  "URI": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/URIx.png",
+    "color": "#0050a9",
+    "sha256": "dfcbbb6da99ddfa3d344567a9c9760ee505c274f906e0631c864440f9307cb18"
+  },
+  "USB": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/USBx.png",
+    "color": "#082878",
+    "sha256": "4591ff63d1a5e3df211dc5be32e4981b2bf786350f15378fff80fba10301aef9"
+  },
+  "V": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/Vx.png",
+    "color": "#1434cb",
+    "sha256": "bd475aca70289980d2f7a4aa279653186a8febe5a68c3fec4c0b0affbb60031a"
+  },
+  "VEEV": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/VEEVx.png",
+    "color": "#ff9e16",
+    "sha256": "0627835872f83b5ea09d1191987a1d182901bd0f4b94f134537cfc5b70b7b010"
+  },
+  "VICI": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/VICIx.png",
+    "color": "#7c8b9e",
+    "sha256": "39db8012ef56369f8456c4e5fcdf324aba5380de40fd2134cbb2312ddf63d9bc"
+  },
+  "VLO": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/VLOx.png",
+    "color": "#006eab",
+    "sha256": "6bc89aa296449e8e76100a1f4195966cdad1ad699729b9a4c7aac21e71949275"
+  },
+  "VLTO": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/VLTOx.png",
+    "color": "#713191",
+    "sha256": "a05881004532cd10a9549739df62b54970d250843e0bc87f4863c2abe72cb597"
+  },
+  "VMC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/VMCx.png",
+    "color": "#2e3172",
+    "sha256": "9d7c1b128b5acab86b6c5f147a3577aab98c3ae3ee718173ea6f6170be893ece"
+  },
+  "VRSK": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/VRSKx.png",
+    "color": "#00358e",
+    "sha256": "23aa2542b9ad1e7ef022263338a7242e1158a7dfbbd3e6617c17317e1cbe0831"
+  },
+  "VRSN": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/VRSNx.png",
+    "color": "#0160a1",
+    "sha256": "418b94f09930fd330f7192f9e01df308ef57e9e13b817a7f9d7015eb54295bb6"
+  },
+  "VRT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/VRTx.png",
+    "color": "#f85808",
+    "sha256": "d1bd6f6ddf7a297e04e42e38b72c19c5655fe47d3dcd19ea2bf75ef6f7e5c228"
+  },
+  "VRTX": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/VRTXx.png",
+    "color": "#381858",
+    "sha256": "d1ecc90e00753c697b3dce1a954b08306a2a9cb08fb402650b4e00de679334db"
+  },
+  "VST": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/VSTx.png",
+    "color": "#083868",
+    "sha256": "3a6caf3f341e8c7168115cceee89bbe0079aac8b2251adb596e185d8a3d77685"
+  },
+  "VTR": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/VTRx.png",
+    "color": "#0797c8",
+    "sha256": "4e88b3010137ecfc5976bf240c6ed89e4b5e9acc8d80b69d4da66ab59d88a9a1"
+  },
+  "VTRS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/VTRSx.png",
+    "color": "#f1cb14",
+    "sha256": "6ce4c043c25641989b483466e6e88dadb21b9413a4ddacaa6e4d1f9dee78cd0b"
+  },
+  "VZ": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/VZx.png",
+    "color": "#f53627",
+    "sha256": "152d1a02d8d4459fd9cae10e7e4868123c0aed70c0f868abc80228d8c7a7ddf4"
+  },
+  "WAB": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/WABx.png",
+    "color": "#ed1c24",
+    "sha256": "840158ba161a278dfd85a2d0365dfa8102750abe67b7d32a5d9ac4b338fcedcb"
+  },
+  "WAT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/WATx.png",
+    "color": "#7c8b9e",
+    "sha256": "554af78bd6fab2caed0fda590db719f13701e4d3c3a43c7532cf89ea4e16901a"
+  },
+  "WDAY": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/WDAYx.png",
+    "color": "#0165a7",
+    "sha256": "5e4e418d0e5318614001d2943f17466ec95a4eb7cd4b668540246b5678978a22"
+  },
+  "WDC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/WDCx.png",
+    "color": "#2366ff",
+    "sha256": "bc44a74fd43776bc36aca283d9e2276794cde177e895582349122b877abc6ce5"
+  },
+  "WEC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/WECx.png",
+    "color": "#1188c9",
+    "sha256": "385265a22b1ff0708103a0ec925afa64c75010a65b79d967754820fd52cc1b07"
+  },
+  "WELL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/WELLx.png",
+    "color": "#3498b6",
+    "sha256": "39c5e92e2c1446291ea81705b21e353dc1420507a204798790128db1148f6415"
+  },
+  "WFC": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/WFCx.png",
+    "color": "#d81828",
+    "sha256": "4f9b970cba4c5e8a0436c1fc04e21ee8220bda4d6f2ed4a53de13bf79731764d"
+  },
+  "WM": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/WMx.png",
+    "color": "#006838",
+    "sha256": "dbf495c502eb8803c2ad64be601bfc53b8c591261d3a3fbf01c0bd8e6faec086"
+  },
+  "WMB": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/WMBx.png",
+    "color": "#1478c7",
+    "sha256": "fde4aabe3ca4ffc6c4aceb57f7b06bd70e18d7ea55582943e035b340b39e6698"
+  },
+  "WMT": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/WMTx.png",
+    "color": "#0053e2",
+    "sha256": "48419607675e4293624d90c3b2badbc6ec06ec863c74e59460e31c424a18c704"
+  },
+  "WRB": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/WRBx.png",
+    "color": "#0e5640",
+    "sha256": "774f15ecff0c3b14a54f727bfbbf17363be70632fddaaa83c79412556e8a17e2"
+  },
+  "WSM": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/WSMx.png",
+    "color": "#7c8b9e",
+    "sha256": "a6e218a7d4b4d3854cf8aa64dbb6c13a0c0e38bd30d3871f1cb301779f6a3d2d"
+  },
+  "WST": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/WSTx.png",
+    "color": "#005596",
+    "sha256": "943ea151f3c34d6a610ff5d7bfe74e00031d5f7d0f56fab4f9afae46a8f23342"
+  },
+  "WY": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/WYx.png",
+    "color": "#008147",
+    "sha256": "906c2a475b85c1238de7a1d67654aa810124adac487767b8728689fee5e3c588"
+  },
+  "WYNN": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/WYNNx.png",
+    "color": "#765b3c",
+    "sha256": "3916883c5f5061c87f3ce0673a1689c1bbff69967ad44fd6de7d471e6aa07440"
+  },
+  "XEL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/XELx.png",
+    "color": "#da0f20",
+    "sha256": "492ff702ec512f1c320161c9e0fb52ed31e3f99bdc55fdbb874da6764a083879"
+  },
+  "XOM": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/XOMx.png",
+    "color": "#e81828",
+    "sha256": "924c7a0090824f2297c746cd1a54f377074491227d3ad9720e9fe81da8d64756"
+  },
+  "XYL": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/XYLx.png",
+    "color": "#0085b0",
+    "sha256": "1044c621a6fac2b49838cb3db1021c3f7cbe90495c59b38dd5115add283d7ac8"
+  },
+  "XYZ": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/XYZx.png",
+    "color": "#7c8b9e",
+    "sha256": "7994b88ac3b48422b9668b7d9321d0a54c928d298504490c2f72f77fe670d0ba"
+  },
+  "YUM": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/YUMx.png",
+    "color": "#ed1c24",
+    "sha256": "ccce5c3e98e01161039f35daf81d4fd25d1aeb8ed04fd13d625f18927ceb38ba"
+  },
+  "ZBH": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ZBHx.png",
+    "color": "#1081c5",
+    "sha256": "4f0f5fa61a5adfeb64a728a4a32eb9cf6e785c426fa0304fa17cb8fa5a165a02"
+  },
+  "ZBRA": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ZBRAx.png",
+    "color": "#7c8b9e",
+    "sha256": "1c46d6521d994ab347076019232ef5cf36acd51e2fb38858c8abab8a6c0fe138"
+  },
+  "ZTS": {
+    "logo": "https://xstocks-metadata.backed.fi/logos/tokens/ZTSx.png",
+    "color": "#ff6600",
+    "sha256": "85f3b2bfb8b4cc91df963ea3069d5876677780db2faf8339fec9deb4b5ad6e5e"
+  }
+}

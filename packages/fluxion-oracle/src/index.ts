@@ -85,3 +85,5 @@ export { slot0ToPriceUsd, createPoolReader } from "./pools.js";
 export { createPriceOracle, evaluateTicker } from "./oracle.js";
 export type { OraclePoll } from "./oracle.js";
 export { retry, OracleError } from "./retry.js";
+export { createExtendedOracle, extendedConfig } from "./extended.js";
+export type { ExtendedObservation } from "./extended.js";

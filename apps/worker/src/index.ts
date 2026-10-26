@@ -1,10 +1,15 @@
 import { GAME_CONFIG } from "@stock-arena/game-core";
 import { createDatabase } from "@stock-arena/db";
 import type { DatabaseConnection } from "@stock-arena/db";
-import { createPriceOracle } from "@stock-arena/fluxion-oracle";
+import {
+  createPriceOracle,
+  createExtendedOracle,
+  extendedConfig,
+} from "@stock-arena/fluxion-oracle";
 import { createPriceStore, startPricePolling } from "./prices.js";
 import { createDailyRetention, retainPriceSnapshots } from "./retention.js";
 import { settlePredictions } from "./predictions.js";
+import { createExtendedStore } from "./extended.js";
 
 // Migrations run explicitly via pnpm db:migrate, never from this worker.
 let connection: DatabaseConnection | undefined;
@@ -56,8 +61,36 @@ const stop = startPricePolling(
     ),
 );
 
+// Independent, non-overlapping batches must never delay the core 15-second loop.
+const stopExtended = (() => {
+  try {
+    const config = extendedConfig(process.env),
+      reader = createExtendedOracle({
+        apiBase: process.env.XSTOCKS_API_BASE,
+        batchSize: config.batchSize,
+      });
+    let save: ReturnType<typeof createExtendedStore> | undefined;
+    return startPricePolling(
+      async () => {
+        connection ??= createDatabase();
+        save ??= createExtendedStore(connection, config.referenceHours);
+        const poll = await reader.poll();
+        await save(poll.observations);
+        console.info(
+          `[worker] Extended quotes: ${poll.observations.length} observed, ${poll.failed} unavailable.`,
+        );
+      },
+      config.pollSeconds * 1000,
+      () => console.error("[worker] Extended collection unavailable; core polling continues."),
+    );
+  } catch {
+    console.error("[worker] Invalid extended collection configuration; core polling continues.");
+    return async () => {};
+  }
+})();
+
 async function shutdown() {
-  await stop();
+  await Promise.all([stop(), stopExtended()]);
   await connection?.close();
 }
 const stopSafely = () => {

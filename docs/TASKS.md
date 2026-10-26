@@ -4,27 +4,60 @@ One brief = one pull request. Paste the whole brief into Codex together with AGE
 
 ## Task Board updates — 2026-10-26
 
-| Task              | State / dependency                                                                                   |
-| ----------------- | ---------------------------------------------------------------------------------------------------- |
-| T14               | Superseded by T28–T30                                                                                |
-| T21 Daily Call    | CANCELLED — merged into T26                                                                          |
-| T26               | Integrated via PR #20; post-deploy smoke test remains pending confirmation                           |
-| T28               | Integrated via PR #23; real admin smoke test pending deployment                                      |
-| Lightsail hosting | Integrated via PRs #24/#30/#31; Ohio cutover reported complete at 9fe93dc; operator fixes integrated |
-| T29               | Integrated via PR #25; post-deploy smoke test pending                                                |
-| T30               | Integrated via PR #26; post-deploy smoke test pending                                                |
-| T31               | Integrated via PR #27; live smoke test pending                                                       |
-| T31 follow-up     | Integrated via PR #29: atomic snapshot lock and CSV marker                                           |
-| T33               | Integrated via PR #28; dedicated home/screens and review adjustments; live smoke test pending        |
-| Quiz option order | Integrated via PR #32; deterministic per-player/day/question presentation and legacy sets preserved  |
-| T35 public stats  | Integrated via PR #33; anonymous stats before T34                                                    |
-| T34               | Integrated via PR #34; simplified 200-point qualification                                            |
-| T27 mStocks Flyer | Integrated via PR #35; PR #36 adds cross-session history and friendly chart retry; review pending    |
-| T32               | Settlement query optimization; required before T19 load test; not part of T26                        |
+| Task                | State / dependency                                                                                                      |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| T14                 | Superseded by T28–T30                                                                                                   |
+| T21 Daily Call      | CANCELLED — merged into T26                                                                                             |
+| T26                 | Integrated via PR #20; post-deploy smoke test remains pending confirmation                                              |
+| T28                 | Integrated via PR #23; real admin smoke test pending deployment                                                         |
+| Lightsail hosting   | Integrated via PRs #24/#30/#31; Ohio cutover reported complete at 9fe93dc; operator fixes integrated                    |
+| T29                 | Integrated via PR #25; post-deploy smoke test pending                                                                   |
+| T30                 | Integrated via PR #26; post-deploy smoke test pending                                                                   |
+| T31                 | Integrated via PR #27; live smoke test pending                                                                          |
+| T31 follow-up       | Integrated via PR #29: atomic snapshot lock and CSV marker                                                              |
+| T33                 | Integrated via PR #28; dedicated home/screens and review adjustments; live smoke test pending                           |
+| Quiz option order   | Integrated via PR #32; deterministic per-player/day/question presentation and legacy sets preserved                     |
+| T35 public stats    | Integrated via PR #33; anonymous stats before T34                                                                       |
+| T34                 | Integrated via PR #34; simplified 200-point qualification                                                               |
+| T27 mStocks Flyer   | Integrated via PRs #35/#36; cross-session history and friendly chart retry retained for v1                              |
+| T36 Daylight Market | Ready for review on t36-daylight-market; 468-stock catalog/flyer-2, 628 local unit + 108 web checks; no live operations |
+| T32                 | Settlement query optimization; required before T19 load test; not part of T26                                           |
 
 Campaign decision for Mantle (not code): accepted reward identifiers (Bybit UID,
 Mantle address or both) and manual delivery process. Keep both fields optional
 until confirmed. This table records the official task status changes.
+
+## T36 — Flyer v2 "Daylight Market" and S&P 500 reference catalog
+
+Approved mockup: https://claude.ai/artifact/SnR71PUz9Amb8XUtNqmJgd, **B only**;
+A/C discarded. One PR on `t36-daylight-market`; no merge/deploy/real database work.
+
+- Freeze a dated S&P 500 constituent list and intersect it reproducibly with public
+  xStocks availability, stocks only. Keep core Magnificent 7 unchanged for
+  check-in/Home/HL and their 15s polling. Extended assets feed Flyer only, through
+  independent configurable 5min bounded batches, rate-limit handling, compact
+  primary summaries and bounded temporary references. Public logo colors are
+  extracted offline and cached by ticker/official URL, with neutral fallback.
+- One stock per pipe, server-chosen daily shuffle identical for all players,
+  no repetition until exhaustion. Signed 24h/last-session change raises/lowers
+  the gap within playable clamps; difficulty still ramps each ten pipes. Freeze
+  the complete daily course (order/heights/metadata) and reference it immutably
+  from sessions. Bump to flyer-2, preserving open flyer-1 replays and all existing
+  physics, anti-cheat, caps, referral eligibility and award rules.
+- Daylight sky/sun/parallax clouds/skyline/ground; rounded company-colored
+  buildings with windows/caps, circular official logo and direction arrow, no
+  visible ticker text on buildings. Ticker/move in screen-reader announcements
+  and results. Fluxion bird/wings/outline/tilt; decorative coins, no extra points.
+- HUD Back/S&P 500 run/star best/outlined score, "Hold to fly · release to drop";
+  recorded 3-2-1, +1/particles/trail/collision shake/flash. Optional short sound
+  only after first gesture with mute; Telegram-only haptics. Reduced motion,
+  bounded decoded logo cache and target 60fps. Results: "You flew past N S&P 500
+  stocks", top three gainers/decliners passed, logos/score/best/replay/ranking.
+- Acceptance: deterministic v2 replay plus v1 compatibility; daily course sharing
+  and persistence; dated intersection/no ETFs; clamps; color/logo fallback;
+  bounded polling/retention; 3/30 assets and full-catalog phone frame budget;
+  Discord/Telegram/browser e2e; screenshots at 390px/desktop and short video in
+  docs/review/t36. Operator warm-up/rolling compatibility documented separately.
 
 ## Operational priority — Ohio cutover (2026-10-24)
 
