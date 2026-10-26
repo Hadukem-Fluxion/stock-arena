@@ -56,6 +56,7 @@ export async function rewardReferral(tx: Tx, inviteeId: string, now: Date) {
     "checkin",
     "quiz",
     "higher_lower",
+    "flyer_best",
     ...GAME_CONFIG.checkin.streakBonuses.map((b) => `streak_bonus_${b.day}`),
   ];
   const [earned] = await tx

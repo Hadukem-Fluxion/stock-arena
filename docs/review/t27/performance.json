@@ -1,0 +1,14 @@
+{
+  "environment": "Chromium desktop emulation, not a physical phone",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "deviceScaleFactor": 2,
+  "cpuThrottle": 4,
+  "catalogSize": 30,
+  "durationSeconds": 16,
+  "ticks": 973,
+  "meanFrameWorkMs": 0.7417043740629341,
+  "frameBudgetMs": 16.666666666666668
+}

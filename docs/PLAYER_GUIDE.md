@@ -27,7 +27,7 @@ Home has the daily stock, check-in, games and today's top three. Markets shows
 catalog prices; Ranks opens the full leaderboard; Profile shows your account.
 Each game opens its own screen. Use Back to home (or Telegram's native back
 button) to leave it. Higher or Lower predictions remain saved when the app closes.
-Invite friends is available from Home. Flyer shows Soon until its release. Full notices are under
+Invite friends and mStocks Flyer are available from Home in their matching release. Full notices are under
 Not financial advice · Legal in the footer.
 
 ## Your first day
@@ -90,3 +90,16 @@ you get +50 when they earn 200 game points. Your friend keeps their own points.
 Referral bonuses and administrative points do not count toward the milestone.
 No percentage commissions or recurring rewards. The How it works details explain
 maintenance and the UTC daily qualification cap.
+
+## mStocks Flyer
+
+Open mStocks Flyer on Home. Start, then hold the playfield (or Space) to rise and
+release to fall. Each segment follows a stock's real price chart. Your daily best
+earns one point per pipe, up to 50 points; a new best pays only the improvement.
+After the points cap, keep playing for the Flyer leaderboard while your daily play
+limit permits. The result is verified by the server; the running score is provisional.
+
+Keep the app open during your flight. Changing apps or losing the connection can
+make a round unverifiable. If you leave before finishing, discard the unfinished
+flight when you return or wait for its expiry. If charts are not ready, try later;
+no session is consumed. Game-over charts and company facts explain what you flew.

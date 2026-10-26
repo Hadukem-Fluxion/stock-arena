@@ -47,6 +47,39 @@ export const GAME_CONFIG = {
     maxRewardsPerDay: 50,
     qualifyingGamePoints: 200,
   },
+  flyer: {
+    version: "flyer-1",
+    ticksPerSecond: 60,
+    sessionExpirySeconds: 600,
+    pointsPerPipe: 1,
+    dailyPointsCap: 50,
+    timingTolerancePct: 15,
+    pipesPerSegment: 10,
+    // World dimensions in pixels; physics uses 1000 integer units per pixel.
+    width: 360,
+    height: 480,
+    scale: 1000,
+    birdX: 78,
+    birdRadius: 12,
+    pipeWidth: 48,
+    pipeSpacing: 210,
+    firstPipeX: 420,
+    chartMargin: 100,
+    // Integer units/tick^2: 0.14 px rise acceleration, 0.12 px gravity.
+    riseAcceleration: 140,
+    gravity: 120,
+    // Integer units/tick: 216 px/s maximum rise; 240 px/s maximum fall.
+    maxRiseSpeed: 3600,
+    maxFallSpeed: 4000,
+    // Scroll: 108 px/s initially, +9 px/s per segment, up to 168 px/s.
+    initialScrollSpeed: 1800,
+    scrollRamp: 150,
+    maxScrollSpeed: 2800,
+    // Gaps: 180 px initially, -8 px per segment, minimum 130 px.
+    initialGap: 180,
+    gapRamp: 8,
+    minimumGap: 130,
+  },
   prices: {
     pollSeconds: 15,
     twapMinutes: 15,

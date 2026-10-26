@@ -3,6 +3,7 @@ import {
   checkins,
   gamePaused,
   hlRuns,
+  flyerSessions,
   inviteCodes,
   pointsLedger,
   quizAttempts,
@@ -56,6 +57,7 @@ export async function claimReferral(
     EXISTS(SELECT 1 FROM ${checkins} WHERE user_id = ${userId}) OR
     EXISTS(SELECT 1 FROM ${quizAttempts} WHERE user_id = ${userId}) OR
     EXISTS(SELECT 1 FROM ${hlRuns} WHERE user_id = ${userId}) OR
+    EXISTS(SELECT 1 FROM ${flyerSessions} WHERE user_id = ${userId}) OR
     EXISTS(SELECT 1 FROM ${pointsLedger} WHERE user_id = ${userId}) AS played`);
   if (played.rows[0]?.played) throw new ReferralError("INVITE_INELIGIBLE");
   const [inviter] = await tx

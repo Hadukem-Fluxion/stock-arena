@@ -77,6 +77,35 @@ for (const width of [390, 1440])
       const fixture = await setupPrediction(page, count);
       await nativeBack(page);
       await quiz(page);
+      await page.route("**/api/flyer", (route) =>
+        route.fulfill({
+          json: {
+            day: "2026-10-25",
+            best: 0,
+            pointsToday: 0,
+            dailyCap: 50,
+            maintenance: false,
+            available: false,
+            canStart: false,
+            active: null,
+          },
+        }),
+      );
+      await page.route("**/api/flyer/leaderboard?*", (route) =>
+        route.fulfill({
+          json: {
+            period: new URL(route.request().url()).searchParams.get("period"),
+            entries: [],
+            caller: null,
+            season: {
+              id: "season-1",
+              name: "Season 1",
+              startsAt: "2026-10-16T00:00:00Z",
+              endsAt: null,
+            },
+          },
+        }),
+      );
       await page.route("**/api/referral", (route) =>
         route.fulfill({
           json: {
@@ -130,7 +159,7 @@ for (const width of [390, 1440])
         await expect(page.locator(".player-stats")).toContainText("95");
         await expect(page.locator(".connection")).toHaveCount(0);
         await expect(page.locator(".game-list .game-tile")).toHaveCount(3);
-        await expect(page.getByRole("button", { name: en.games.flyer.name })).toBeDisabled();
+        await expect(page.getByRole("button", { name: en.games.flyer.name })).toBeEnabled();
         await expect(page.getByRole("button", { name: en.games.invite.name })).toBeEnabled();
         await expect(page.locator(".price-list")).toHaveCount(0);
         await expect(page.locator(".ranking-card h2")).toHaveText(en.labels.topThree);
@@ -253,10 +282,9 @@ for (const width of [390, 1440])
             page.getByRole("heading", { name: en.games[screen].name, exact: true }),
           ).toBeVisible();
           if (screen === "flyer")
-            await expect(page.getByText(en.navigation.soon, { exact: true })).toBeVisible();
+            await expect(page.getByText(en.flyer.configuration, { exact: true })).toBeVisible();
           else await expect(page.getByLabel(en.referrals.link, { exact: true })).toBeVisible();
-          if (count === 3)
-            await capture(page, info, `${screen}-${screen === "flyer" ? "soon-" : ""}${suffix}`);
+          if (count === 3) await capture(page, info, `${screen}-${suffix}`);
           await page.getByRole("button", { name: en.navigation.back, exact: true }).click();
           await expect(page.locator(".shell")).toHaveAttribute("data-screen", "home");
         }

@@ -102,6 +102,7 @@ describe("migrations and typed client", () => {
       "checkins",
       "flag_notes",
       "flags",
+      "flyer_sessions",
       "game_controls",
       "hl_predictions",
       "hl_rounds",
@@ -151,15 +152,19 @@ describe("migrations and typed client", () => {
   }, 30_000);
 
   it("stores instants as timestamptz and game days as date", async () => {
-    const columns = await connection.db.execute<{ column_name: string; data_type: string }>(sql`
-      SELECT column_name, data_type FROM information_schema.columns
+    const columns = await connection.db.execute<{
+      table_name: string;
+      column_name: string;
+      data_type: string;
+    }>(sql`
+      SELECT table_name, column_name, data_type FROM information_schema.columns
       WHERE table_schema = 'public'
         AND (column_name IN ('created_at', 'updated_at', 'taken_at', 'ended_at',
           'qualified_at', 'platform_created_at', 'day', 'scheduled_day', 'started_at'))
     `);
     for (const column of columns.rows) {
       expect(column.data_type).toBe(
-        column.column_name === "started_at"
+        column.table_name === "quiz_attempts" && column.column_name === "started_at"
           ? "ARRAY"
           : ["day", "scheduled_day"].includes(column.column_name)
             ? "date"

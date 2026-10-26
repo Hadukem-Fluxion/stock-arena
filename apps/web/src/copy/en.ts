@@ -17,6 +17,44 @@ const providers = {
 } as const;
 
 export const en = {
+  flyer: {
+    title: "mStocks Flyer",
+    start: "Hold to fly, release to fall",
+    hint: "Hold to rise",
+    chart: "24h chart",
+    chartNotice: "Pipes follow each stock's last 24h price.",
+    preview: "Open in Discord or Telegram to play mStocks Flyer.",
+    best: (n: number | null) => `Best ${n ?? "—"}`,
+    score: "Score",
+    dailyBest: "Daily best",
+    points: (n: number) => `+${n} pts`,
+    newBest: "New best!",
+    gameOver: "Game over",
+    playAgain: "Play again",
+    loading: "Loading Flyer…",
+    verifying: "Checking your flight…",
+    canvas: "Flyer playfield. Hold touch, mouse or Space to rise; release to fall.",
+    cap: "Daily points cap reached — keep playing for the leaderboard",
+    discard: "Discard unfinished game",
+    unfinished: "An unfinished flight is still open.",
+    configuration: "Flyer is being prepared. Please try again later.",
+    rankings: "Flyer leaderboard",
+    noScores: "No flights yet. Be the first!",
+    rules: `Hold to rise, release to fall. Your best score earns ${GAME_CONFIG.flyer.pointsPerPipe} point per pipe, up to ${GAME_CONFIG.flyer.dailyPointsCap} points per UTC day. The server verifies every flight.`,
+    chartTitle: "Charts you flew",
+    factPending: "More company facts coming soon.",
+    errors: {
+      FLYER_UNAVAILABLE:
+        "Charts are not ready yet. Try again when more price history is available.",
+      FLYER_ACTIVE: "An unfinished flight is still open. Discard it before starting again.",
+      FLYER_EXPIRED: "This flight expired. Start a new one.",
+      FLYER_REUSED: "This flight has already ended. Refresh to see your latest best.",
+      FLYER_INVALID_REPLAY:
+        "This flight could not be verified. Keep the app open while flying and try again.",
+      FLYER_LIMIT: "Daily play limit reached. Come back tomorrow.",
+      generic: "Could not complete this action. Please try again.",
+    },
+  },
   maintenance: "Paused for maintenance",
   navigation: {
     back: "Back to home",
@@ -38,8 +76,6 @@ export const en = {
     notStarted: "Not started",
     closedApp: "Safe to close the app.",
     runTabs: "Runs",
-    soon: "Soon",
-    flyerPending: "mStocks Flyer is coming soon.",
   },
   referrals: {
     hero: `+${referralRules.pointsPerQualifiedFriend} pts`,
@@ -104,6 +140,26 @@ export const en = {
     actors: { player: "Changed by you", staff: "Changed by staff" },
   },
   admin: {
+    flyer: "Flyer sessions",
+    flyerOps: {
+      states: {
+        active: "Active",
+        finished: "Finished",
+        cancelled: "Cancelled",
+        expired: "Expired",
+        void: "Void",
+      },
+      intro:
+        "Find a player's flights by user ID. Voiding removes a score from rankings and recalculates that day's Flyer points with an audited correction, preserving the original session.",
+      userId: "Player user ID",
+      find: "Find flights",
+      state: "State",
+      score: "Score",
+      started: "Started (UTC)",
+      finished: "Finished (UTC)",
+      voidAction: "Void flight",
+      confirm: "Void this flight and correct its daily points if needed? This cannot be undone.",
+    },
     referrals: "Invites",
     referralOps: {
       intro:
@@ -320,6 +376,7 @@ export const en = {
       "reward.destination_changed": "Reward destination corrected",
       "reward.exported": "Reward CSV exported",
       "referral.voided": "Invite voided and bonuses reversed",
+      "flyer.voided": "Flight voided and daily points reviewed",
     },
     gameControls: {
       names: {
@@ -327,6 +384,7 @@ export const en = {
         quiz: "Daily Quiz",
         higher_lower: "Higher or Lower",
         invite: "Invite friends",
+        flyer: "mStocks Flyer",
       },
       gameIntro:
         "Pause or resume player actions. Paused games do not consume new daily attempts or runs.",

@@ -18,8 +18,8 @@ One brief = one pull request. Paste the whole brief into Codex together with AGE
 | T33               | Integrated via PR #28; dedicated home/screens and review adjustments; live smoke test pending        |
 | Quiz option order | Integrated via PR #32; deterministic per-player/day/question presentation and legacy sets preserved  |
 | T35 public stats  | Integrated via PR #33; anonymous stats before T34                                                    |
-| T34               | Implemented on t34-referrals; simplified 200-point qualification, review pending                     |
-| T27 mStocks Flyer | After T34; hold-to-rise with approved screen 4; not started                                          |
+| T34               | Integrated via PR #34; simplified 200-point qualification                                            |
+| T27 mStocks Flyer | Implemented on t27-flyer; replay, daily-best points and screen 4; review pending                     |
 | T32               | Settlement query optimization; required before T19 load test; not part of T26                        |
 
 Campaign decision for Mantle (not code): accepted reward identifiers (Bybit UID,
@@ -611,7 +611,7 @@ Implementation branch: `t31-rewards`. No merge, deploy or real database writes b
 
 ## T27 — mStocks Flyer (hold-to-rise arcade)
 
-**Order**: after T31 → T33 → T34, implement T27. One branch/PR, no merge/deploy/live database changes by Codex.
+**Order**: T31/T33/T34 are integrated; implement T27. One branch/PR, no merge/deploy/live database changes by Codex.
 
 **Goal**: a quick skill game that keeps the stock theme: the pipes follow real price charts.
 
@@ -629,12 +629,12 @@ Implementation branch: `t31-rewards`. No merge, deploy or real database writes b
 - `POST /api/flyer/start` → session id, seed, course data (price points per segment), config version. One active session per user; expires after 10 min.
 - Deterministic simulation in `packages/game-core` (fixed 60 Hz timestep, fixed-point or integer math, no Math.random/Date in the sim), shared by client and server.
 - `POST /api/flyer/finish` with the input log: tick-stamped `press`/`release` pairs, alternating and beginning with `press`. Record actual held-state transitions, not repeated flap impulses. The server replays these transitions with the session's seed/course in the same deterministic 60 Hz simulation and computes the score. Reject out-of-order or overlapping events, invalid press/release sequences, events with ticks beyond the match's end, mismatched or impossible logs, tick count inconsistent with wall-clock time between start and finish (±15%), and expired or reused sessions. The client score is never trusted.
-- Limits from config/env (not committed values for anti-abuse thresholds): max finishes per user per UTC day, max session length.
+- Limits from config/env (not committed values for anti-abuse thresholds): max finishes per user per UTC day, max session length. FLYER_MAX_FINISHES_PER_DAY and FLYER_MAX_SESSION_SECONDS are required private values with no repository defaults; missing/invalid configuration disables starts. The session length must be a positive integer below the public 600-second expiry, leaving time to submit a result.
 
 **Points and leaderboard**
 
 - 1 point per pipe of the player's daily best, capped at 50 points per UTC day. Award only the increase when a new daily best is set (ledger reason `flyer_best`, ref_id `flyer:<day>:<sessionId>`, unique; never above the cap).
-- Own leaderboard (best score: today / week / season), ties to whoever reached it first. Points also count in the main leaderboards.
+- Own leaderboard (best score: today / week / season), ties to whoever reached it first. Points also count in the main leaderboards. Hadukem confirmed that flyer_best belongs in rewardReferral gameReasons and counts toward the 200 gameplay-point referral milestone.
 - Admin (T29/T30): per-game pause switch includes Flyer; admin can view a player's sessions and void a session (ledger correction row).
 
 **Approved layout**: screen 4 of the shared T33/T34/T27 mockup: Back to home + "Best N", segment ticker and score above the central canvas, "Hold to rise" hint. Enable the home card only when this task is implemented. Include a short gameplay video/GIF, mobile/desktop captures and Discord/Telegram/browser e2e checks.
@@ -709,7 +709,7 @@ Implementation branch: `t31-rewards`. No merge, deploy or real database writes b
 - Fixed random, non-sequential per-user codes. Migration 0013 upgrades the existing referrals table without deleting old assignments/qualification dates; new invite_codes table, stored code/platform/creation/status (pending/rewarded/void) and invitee_bonus_at. Assignment and codes are immutable; no referral deletion. Legacy platform may be null when not known.
 - Telegram deep link t.me/<bot>?startapp=ref_CODE: read start_param only after verifying the signed raw initData at login. Discord SDK shareLink with custom_id; SDK customId travels with the OAuth login and is validated against stored codes. Capture only on new account creation. Unknown/paused launch codes never block login.
 - Manual fallback POST /api/referral/claim before any prior check-in, quiz attempt, HL run or ledger activity, within the first 24 hours. No self-invite, inactive inviter or reassignment. One immutable inviter per account, including after a void.
-- GAME_CONFIG.referrals owns +50/+20/200 and maxRewardsPerDay (50 qualifications per inviter/UTC day). Check-in/streak, completed quiz and settled Higher or Lower points count; referral bonuses and admin adjustments never count. The invitee keeps every gameplay point. Qualify inside the game award transaction. No multi-account detection in this task.
+- GAME_CONFIG.referrals owns +50/+20/200 and maxRewardsPerDay (50 qualifications per inviter/UTC day). Check-in/streak, completed quiz and settled Higher or Lower points count; T27 also includes verified Flyer daily-best awards. Referral bonuses and admin adjustments never count. The invitee keeps every gameplay point. Qualify inside the game award transaction. No multi-account detection in this task.
 - Award each bonus once with ledger reason referral and reference ref:<inviteeId>, unique per user. Bonus times are independent: an invitee who qualifies before their first check-in can still get +20 later. Invite maintenance blocks claims and both bonuses, not the underlying games; a later game action retries pending bonuses after resume. Inactive inviters cannot receive referral awards.
 - At the daily qualification cap, retain pending status; retry on a later game award/check-in after UTC rollover. Voided qualifications retain their original timestamp and never free daily quota.
 - UI: +50 pts hero, plain 200-point condition, invitee +20 explanation, Copy/Share, Friends joined and net inviter Points earned, three steps, manual code details and full rules in How it works. Activate Home Invite card; Flyer remains Soon. All copy in en.ts, provider branding unchanged.
