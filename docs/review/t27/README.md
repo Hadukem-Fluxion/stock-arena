@@ -37,8 +37,27 @@ referral qualification and audited role-restricted voids.
 Apply migration `0014` before the matching API, then configure the two private
 API operational limits listed in `docs/DEPLOY.md`. No values are included in this
 repository. A course needs primary snapshots in all ten time buckets of its last
-24 hours; incomplete assets are skipped, with no pool or invented-price fallback.
+24-hour window anchored at each ticker's latest primary snapshot; incomplete
+assets are skipped, with no pool or invented-price fallback.
 
 Hadukem should verify real Discord/Telegram play, held-input release, results,
 points, rankings and admin maintenance/void controls on the deployed version.
 This PR performs no merge, deployment or real database operation.
+
+## Closed-market follow-up
+
+PR #35 is integrated. The follow-up changes only course history selection and its
+label; scoring, replay, input, limits and existing frozen sessions stay compatible.
+There is no new migration. Each ticker uses its own latest primary timestamp at
+or before server now. Windows ending more than the existing 120-second freshness
+tolerance ago display "Last session" in the segment and verified result.
+
+New synthetic API cases cover Friday-to-Sunday history after retention, a holiday,
+different last observations per ticker, insufficient data, ignored pools/future
+samples and unchanged intraday sample selection/normalization. Browser evidence:
+
+- `flyer-last-session-390.png` and `flyer-last-session-result-390.png`.
+- `flyer-last-session-1440.png` and `flyer-last-session-result-1440.png`.
+
+Follow-up validation: 593 unit/integration tests passed (eight POSIX-only Windows
+skips), all 96 browser tests passed, plus lint, formatting, TypeScript and build.

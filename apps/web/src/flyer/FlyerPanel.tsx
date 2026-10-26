@@ -226,7 +226,7 @@ export function FlyerPanel({
             size={32}
           />
           <strong>
-            {segment.asset.symbol} · {copy.chart}
+            {segment.asset.symbol} · {segment.lastSession ? copy.lastSession : copy.chart}
           </strong>
           <span className="pill number" aria-label={copy.score}>
             {live.score}
@@ -265,6 +265,7 @@ export function FlyerPanel({
                   {Number(s.changePct) > 0 ? "+" : ""}
                   {Number(s.changePct).toFixed(2)}%
                 </span>
+                {s.lastSession && <span className="pill">{copy.lastSession}</span>}
               </strong>
               <svg viewBox="0 0 180 52" role="img" aria-label={`${s.asset.symbol} ${copy.chart}`}>
                 <polyline

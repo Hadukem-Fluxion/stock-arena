@@ -19,7 +19,7 @@ One brief = one pull request. Paste the whole brief into Codex together with AGE
 | Quiz option order | Integrated via PR #32; deterministic per-player/day/question presentation and legacy sets preserved  |
 | T35 public stats  | Integrated via PR #33; anonymous stats before T34                                                    |
 | T34               | Integrated via PR #34; simplified 200-point qualification                                            |
-| T27 mStocks Flyer | Implemented on t27-flyer; replay, daily-best points and screen 4; review pending                     |
+| T27 mStocks Flyer | Integrated via PR #35; last-session history follow-up on t27-flyer-last-session, review pending      |
 | T32               | Settlement query optimization; required before T19 load test; not part of T26                        |
 
 Campaign decision for Mantle (not code): accepted reward identifiers (Bybit UID,
@@ -612,6 +612,15 @@ Implementation branch: `t31-rewards`. No merge, deploy or real database writes b
 ## T27 — mStocks Flyer (hold-to-rise arcade)
 
 **Order**: T31/T33/T34 are integrated; implement T27. One branch/PR, no merge/deploy/live database changes by Codex.
+
+**Post-merge follow-up (Hadukem, 25/10)**: PR #35 is integrated. Anchor the course's
+24-hour window independently at each ticker's latest primary snapshot at/before
+server now, keeping ten populated buckets and all replay/scoring validations.
+Windows older than the existing 120-second freshness tolerance show "Last session"
+on the segment and result. Keep old frozen sessions compatible. Cover weekends
+(Friday's last data), holidays, insufficient history and unchanged intraday
+sampling; no migration/deployment/live database operations. Technical planning for
+the S&P 500 catalog follows Hadukem's forthcoming brief, outside this PR.
 
 **Goal**: a quick skill game that keeps the stock theme: the pipes follow real price charts.
 

@@ -17,9 +17,14 @@ Ohio status (24/10): PRs #30/#31 are integrated. Hadukem reports cutover complet
 Priority update (24/10): PR #32 quiz option ordering is integrated. It keeps
 bank/schema/rules unchanged: new frozen sets use a private seed and stable
 per-player/day/question presentation; existing sets retain their old order for
-safe rollout. T34 is integrated via PR #34. Current delivery is **T27**, one branch/PR at a time.
+safe rollout. T34 is integrated via PR #34. T27 is integrated via PR #35; current
+delivery is its small closed-market history follow-up, one branch/PR at a time.
 T35 publishes only anonymous aggregates for Mantle Synch, with a 60-second cache,
-exact-origin CORS and an IP quota. PR #33 is integrated. T34 is integrated via PR #34; T27 is implemented on t27-flyer for review. Ohio cutover was reported complete by Hadukem at 9fe93dc;
+exact-origin CORS and an IP quota. PR #33 is integrated. T34 is integrated via PR #34;
+T27's follow-up on t27-flyer-last-session anchors each 24-hour course chart to the
+last primary snapshot and labels old windows "Last session", preserving weekends
+and holidays without pools or invented prices. S&P 500 catalog planning awaits
+Hadukem's next brief and is outside this change. Ohio cutover was reported complete by Hadukem at 9fe93dc;
 operator fixes are integrated via PR #31. Codex performs no live database,
 merge or deployment operations.
 

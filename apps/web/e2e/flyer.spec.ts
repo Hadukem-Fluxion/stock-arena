@@ -10,9 +10,14 @@ import { setupPrediction } from "./prediction-fixture.js";
 const c = en.flyer,
   sessionId = "a1000000-0000-4000-8000-000000000001";
 test.use({ video: { mode: "on", size: { width: 390, height: 844 } } });
-async function fixture(page: Page, count = 3, maintenance = false) {
+async function fixture(page: Page, count = 3, maintenance = false, lastSession = false) {
   const host = await setupPrediction(page, count),
     course = syntheticFlyerCourse(count);
+  if (lastSession)
+    for (const segment of course.segments) {
+      segment.lastSession = true;
+      segment.windowEndsAt = "2026-10-23T21:00:00Z";
+    }
   let best = 0,
     paid = 0,
     active = false;
@@ -161,6 +166,31 @@ for (const width of [390, 1440])
         await f.close();
       }
     });
+for (const width of [390, 1440])
+  test(`Flyer last session label survives replay and result at ${width}px`, async ({
+    page,
+  }, info) => {
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
+    const f = await fixture(page, 3, false, true);
+    try {
+      await page.goto("/#tgWebAppData=synthetic&screen=flyer");
+      await page.getByRole("button", { name: c.start, exact: true }).click();
+      await expect(page.locator(".flyer-status")).toContainText(c.lastSession);
+      await drive(page, 1);
+      await expect
+        .poll(async () => Number(await page.locator("canvas").getAttribute("data-tick")))
+        .toBeGreaterThan(150);
+      await capture(page, info, `flyer-last-session-${width}.png`);
+      await expect(page.getByText(c.newBest, { exact: true })).toBeVisible({ timeout: 20000 });
+      await expect(
+        page.locator(".flyer-chart").getByText(c.lastSession, { exact: true }),
+      ).toBeVisible();
+      expect(f.finishes).toHaveLength(1);
+      await capture(page, info, `flyer-last-session-result-${width}.png`);
+    } finally {
+      await f.close();
+    }
+  });
 test("Flyer releases outside canvas, blocks touch menus and remains usable in landscape", async ({
   page,
 }, info) => {

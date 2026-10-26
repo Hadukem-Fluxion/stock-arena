@@ -146,8 +146,12 @@ claimed by this feature.
 
 Hold touch, mouse or Space to rise; release to fall. Gravity and rising acceleration
 are continuous, not tap impulses. Stock segments each contain ten pipes following
-a sampled primary-price chart from the last 24 hours, normalized between top and
-bottom margins. Catalog order is chosen by the server and repeats if the flight
+a sampled 24-hour primary-price chart, normalized between top and bottom margins.
+Each stock's window ends at its own latest stored primary snapshot, so weekends
+and holidays can use the last available history. A window ending more than 120
+seconds ago is labeled "Last session" during play and on the result. It still
+requires ten populated time buckets; missing data never becomes an invented chart.
+Catalog order is chosen by the server and repeats if the flight
 outlasts the catalog. No fixed seven-asset assumption; missing charts are skipped.
 Pools are never course data. If no complete chart exists, no session starts.
 

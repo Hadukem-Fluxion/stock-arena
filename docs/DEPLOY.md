@@ -161,7 +161,10 @@ valores válidos, a API continua saudável e os outros jogos funcionam; o Flyer
 informa que está sendo preparado. Worker, Vercel e bots não precisam dessas variáveis.
 Rebuild/deploy e mudanças no .env real são feitos pelo operador após o merge.
 
-O percurso precisa de amostras primárias em dez faixas das últimas 24 horas.
+O percurso precisa de amostras primárias em dez faixas de uma janela de 24 horas,
+ancorada no último snapshot primário de cada ativo. Fins de semana e feriados
+reutilizam esse histórico, incluindo os snapshots horários preservados pela retenção;
+uma janela encerrada há mais de 120 segundos mostra "Last session".
 Não usa pools nem dados fictícios como fallback. Após iniciar um banco sem histórico,
 aguarde a coleta real; ausência de um gráfico completo não consome uma sessão.
 Valide Discord e Telegram: iniciar, segurar/soltar fora do canvas, terminar uma

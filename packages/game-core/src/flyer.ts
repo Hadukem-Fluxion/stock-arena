@@ -10,6 +10,9 @@ export type FlyerSegment = {
   centers: number[];
   changePct: string;
   fact: string | null;
+  /** Optional for sessions frozen before the per-ticker history window follow-up. */
+  windowEndsAt?: string;
+  lastSession?: boolean;
 };
 export type FlyerCourse = { version: string; seed: number; segments: FlyerSegment[] };
 export type FlyerState = {
