@@ -5,6 +5,8 @@ x-app: &app
   build:
     context: ../..
     dockerfile: deploy/lightsail/Dockerfile
+    args:
+      TYPECHECK_HEAP_MB: ${TYPECHECK_HEAP_MB:-288}
   env_file:
     - ${MSTOCKS_ENV_FILE:-/etc/mstocks-arena/.env}
   environment:

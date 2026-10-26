@@ -12,8 +12,11 @@ The generator remains byte-reproducible offline.
 
 Docker checks API and worker strictly and sequentially with production configs
 excluding test files. Full source/test typechecking remains in the normal CI job.
-The build-only heap argument defaults to 512MiB; temporary V8 allocations use a
+The build-only heap argument defaults to 288MiB; temporary V8 allocations use a
 4MiB semispace and size-oriented compilation. Service runtime limits are unchanged.
+Hadukem delegated the final resource choice with no hosting upgrade: the smaller
+default is checked in the same 1GiB instance envelope, with explicit emergency
+override still available through both Docker and Compose/deploy.sh.
 
 The first Linux probe still exceeded the target (API 444.16MiB, worker 456.90MiB),
 despite the bounded image passing. The remaining broad viem imports are narrowed:

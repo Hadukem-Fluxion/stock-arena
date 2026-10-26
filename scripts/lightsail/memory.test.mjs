@@ -14,7 +14,7 @@ it("keeps full CI typechecking and sequential strict production checks with an a
     ci = file("../../.github/workflows/ci.yml"),
     limited = file("../../.github/workflows/lightsail.yml");
   expect(ci).toContain("pnpm typecheck");
-  expect(docker).toContain("ARG TYPECHECK_HEAP_MB=512");
+  expect(docker).toContain("ARG TYPECHECK_HEAP_MB=288");
   expect(docker).toMatch(
     /api typecheck:production\s*\\\s*&& NODE_OPTIONS=.*worker typecheck:production/,
   );

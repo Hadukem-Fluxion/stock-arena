@@ -97,11 +97,14 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
         const i = args.indexOf(key);
         return i < 0 ? fallback : args[i + 1];
       };
+    const root = value("--root", ".");
+    const docker = readFileSync(resolve(root, "deploy/lightsail/Dockerfile"), "utf8");
+    const defaultHeap = /ARG TYPECHECK_HEAP_MB=(\d+)/.exec(docker)?.[1] ?? "512";
     measure({
       root: value("--root", "."),
       label: value("--label", "after"),
       output: value("--output", ".corepack/typecheck-memory"),
-      heap: Number(value("--heap", "512")),
+      heap: Number(value("--heap", defaultHeap)),
       limit: Number(value("--limit-mb", "400")),
       production:
         args.includes("--production") ||
