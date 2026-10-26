@@ -1,7 +1,5 @@
 import { randomBytes } from "node:crypto";
 import {
-  EXTENDED_ASSETS,
-  EXTENDED_CATALOG_VERSION,
   STOCK_FACTS,
   GAME_CONFIG,
   flyerCourse,
@@ -10,6 +8,7 @@ import {
   predictionChange,
   replayFlyer,
 } from "@stock-arena/game-core";
+import { EXTENDED_ASSETS, EXTENDED_CATALOG_VERSION } from "@stock-arena/game-core/catalog";
 import type {
   ReferenceCatalog,
   FlyerCourse,

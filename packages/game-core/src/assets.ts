@@ -100,11 +100,6 @@ export type ReferenceAsset = Omit<Asset, "token" | "wrapped"> &
   Partial<Pick<Asset, "token" | "wrapped">> & { primaryColor?: string; priceSymbol?: string };
 export type ReferenceCatalog = Readonly<Record<string, ReferenceAsset>>;
 export const NEUTRAL_ASSET_COLOR = "#7c8b9e";
-export {
-  EXTENDED_ASSETS,
-  EXTENDED_CATALOG_VERSION,
-  EXTENDED_CATALOG_METADATA,
-} from "./catalog/extended.generated.js";
 
 export function assetTickers<C extends AssetCatalog>(
   catalog: C,

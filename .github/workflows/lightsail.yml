@@ -9,6 +9,62 @@ permissions:
   contents: read
 
 jobs:
+  typecheck-memory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: after
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha || github.event.before }}
+          path: before
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: after/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: after/.nvmrc
+      - run: pnpm install --frozen-lockfile
+        working-directory: before
+      - run: pnpm install --frozen-lockfile
+        working-directory: after
+      - name: Measure previous Docker typechecks (failure is recorded)
+        run: node after/scripts/lightsail/measure-typecheck.mjs --root before --label before --output memory-report --limit-mib 0 --allow-failure --docker-profile
+      - name: Require sequential production typechecks below 400 MiB each
+        run: node after/scripts/lightsail/measure-typecheck.mjs --root after --label after --output memory-report --production
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: typecheck-memory
+          path: memory-report/
+  memory-bounded-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure at least 2 GiB host swap for the isolated builder
+        run: |
+          if [ "$(free -b | awk '/Swap:/ {print $2}')" -lt 2147483648 ]; then
+            sudo fallocate -l 2G /mnt/mstocks-ci.swap
+            sudo chmod 600 /mnt/mstocks-ci.swap
+            sudo mkswap /mnt/mstocks-ci.swap
+            sudo swapon /mnt/mstocks-ci.swap
+          fi
+      - uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker-container
+          driver-opts: |
+            memory=1g
+            memory-swap=3g
+      - name: Verify effective builder memory limits
+        run: |
+          docker inspect $(docker ps -q --filter name=buildx_buildkit) --format '{{.HostConfig.Memory}} {{.HostConfig.MemorySwap}}' | grep -x '1073741824 3221225472'
+      - name: Build Lightsail image within 1 GiB RAM and 3 GiB total RAM+swap
+        run: docker buildx build --load --no-cache --build-arg TYPECHECK_HEAP_MB=512 -f deploy/lightsail/Dockerfile -t mstocks-arena:memory .
+      - name: Verify runtime catalog loading without any database
+        run: docker run --rm --entrypoint pnpm mstocks-arena:memory --filter @stock-arena/api exec tsx -e 'import { EXTENDED_ASSETS } from "@stock-arena/game-core/catalog"; if (Object.keys(EXTENDED_ASSETS).length < 1) process.exit(1)'
   containers:
     runs-on: ubuntu-latest
     steps:

@@ -150,6 +150,51 @@ Invite friends no admin pausa cadastro/bônus sem interromper os outros jogos.
 
 ### T36 — Daylight Market e catálogo estendido
 
+#### Correção do build em máquina de 1 GB
+
+O catálogo agora é JSON gerado, lido/validado com Zod pelo subpath exclusivo de
+servidor `@stock-arena/game-core/catalog`. Não entra na inferência TypeScript nem
+no barrel compartilhado com a web. Dados, versão, catálogo core e jogos não mudam.
+
+O Docker executa `typecheck:production` da API e depois do worker, com o mesmo modo
+strict. Esses configs excluem apenas testes; o CI geral continua executando
+`pnpm typecheck` completo, incluindo testes. O compilador usa `--optimize-for-size`
+e semispace de 4MiB para reduzir alocações temporárias. São opções apenas do build,
+sem mudar os limites/runtime dos serviços.
+
+`TYPECHECK_HEAP_MB` é um **build-arg**, padrão **512**, não uma variável de produção.
+Em emergência, o operador pode ajustar explicitamente o teto, por exemplo:
+
+```bash
+sudo APP_RELEASE=$(sudo git rev-parse HEAD) docker compose -f deploy/lightsail/compose.yml build --build-arg TYPECHECK_HEAP_MB=768 api
+```
+
+Aumentar o heap aumenta a demanda de memória; não substitui o limite de RAM/swap
+do servidor nem a meta de RSS. O teto de heap não representa o RSS total do Node.
+Esta documentação não executa o comando nem autoriza implantação pelo Codex.
+
+O workflow **Lightsail containers** adiciona dois gates:
+
+- `typecheck-memory`: mede antes/depois sequencialmente com `/usr/bin/time -v`,
+  Node da `.nvmrc`, configs/perfil do Docker de cada revisão. O perfil antigo pode
+  registrar OOM; isso não é reportado como sucesso. O perfil novo deve terminar e
+  ficar **abaixo de 400MiB de RSS por compilador**. Logs, `.time` e JSON ficam no
+  artifact `typecheck-memory` e o resumo da execução mostra a tabela.
+- `memory-bounded-image`: Buildx em container dedicado, **1GiB RAM e 3GiB total
+  RAM+swap**, com swap do host garantido, limites Docker verificados e build sem
+  cache. Usa o [driver docker-container oficial](https://docs.docker.com/build/builders/drivers/docker-container/),
+  evitando flags de memória que o BuildKit padrão poderia ignorar. Não faz deploy.
+
+Para reproduzir em Linux, no checkout com dependências instaladas:
+
+```bash
+node scripts/lightsail/measure-typecheck.mjs --root . --label after --production
+```
+
+As medições canônicas e a comparação desta correção estão em
+`docs/review/t36-build-memory/README.md`. Windows sem Docker/WSL não é usado como
+substituto das medições Linux. Nenhuma medição lê `.env` ou conecta ao banco.
+
 O core continua com sete ativos/15s. O worker consulta o catálogo S&P 500 ∩ xStocks
 versionado no repo, sem chamadas externas na API. Na data 26/10/2026, são 468 ações;
 ETFs não entram. `pnpm catalog:generate` reproduz o catálogo offline. Fontes e

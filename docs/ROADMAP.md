@@ -14,6 +14,12 @@ Ohio status (24/10): PRs #30/#31 are integrated. Hadukem reports cutover complet
 
 ## Who does what
 
+T36 build follow-up: PR #37 is integrated; Hadukem reports production is still
+healthy at 551d55d because the image's compiler exceeded its heap. The separate
+`t36-build-memory` PR reduces catalog/compiler cost, measures sequential compiler
+RSS and enforces a memory-bounded image build in CI. It changes no game rules or
+data; Codex performs no merge/deployment/real database operation.
+
 T36 is the current implementation/review task on `t36-daylight-market`: Flyer v2
 Daylight Market (approved artboard B) with a reproducible 2026-10-26 S&P 500 ∩
 xStocks catalog of 468 stocks. Core seven/poll/game rules stay independent. Bounded

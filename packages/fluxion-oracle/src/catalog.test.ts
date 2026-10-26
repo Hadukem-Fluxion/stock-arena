@@ -1,7 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { expect, it } from "vitest";
 import { PNG } from "pngjs";
-import { ASSETS, EXTENDED_ASSETS, NEUTRAL_ASSET_COLOR } from "@stock-arena/game-core";
+import { ASSETS, NEUTRAL_ASSET_COLOR } from "@stock-arena/game-core";
+import { EXTENDED_ASSETS } from "@stock-arena/game-core/catalog";
 import { buildExtendedCatalog, parseConstituents, publicAssetSchema } from "./catalog.js";
 import type { LogoPalette } from "./catalog.js";
 import { logoColor } from "./catalog-color.js";
