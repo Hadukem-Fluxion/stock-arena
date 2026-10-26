@@ -1,0 +1,29 @@
+{
+  "label": "before",
+  "revision": "ff080ab78fb690b89f09fdd37a8a788ace2cb089",
+  "node": "v24.19.0",
+  "platform": "linux",
+  "heapMiB": 512,
+  "limitMB": 0,
+  "production": false,
+  "entries": [
+    {
+      "name": "api",
+      "config": "tsconfig.json",
+      "exitCode": 0,
+      "peakRssKiB": 706756,
+      "peakRssMiB": 690.19,
+      "peakRssMB": 723.72,
+      "passed": true
+    },
+    {
+      "name": "worker",
+      "config": "tsconfig.json",
+      "exitCode": 0,
+      "peakRssKiB": 583872,
+      "peakRssMiB": 570.19,
+      "peakRssMB": 597.88,
+      "passed": true
+    }
+  ]
+}

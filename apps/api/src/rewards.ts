@@ -1,7 +1,7 @@
 import { desc, eq } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { getAddress } from "viem/utils";
+import { getAddress } from "./address.js";
 import {
   rewardControl,
   rewardDestinationHistory,

@@ -20,7 +20,11 @@ by this generator. Extended membership does not assert a Mantle deployment.
   official logo URL. Transparent/monochrome, failed or invalid logos use neutral
   `#7c8b9e`. Official logos are displayed unchanged; no logo files are regenerated.
 
-Run `pnpm catalog:generate` to reproduce `src/catalog/extended.generated.ts`
+The Node-only `@stock-arena/game-core/catalog` subpath reads the generated JSON
+and validates it with Zod once on startup. It is intentionally absent from the
+shared browser/core barrel: TypeScript never infers the hundreds of stock records.
+
+Run `pnpm catalog:generate` to reproduce `src/catalog/extended.generated.json`
 **offline**, including its content-derived version. Run
 `pnpm catalog:generate --refresh` to fetch the pinned list, paginate the public
 API and update changed logo colors. `--refresh --refresh-logos` rebuilds all colors.

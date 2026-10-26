@@ -1,4 +1,5 @@
-import { EXTENDED_ASSETS, GAME_CONFIG } from "@stock-arena/game-core";
+import { GAME_CONFIG } from "@stock-arena/game-core";
+import { EXTENDED_ASSETS } from "@stock-arena/game-core/catalog";
 import type { ReferenceCatalog } from "@stock-arena/game-core";
 import { z } from "zod";
 import { tradingSchema } from "./xstocks.js";

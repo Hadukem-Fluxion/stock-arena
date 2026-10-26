@@ -4,30 +4,42 @@ One brief = one pull request. Paste the whole brief into Codex together with AGE
 
 ## Task Board updates — 2026-10-26
 
-| Task                | State / dependency                                                                                                      |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| T14                 | Superseded by T28–T30                                                                                                   |
-| T21 Daily Call      | CANCELLED — merged into T26                                                                                             |
-| T26                 | Integrated via PR #20; post-deploy smoke test remains pending confirmation                                              |
-| T28                 | Integrated via PR #23; real admin smoke test pending deployment                                                         |
-| Lightsail hosting   | Integrated via PRs #24/#30/#31; Ohio cutover reported complete at 9fe93dc; operator fixes integrated                    |
-| T29                 | Integrated via PR #25; post-deploy smoke test pending                                                                   |
-| T30                 | Integrated via PR #26; post-deploy smoke test pending                                                                   |
-| T31                 | Integrated via PR #27; live smoke test pending                                                                          |
-| T31 follow-up       | Integrated via PR #29: atomic snapshot lock and CSV marker                                                              |
-| T33                 | Integrated via PR #28; dedicated home/screens and review adjustments; live smoke test pending                           |
-| Quiz option order   | Integrated via PR #32; deterministic per-player/day/question presentation and legacy sets preserved                     |
-| T35 public stats    | Integrated via PR #33; anonymous stats before T34                                                                       |
-| T34                 | Integrated via PR #34; simplified 200-point qualification                                                               |
-| T27 mStocks Flyer   | Integrated via PRs #35/#36; cross-session history and friendly chart retry retained for v1                              |
-| T36 Daylight Market | Ready for review on t36-daylight-market; 468-stock catalog/flyer-2, 628 local unit + 108 web checks; no live operations |
-| T32                 | Settlement query optimization; required before T19 load test; not part of T26                                           |
+| Task                | State / dependency                                                                                   |
+| ------------------- | ---------------------------------------------------------------------------------------------------- |
+| T14                 | Superseded by T28–T30                                                                                |
+| T21 Daily Call      | CANCELLED — merged into T26                                                                          |
+| T26                 | Integrated via PR #20; post-deploy smoke test remains pending confirmation                           |
+| T28                 | Integrated via PR #23; real admin smoke test pending deployment                                      |
+| Lightsail hosting   | Integrated via PRs #24/#30/#31; Ohio cutover reported complete at 9fe93dc; operator fixes integrated |
+| T29                 | Integrated via PR #25; post-deploy smoke test pending                                                |
+| T30                 | Integrated via PR #26; post-deploy smoke test pending                                                |
+| T31                 | Integrated via PR #27; live smoke test pending                                                       |
+| T31 follow-up       | Integrated via PR #29: atomic snapshot lock and CSV marker                                           |
+| T33                 | Integrated via PR #28; dedicated home/screens and review adjustments; live smoke test pending        |
+| Quiz option order   | Integrated via PR #32; deterministic per-player/day/question presentation and legacy sets preserved  |
+| T35 public stats    | Integrated via PR #33; anonymous stats before T34                                                    |
+| T34                 | Integrated via PR #34; simplified 200-point qualification                                            |
+| T27 mStocks Flyer   | Integrated via PRs #35/#36; cross-session history and friendly chart retry retained for v1           |
+| T36 Daylight Market | Integrated via PR #37; production at 551d55d; build-memory follow-up in review                       |
+| T32                 | Settlement query optimization; required before T19 load test; not part of T26                        |
 
 Campaign decision for Mantle (not code): accepted reward identifiers (Bybit UID,
 Mantle address or both) and manual delivery process. Keep both fields optional
 until confirmed. This table records the official task status changes.
 
 ## T36 — Flyer v2 "Daylight Market" and S&P 500 reference catalog
+
+### T36 build-memory follow-up
+
+PR #37 is integrated, but Hadukem reports production remains healthy at 551d55d
+because the 512MiB API compiler build exhausted its heap. On `t36-build-memory`,
+move generated catalog data out of the TypeScript literal graph into runtime
+validated JSON; preserve contents/version/rules. Keep complete CI typechecking,
+use sequential strict production checks in Docker, and expose a build-only heap
+argument (initial default 512MiB; Hadukem delegated the cheapest viable setting, so validate 280MiB). Measure API/worker compiler peak RSS before/after with
+GNU time on Node 24.19.0; gate production checks below 400 MB. Add an effective
+1GiB RAM + 2GiB swap image-build CI job and document reproduction/emergency heap
+adjustment. No merge, deployment or real database operation.
 
 Approved mockup: https://claude.ai/artifact/SnR71PUz9Amb8XUtNqmJgd, **B only**;
 A/C discarded. One PR on `t36-daylight-market`; no merge/deploy/real database work.

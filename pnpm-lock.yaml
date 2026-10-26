@@ -175,7 +175,11 @@ importers:
         specifier: 7.0.0
         version: 7.0.0
 
-  packages/game-core: {}
+  packages/game-core:
+    dependencies:
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
 
   packages/ui:
     dependencies:
