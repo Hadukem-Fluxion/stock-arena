@@ -26,6 +26,7 @@ export function FlyerPanel({
     [session, setSession] = useState<FlyerSession | null>(null),
     [result, setResult] = useState<FlyerResult | null>(null);
   const [error, setError] = useState(""),
+    [gettingCharts, setGettingCharts] = useState(false),
     [busy, setBusy] = useState(false),
     [live, setLive] = useState({ score: 0, segment: 0 }),
     [period, setPeriod] = useState<"day" | "week" | "season">("day");
@@ -37,6 +38,11 @@ export function FlyerPanel({
   const fail = useCallback(
     (error: unknown) => {
       const code = error instanceof FlyerClientError ? error.code : "generic";
+      if (code === "FLYER_UNAVAILABLE") {
+        setGettingCharts(true);
+        setError("");
+        return;
+      }
       setError(
         code === "GAME_PAUSED"
           ? en.maintenance
@@ -171,6 +177,7 @@ export function FlyerPanel({
     if (busy) return;
     setBusy(true);
     setError("");
+    setGettingCharts(false);
     setResult(null);
     try {
       const before = performance.now(),
@@ -216,6 +223,18 @@ export function FlyerPanel({
       {!view && <p role="status">{copy.loading}</p>}
       {view?.maintenance && <p role="status">{en.maintenance}</p>}
       {view && !view.available && <p role="status">{copy.configuration}</p>}
+      {gettingCharts && (
+        <div role="status" className="flyer-preparing">
+          <p>{copy.gettingCharts}</p>
+          <button
+            className="primary-button"
+            disabled={busy || !view?.canStart}
+            onClick={() => void start()}
+          >
+            {copy.retry}
+          </button>
+        </div>
+      )}
       {view && view.pointsToday >= view.dailyCap && <p className="flyer-cap">{copy.cap}</p>}
       {segment && (
         <div className="flyer-status">
@@ -293,7 +312,7 @@ export function FlyerPanel({
           </button>
         </div>
       )}
-      {!session && (
+      {!session && !gettingCharts && (
         <button
           className="primary-button"
           disabled={busy || !view?.canStart}

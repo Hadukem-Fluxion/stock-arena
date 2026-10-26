@@ -21,9 +21,10 @@ safe rollout. T34 is integrated via PR #34. T27 is integrated via PR #35; curren
 delivery is its small closed-market history follow-up, one branch/PR at a time.
 T35 publishes only anonymous aggregates for Mantle Synch, with a 60-second cache,
 exact-origin CORS and an IP quota. PR #33 is integrated. T34 is integrated via PR #34;
-T27's follow-up on t27-flyer-last-session anchors each 24-hour course chart to the
-last primary snapshot and labels old windows "Last session", preserving weekends
-and holidays without pools or invented prices. S&P 500 catalog planning awaits
+T27's follow-up on t27-flyer-last-session / PR #36 uses the approved market-history
+sample budget (one polling day) and ntile(10), preserving first/last prices across
+closed gaps, weekends and Monday/holiday reopening. Old history is labeled
+"Last session"; insufficient history gets a friendly retry state. S&P 500 planning awaits
 Hadukem's next brief and is outside this change. Ohio cutover was reported complete by Hadukem at 9fe93dc;
 operator fixes are integrated via PR #31. Codex performs no live database,
 merge or deployment operations.

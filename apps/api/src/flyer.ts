@@ -85,6 +85,11 @@ export async function flyerDayTotals(tx: FlyerTx, userId: string, day: string) {
 async function courseFromPrices(tx: FlyerTx, catalog: AssetCatalog, now: Date) {
   const refs = [...new Set(Object.values(catalog).map((a) => a.referenceTicker))];
   if (!refs.length) throw new FlyerError("FLYER_UNAVAILABLE", 503);
+  // A day's polling budget spans market closures and survives hourly retention.
+  const sampleLimit = Math.max(
+    c.pipesPerSegment,
+    Math.ceil(86400 / GAME_CONFIG.prices.pollSeconds),
+  );
   const result = await tx.execute<{
     ticker: string;
     price_usd: string;
@@ -95,22 +100,21 @@ async function courseFromPrices(tx: FlyerTx, catalog: AssetCatalog, now: Date) {
       refs.map((r) => sql`(${r}::text)`),
       sql`, `,
     )}),
-    latest AS (
-      SELECT catalog.ticker,last_sample.taken_at AS window_end FROM catalog
+    recent AS (
+      SELECT catalog.ticker,samples.price_usd,samples.taken_at FROM catalog
       CROSS JOIN LATERAL (
-        SELECT taken_at FROM price_snapshots
+        SELECT DISTINCT ON (taken_at) price_usd,taken_at FROM price_snapshots
         WHERE ticker=catalog.ticker AND source='xstocks' AND price_usd>0 AND taken_at<=${now}
-        ORDER BY taken_at DESC LIMIT 1
-      ) last_sample
+        ORDER BY taken_at DESC,price_usd DESC LIMIT ${sampleLimit}
+      ) samples
     ), sampled AS (
-      SELECT s.ticker,s.price_usd,s.taken_at,latest.window_end,
-        least(${c.pipesPerSegment - 1},floor(extract(epoch FROM(s.taken_at-(latest.window_end-interval '24 hours')))/${86400 / c.pipesPerSegment})::int) AS bucket
-      FROM latest JOIN price_snapshots s ON s.ticker=latest.ticker
-      WHERE s.source='xstocks' AND s.price_usd>0
-        AND s.taken_at>=latest.window_end-interval '24 hours' AND s.taken_at<=latest.window_end
+      SELECT ticker,price_usd,taken_at,
+        max(taken_at) OVER (PARTITION BY ticker) AS window_end,
+        ntile(${c.pipesPerSegment}) OVER (PARTITION BY ticker ORDER BY taken_at) AS bucket
+      FROM recent
     )
     SELECT DISTINCT ON (ticker,bucket) ticker,price_usd::text,bucket,window_end
-    FROM sampled ORDER BY ticker,bucket,CASE WHEN bucket=0 THEN taken_at END ASC,taken_at DESC`);
+    FROM sampled ORDER BY ticker,bucket,CASE WHEN bucket=1 THEN taken_at END ASC,taken_at DESC`);
   const segments: FlyerSegment[] = [];
   for (const [ticker, asset] of Object.entries(catalog)) {
     const rows = result.rows.filter((r) => r.ticker === asset.referenceTicker);

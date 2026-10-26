@@ -2,7 +2,7 @@
 
 One brief = one pull request. Paste the whole brief into Codex together with AGENTS.md. This file and `docs/ROADMAP.md` are the official Task Board; there is no external board. Keep them updated with implementation/review status and dependencies. Non-code tasks (T00, T01, T05, T06, T17, T20) are done by people or Claude and are not listed here.
 
-## Task Board updates — 2026-10-25
+## Task Board updates — 2026-10-26
 
 | Task              | State / dependency                                                                                   |
 | ----------------- | ---------------------------------------------------------------------------------------------------- |
@@ -19,7 +19,7 @@ One brief = one pull request. Paste the whole brief into Codex together with AGE
 | Quiz option order | Integrated via PR #32; deterministic per-player/day/question presentation and legacy sets preserved  |
 | T35 public stats  | Integrated via PR #33; anonymous stats before T34                                                    |
 | T34               | Integrated via PR #34; simplified 200-point qualification                                            |
-| T27 mStocks Flyer | Integrated via PR #35; last-session history follow-up on t27-flyer-last-session, review pending      |
+| T27 mStocks Flyer | Integrated via PR #35; PR #36 adds cross-session history and friendly chart retry; review pending    |
 | T32               | Settlement query optimization; required before T19 load test; not part of T26                        |
 
 Campaign decision for Mantle (not code): accepted reward identifiers (Bybit UID,
@@ -614,13 +614,19 @@ Implementation branch: `t31-rewards`. No merge, deploy or real database writes b
 **Order**: T31/T33/T34 are integrated; implement T27. One branch/PR, no merge/deploy/live database changes by Codex.
 
 **Post-merge follow-up (Hadukem, 25/10)**: PR #35 is integrated. Anchor the course's
-24-hour window independently at each ticker's latest primary snapshot at/before
-server now, keeping ten populated buckets and all replay/scoring validations.
-Windows older than the existing 120-second freshness tolerance show "Last session"
-on the segment and result. Keep old frozen sessions compatible. Cover weekends
-(Friday's last data), holidays, insufficient history and unchanged intraday
-sampling; no migration/deployment/live database operations. Technical planning for
-the S&P 500 catalog follows Hadukem's forthcoming brief, outside this PR.
+history at each ticker's latest primary snapshot at/before server now. The urgent
+26/10 correction in the same PR #36 replaces wall-clock buckets, which still fail
+after Monday/holiday reopening, with the approved sample-count alternative: take
+the latest N distinct primary observations, N = ceil(24h / configured poll
+interval), then ntile(10) by position, preserving first/last prices. At least ten
+observations are required; closed gaps and hourly retention do not block play.
+Charts ending more than the existing 120-second tolerance ago show "Last session".
+Keep frozen sessions compatible and all replay/scoring validations. Missing history
+shows "Flyer is getting today's charts ready. Try again soon." with a retry that
+starts a new request. Cover Saturday, Monday 01:00 UTC with Friday + new data,
+midweek holiday, normal intraday data, <10 samples and the friendly-state e2e.
+No migration/deployment/live database operations. S&P 500 planning follows
+Hadukem's forthcoming brief, outside this PR.
 
 **Goal**: a quick skill game that keeps the stock theme: the pipes follow real price charts.
 

@@ -600,9 +600,12 @@ part of implementation; all tests/captures use synthetic data.
 
 Hold to rise, release to fall. The canonical 360×480 playfield uses integer physics
 at 60 Hz on both client and server, with touch/mouse/Space controls. Ten pipes per
-segment follow ten primary xstocks samples from a 24-hour window ending at that
-stock's latest stored primary snapshot, including weekends and holidays. Windows
-ending more than 120 seconds ago are labeled "Last session". The API
+segment follow ten points sampled by position from the latest primary xstocks
+observations, bounded to one day's polling budget (24h / configured poll interval).
+Closed-market gaps do not consume that budget, so a reopening combines the new
+session with earlier stored observations. At least ten distinct timestamps are
+required; hourly retained history remains usable. Charts whose newest observation
+is more than 120 seconds old are labeled "Last session". The API
 selects and freezes catalog order, prices, provider metadata and config version;
 missing/incomplete stocks are skipped and pools never enter the course. With no
 complete chart the game clearly waits for more history, without starting a session.

@@ -161,10 +161,14 @@ valores válidos, a API continua saudável e os outros jogos funcionam; o Flyer
 informa que está sendo preparado. Worker, Vercel e bots não precisam dessas variáveis.
 Rebuild/deploy e mudanças no .env real são feitos pelo operador após o merge.
 
-O percurso precisa de amostras primárias em dez faixas de uma janela de 24 horas,
-ancorada no último snapshot primário de cada ativo. Fins de semana e feriados
-reutilizam esse histórico, incluindo os snapshots horários preservados pela retenção;
-uma janela encerrada há mais de 120 segundos mostra "Last session".
+O percurso usa até um dia de amostras primárias por ativo (24h divididas pelo
+intervalo de coleta), distribuídas por posição em dez grupos, preservando os
+preços inicial/final. Precisa de pelo menos dez timestamps distintos. Lacunas de
+mercado fechado não gastam o orçamento de amostras: segunda-feira/feriado combinam
+a sessão nova com o histórico anterior, inclusive os dados horários da retenção.
+Se o último dado tiver mais de 120 segundos, mostra "Last session". Sem histórico
+suficiente, a tela mostra "Flyer is getting today's charts ready. Try again soon."
+e um botão "Try again" que tenta iniciar novamente.
 Não usa pools nem dados fictícios como fallback. Após iniciar um banco sem histórico,
 aguarde a coleta real; ausência de um gráfico completo não consome uma sessão.
 Valide Discord e Telegram: iniciar, segurar/soltar fora do canvas, terminar uma
