@@ -6,19 +6,46 @@ import type { PlatformAdapter } from "../platform/types.js";
 const instant = z.string().datetime({ offset: true });
 const segment = z.object({
   ticker: z.string(),
-  asset: assetSchema,
-  prices: z.array(z.string()).length(10),
-  centers: z.array(z.number().int()).length(10),
+  asset: assetSchema
+    .partial({ token: true, wrapped: true })
+    .extend({ primaryColor: z.string().optional(), priceSymbol: z.string().optional() }),
+  prices: z.array(z.string()),
+  centers: z.array(z.number().int()),
   changePct: z.string(),
   fact: z.string().nullable(),
   windowEndsAt: instant.optional(),
   lastSession: z.boolean().optional(),
 });
-export const courseSchema = z.object({
-  version: z.literal(GAME_CONFIG.flyer.version),
+const courseBase = z.object({
   seed: z.number().int().nonnegative(),
   segments: z.array(segment).nonempty(),
 });
+export const courseSchema = z.discriminatedUnion("version", [
+  courseBase.extend({
+    version: z.literal(GAME_CONFIG.flyer.legacyVersion),
+    segments: z
+      .array(
+        segment.extend({
+          prices: z.array(z.string()).length(10),
+          centers: z.array(z.number().int()).length(10),
+        }),
+      )
+      .nonempty(),
+  }),
+  courseBase.extend({
+    version: z.literal(GAME_CONFIG.flyer.version),
+    day: z.string(),
+    catalogVersion: z.string(),
+    segments: z
+      .array(
+        segment.extend({
+          prices: z.array(z.string()).length(2),
+          centers: z.array(z.number().int()).length(1),
+        }),
+      )
+      .nonempty(),
+  }),
+]);
 export const flyerViewSchema = z.object({
   day: z.string(),
   best: z.number().int().nonnegative(),

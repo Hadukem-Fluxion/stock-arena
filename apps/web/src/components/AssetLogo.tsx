@@ -16,7 +16,7 @@ export function AssetLogo({
   discord = false,
 }: {
   ticker: string;
-  asset: Asset;
+  asset: Pick<Asset, "logo" | "provider">;
   size: number;
   discord?: boolean;
 }) {

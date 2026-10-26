@@ -9,6 +9,7 @@
     "node": ">=22"
   },
   "scripts": {
+    "catalog:generate": "tsx packages/fluxion-oracle/src/catalog-generate.ts",
     "dev": "pnpm --parallel --filter @stock-arena/web --filter @stock-arena/api --filter @stock-arena/worker dev",
     "verify:node": "node scripts/check-node.mjs",
     "start:api": "pnpm verify:node && pnpm --filter @stock-arena/api start",

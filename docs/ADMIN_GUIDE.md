@@ -411,6 +411,16 @@ points to work around that cap. No automated multi-account detection is included
 
 ## Flyer operations (T27)
 
+T36 adds Daylight Market (`flyer-2`) without changing awards, daily caps or void
+permissions. New sessions reference a single immutable daily S&P 500 course;
+legacy `flyer-1` sessions preserve their original charts/replay. A daily course
+freezes once from ready primary extended summaries; later quote/catalog updates
+cannot alter it. There is no admin editor for these immutable courses. New assets
+need reference history before they can join the next daily course. Core ticker
+controls and prediction polling remain separate from this arcade reference data.
+Deployment/warm-up guidance is in DEPLOY.md; screenshots/video use synthetic data
+under `docs/review/t36`.
+
 Flyer sessions is available to every Staff role. Copy a player's internal user ID
 from Players, paste it into the filter and select Find flights. The list shows
 session state, score and server UTC timestamps, with pagination. It never exposes

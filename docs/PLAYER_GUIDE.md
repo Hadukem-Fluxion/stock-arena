@@ -94,7 +94,9 @@ maintenance and the UTC daily qualification cap.
 ## mStocks Flyer
 
 Open mStocks Flyer on Home. Start, then hold the playfield (or Space) to rise and
-release to fall. Each segment follows a stock's real price chart. Your daily best
+release to fall. After 3-2-1, each building represents an S&P 500 stock. A positive
+24h/last-session move places its gap higher; a negative move places it lower.
+The course is identical for everyone on the same UTC day. Your daily best
 earns one point per pipe, up to 50 points; a new best pays only the improvement.
 After the points cap, keep playing for the Flyer leaderboard while your daily play
 limit permits. The result is verified by the server; the running score is provisional.
@@ -102,4 +104,8 @@ limit permits. The result is verified by the server; the running score is provis
 Keep the app open during your flight. Changing apps or losing the connection can
 make a round unverifiable. If you leave before finishing, discard the unfinished
 flight when you return or wait for its expiry. If charts are not ready, try later;
-no session is consumed. Game-over charts and company facts explain what you flew.
+no session is consumed. Results show the stocks you passed with the largest gains
+and declines. Decorative coins add no points. Sound unlocks only after your first
+deliberate touch/click and can be muted. Reduced motion disables decorative effects
+and Telegram vibrations. Existing flights from the earlier version keep their
+original charts until finished/discarded.

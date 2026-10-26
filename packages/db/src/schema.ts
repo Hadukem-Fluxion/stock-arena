@@ -1,6 +1,6 @@
 import { sql } from "drizzle-orm";
 import type { Asset } from "@stock-arena/game-core";
-import type { FlyerCourse, FlyerInput } from "@stock-arena/game-core";
+import type { FlyerCourse, StoredFlyerCourse, FlyerInput } from "@stock-arena/game-core";
 import {
   bigint,
   boolean,
@@ -237,6 +237,61 @@ export const hlRounds = pgTable(
   ],
 );
 
+export const extendedQuotes = pgTable(
+  "extended_quotes",
+  {
+    ticker: text("ticker").primaryKey(),
+    symbol: text("symbol").notNull(),
+    priceUsd: numeric("price_usd").notNull(),
+    referencePrice: numeric("reference_price"),
+    referenceAt: instant("reference_at"),
+    change24hPct: numeric("change_24h_pct"),
+    takenAt: instant("taken_at").notNull(),
+    lastSession: boolean("last_session").default(false).notNull(),
+    halted: boolean("halted").default(false).notNull(),
+    updatedAt: instant("updated_at").notNull(),
+  },
+  (t) => [
+    check(
+      "extended_positive_prices",
+      sql`${t.priceUsd}>0 AND (${t.referencePrice} IS NULL OR ${t.referencePrice}>0)`,
+    ),
+    check(
+      "extended_reference_pair",
+      sql`(${t.referencePrice} IS NULL)=(${t.change24hPct} IS NULL) AND (${t.referencePrice} IS NULL)=(${t.referenceAt} IS NULL)`,
+    ),
+  ],
+);
+
+export const extendedPriceReferences = pgTable(
+  "extended_price_references",
+  {
+    ticker: text("ticker").notNull(),
+    priceUsd: numeric("price_usd").notNull(),
+    takenAt: instant("taken_at").notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.ticker, t.takenAt] }),
+    check("extended_reference_price", sql`${t.priceUsd}>0`),
+    index("extended_references_time_idx").on(t.takenAt),
+  ],
+);
+
+export const flyerDailyCourses = pgTable(
+  "flyer_daily_courses",
+  {
+    day: date("day").primaryKey(),
+    course: jsonb("course").$type<FlyerCourse>().notNull(),
+    createdAt: instant("created_at").notNull(),
+  },
+  (t) => [
+    check(
+      "flyer_daily_v2",
+      sql`${t.course}->>'version'='flyer-2' AND ${t.course}->>'day'=${t.day}::text`,
+    ),
+  ],
+);
+
 export const flyerSessions = pgTable(
   "flyer_sessions",
   {
@@ -247,7 +302,8 @@ export const flyerSessions = pgTable(
     startedAt: instant("started_at").notNull(),
     expiresAt: instant("expires_at").notNull(),
     maxTicks: integer("max_ticks").notNull(),
-    course: jsonb("course").$type<FlyerCourse>().notNull(),
+    course: jsonb("course").$type<StoredFlyerCourse>().notNull(),
+    dailyCourseDay: date("daily_course_day").references(() => flyerDailyCourses.day),
     state: text("state", { enum: ["active", "finished", "cancelled", "expired", "void"] })
       .default("active")
       .notNull(),

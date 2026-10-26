@@ -1,0 +1,14 @@
+{
+  "environment": "Edge Chromium desktop emulation, not a physical phone",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "deviceScaleFactor": 2,
+  "cpuThrottle": 4,
+  "catalogSize": 468,
+  "durationSeconds": 16,
+  "ticks": 970,
+  "meanFrameWorkMs": 1.4591251883942347,
+  "frameBudgetMs": 16.666666666666668
+}

@@ -25,6 +25,7 @@ import { createSessions } from "./auth/session.js";
 import { digest, hmac, SESSION_COOKIE } from "./admin/security.js";
 import { ensureInviteCode } from "./referrals.js";
 import { retainPriceSnapshots } from "../../worker/src/retention.js";
+import { legacyFlyerCourseFromPrices } from "./flyer.js";
 const db = createLocalDatabase(),
   secret = "synthetic-flyer-session-secret-for-tests-only",
   origin = "https://arena.example";
@@ -73,6 +74,7 @@ function server() {
     logger: false,
     auth: { database: db, env, now: () => now },
     checkin: { catalog: assets },
+    flyer: { catalog: assets, createCourse: legacyFlyerCourseFromPrices },
   });
 }
 async function player() {

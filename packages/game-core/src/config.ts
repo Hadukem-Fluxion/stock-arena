@@ -48,7 +48,12 @@ export const GAME_CONFIG = {
     qualifyingGamePoints: 200,
   },
   flyer: {
-    version: "flyer-1",
+    version: "flyer-2",
+    legacyVersion: "flyer-1",
+    // V2 gap centers span 160..320px; +/-5% reaches the clamp.
+    moveClampPct: 5,
+    moveRangePixels: 80,
+    countdownSeconds: 3,
     ticksPerSecond: 60,
     sessionExpirySeconds: 600,
     pointsPerPipe: 1,
@@ -85,6 +90,13 @@ export const GAME_CONFIG = {
     twapMinutes: 15,
     staleAfterSeconds: 120,
     defaultJumpLimitPct: 5,
+  },
+  extendedPrices: {
+    pollSeconds: 300,
+    batchSize: 4,
+    batchDelayMs: 250,
+    referenceHours: 26,
+    coreRequestReserve: 50,
   },
   antiAbuse: {
     minDiscordAccountAgeDays: 30,

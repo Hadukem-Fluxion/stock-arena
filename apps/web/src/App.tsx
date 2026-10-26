@@ -207,8 +207,12 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
             >
               ←
             </button>
-            <h1>{game && en.games[game].name}</h1>
-            {screen === "flyer" && <span className="pill number">{en.flyer.best(flyerBest)}</span>}
+            <h1>{screen === "flyer" ? en.flyer.runTitle : game && en.games[game].name}</h1>
+            {screen === "flyer" && (
+              <span className="pill number" aria-label={en.flyer.best(flyerBest)}>
+                {en.flyer.record(flyerBest)}
+              </span>
+            )}
           </div>
         )}
         {screen === "home" && (

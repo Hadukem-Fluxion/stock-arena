@@ -29,6 +29,7 @@ export interface PlatformAdapter {
   openExternal(url: string): Promise<void>;
   shareInvite?(code: string, url: string, message: string): Promise<void>;
   setBackButton?(handler: (() => void) | null): () => void;
+  haptic?(kind: "score" | "collision"): void;
 }
 
 export type PlatformErrorCode =

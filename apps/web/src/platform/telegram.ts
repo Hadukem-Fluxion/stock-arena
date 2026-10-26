@@ -21,6 +21,10 @@ export interface TelegramBridge {
   onEvent(event: "themeChanged", callback: () => void): void;
   setHeaderColor(color: string): void;
   setBackgroundColor(color: string): void;
+  HapticFeedback?: {
+    impactOccurred(style: "light" | "medium"): void;
+    notificationOccurred(type: "error" | "success"): void;
+  };
   BackButton?: {
     show(): void;
     hide(): void;
@@ -102,6 +106,14 @@ export function createTelegramAdapter(
       return session;
     },
     init,
+    haptic(kind) {
+      try {
+        if (kind === "score") app?.HapticFeedback?.impactOccurred("light");
+        else app?.HapticFeedback?.notificationOccurred("error");
+      } catch {
+        /* Platform feedback must not interrupt play. */
+      }
+    },
     setBackButton(handler) {
       const button = app?.BackButton;
       if (!button) return () => {};

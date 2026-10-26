@@ -148,6 +148,56 @@ Invite friends no admin pausa cadastro/bônus sem interromper os outros jogos.
 
 ## mStocks Flyer (T27)
 
+### T36 — Daylight Market e catálogo estendido
+
+O core continua com sete ativos/15s. O worker consulta o catálogo S&P 500 ∩ xStocks
+versionado no repo, sem chamadas externas na API. Na data 26/10/2026, são 468 ações;
+ETFs não entram. `pnpm catalog:generate` reproduz o catálogo offline. Fontes e
+refresh explícito estão em `packages/game-core/data/sp500/README.md`.
+
+Aplicar a nova **0015** antes da API/worker correspondentes (16 migrations no total,
+0000–0015). Ela cria `extended_quotes`, `extended_price_references` e
+`flyer_daily_courses`, com referências imutáveis nas sessões. Não reescreve ledger,
+partidas existentes, permissões ou pontuação. Nenhuma migration real é executada
+pelo Codex nesta entrega.
+
+Variáveis **públicas**, opcionais, no `.env` do servidor usado pelo worker:
+
+- `EXTENDED_POLL_SECONDS=300` (aceita 60–3600): ciclo independente do core.
+- `EXTENDED_BATCH_SIZE=4` (aceita 1–8): concorrência máxima, sem fan-out por catálogo.
+- `EXTENDED_REFERENCE_HOURS=26` (aceita 25–48): referências temporárias para 24h.
+
+O coletor deixa uma reserva para o core nos headers de rate limit, respeita
+reset/Retry-After e isola falhas por ativo. Guarda o resumo por ticker e até 26h
+de referências de 5min (cerca de 146 mil linhas para 468 tickers no padrão), nunca
+o histórico core de 15s para centenas de ações. Não baixa logos no worker: a cor
+foi extraída/cacheada na geração. O navegador mantém só 16 imagens decodificadas
+próximas dos obstáculos. Os limites de memória do Compose permanecem iguais.
+
+**Aquecimento:** um catálogo novo precisa de referências reais, normalmente 24h de
+coleta, antes de entrar no Flyer. Ativos core podem aproveitar seu histórico
+primário já existente. Fechamentos preservam o último resumo; na reabertura,
+carrega-se a última cotação prévia até haver referência móvel. O primeiro start
+bem-sucedido congela o percurso completo do dia UTC; os próximos jogadores usam
+os mesmos preços/alturas/ordem, mesmo após restart ou retenção. Novos ativos
+prontos entram no próximo percurso diário. Não apagar/editar esse percurso.
+
+**Compatibilidade/virada após aprovação:** o cliente novo entende flyer-1 e flyer-2;
+o antigo entende apenas flyer-1. Publicar primeiro a web com suporte às duas
+versões e pedir recarga de clientes antigos; então API/worker novos, depois da 0015. Durante a troca, usar manutenção do Flyer se necessário. Partidas flyer-1
+já abertas continuam válidas no replay novo e não devem ser anuladas. Após criar
+sessões v2, não voltar a API anterior que não conhece suas referências: reverter
+só o visual mantendo o protocolo compatível, ou manter Flyer em manutenção até
+uma correção. Health/core/outros jogos continuam independentes do aquecimento.
+
+Aceitação manual do operador: Discord/Telegram, dia/fechamento, 3-2-1, segurar e
+soltar fora do canvas, som somente após gesto/mute, vibração só Telegram, movimento
+reduzido, resultados e rankings, limites e void auditado. Os testes locais em
+`docs/review/t36` não substituem medir FPS/RSS no celular/servidor reais. Esta
+entrega não faz merge/deploy nem acessa o banco real.
+
+### Flyer v1 — histórico da primeira entrega
+
 Antes da API desta versão, aplique a migration 0014 (nova tabela flyer_sessions e
 controle de manutenção). Nenhum banco real é alterado pelo Codex nesta entrega.
 O operador configura na API duas variáveis privadas, sem valores padrão no repo:

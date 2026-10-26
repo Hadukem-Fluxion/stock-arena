@@ -145,18 +145,24 @@ claimed by this feature.
 ## mStocks Flyer
 
 Hold touch, mouse or Space to rise; release to fall. Gravity and rising acceleration
-are continuous, not tap impulses. Stock segments each contain ten pipes following
-a sampled primary-price chart, normalized between top and bottom margins.
-For each stock, the server takes the latest observations up to one day's polling
-budget (24h divided by the configured poll interval), then divides them into ten
-groups by position. It keeps the first price and the last price; closed-market
-gaps do not take up the sample budget. At least ten distinct primary timestamps
-are needed. This also accepts older hourly retained history, so Monday/holiday
-reopenings can combine their new observations with the preceding session.
-Charts ending more than 120 seconds ago show "Last session" during play/results.
-Catalog order is chosen by the server and repeats if the flight
-outlasts the catalog. No fixed seven-asset assumption; missing charts are skipped.
-Pools are never course data. If no complete chart exists, no session starts.
+are continuous, not tap impulses. Flyer v2 "Daylight Market" has a three-second
+countdown and one S&P 500 stock per building. The server intersects the dated index
+list with public xStocks stocks (no ETFs), leaving the seven core assets unchanged.
+Every player receives the same immutable course on a given UTC day; order repeats
+only after exhausting eligible stocks. A stock's positive 24h/last-session move
+raises its gap; a negative move lowers it. Changes clamp at ±5%, producing centers
+160–320px in the unchanged 360×480 world. Existing difficulty ramps apply every ten
+buildings. Official logos/colors identify buildings without visible ticker text;
+screen readers and results provide names and moves. Decorative coins award nothing.
+
+Extended summaries use only primary prices, with the latest available reference
+at/before 24h earlier. Closed periods preserve the last session; after reopening,
+the last known pre-boundary price may carry the reference until rolling history
+is available. Temporary samples retain 26h; frozen summaries/courses survive that
+retention. Incomplete/halted stocks are skipped when freezing a daily course.
+No usable summary means no session is consumed. Pools never supply course data.
+Already open flyer-1 sessions retain their original ten-chart-point segments and
+replay rules; new sessions use flyer-2. The daily course does not update mid-day.
 
 Your best verified score per UTC day earns one point per pipe, up to 50 points.
 Only the increase above previously paid daily-best points is awarded. Flyer points

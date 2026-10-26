@@ -14,18 +14,27 @@ Ohio status (24/10): PRs #30/#31 are integrated. Hadukem reports cutover complet
 
 ## Who does what
 
+T36 is the current implementation/review task on `t36-daylight-market`: Flyer v2
+Daylight Market (approved artboard B) with a reproducible 2026-10-26 S&P 500 ∩
+xStocks catalog of 468 stocks. Core seven/poll/game rules stay independent. Bounded
+extended collection stores compact summaries and 26h temporary references; daily
+immutable shared courses preserve fair order/heights and open flyer-1 replay.
+Migration 0015, web protocol compatibility and real-data warm-up precede operator
+activation after review. Local synthetic tests/captures do not claim deployment,
+real database work, physical-phone FPS or final campaign approval.
+
 Priority update (24/10): PR #32 quiz option ordering is integrated. It keeps
 bank/schema/rules unchanged: new frozen sets use a private seed and stable
 per-player/day/question presentation; existing sets retain their old order for
 safe rollout. T34 is integrated via PR #34. T27 is integrated via PR #35; current
-delivery is its small closed-market history follow-up, one branch/PR at a time.
+history follow-up is integrated via PR #36, one branch/PR at a time.
 T35 publishes only anonymous aggregates for Mantle Synch, with a 60-second cache,
 exact-origin CORS and an IP quota. PR #33 is integrated. T34 is integrated via PR #34;
 T27's follow-up on t27-flyer-last-session / PR #36 uses the approved market-history
 sample budget (one polling day) and ntile(10), preserving first/last prices across
 closed gaps, weekends and Monday/holiday reopening. Old history is labeled
-"Last session"; insufficient history gets a friendly retry state. S&P 500 planning awaits
-Hadukem's next brief and is outside this change. Ohio cutover was reported complete by Hadukem at 9fe93dc;
+"Last session"; insufficient history gets a friendly retry state. T36 implements
+the subsequently approved S&P 500/Daylight Market brief above. Ohio cutover was reported complete by Hadukem at 9fe93dc;
 operator fixes are integrated via PR #31. Codex performs no live database,
 merge or deployment operations.
 

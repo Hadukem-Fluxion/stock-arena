@@ -17,5 +17,9 @@
     "@stock-arena/game-core": "workspace:*",
     "viem": "2.57.7",
     "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/pngjs": "6.0.5",
+    "pngjs": "7.0.0"
   }
 }

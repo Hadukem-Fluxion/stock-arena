@@ -1,11 +1,11 @@
 import { GAME_CONFIG } from "./config.js";
-import type { Asset } from "./assets.js";
+import type { ReferenceAsset } from "./assets.js";
 
 const c = GAME_CONFIG.flyer;
 export type FlyerInput = { tick: number; action: "press" | "release" };
 export type FlyerSegment = {
   ticker: string;
-  asset: Asset;
+  asset: ReferenceAsset;
   prices: string[];
   centers: number[];
   changePct: string;
@@ -14,7 +14,15 @@ export type FlyerSegment = {
   windowEndsAt?: string;
   lastSession?: boolean;
 };
-export type FlyerCourse = { version: string; seed: number; segments: FlyerSegment[] };
+export type FlyerCourse = {
+  version: "flyer-1" | "flyer-2";
+  seed: number;
+  segments: FlyerSegment[];
+  day?: string;
+  catalogVersion?: string;
+};
+export type FlyerCourseReference = { version: "flyer-2"; dailyDay: string; seed: number };
+export type StoredFlyerCourse = FlyerCourse | FlyerCourseReference;
 export type FlyerState = {
   tick: number;
   y: number;
@@ -69,7 +77,59 @@ export function flyerCourse(seed: number, segments: readonly FlyerSegment[]): Fl
     const j = (random >>> 0) % (i + 1);
     [order[i], order[j]] = [order[j]!, order[i]!];
   }
-  return { version: c.version, seed, segments: order };
+  return { version: "flyer-1", seed, segments: order };
+}
+/** V2 maps signed percentage change to an integer center with a playable clamp. */
+export function flyerMoveCenter(changePct: string): number {
+  if (!/^-?\d{1,30}(\.\d{1,18})?$/.test(changePct)) throw new RangeError("Invalid price move.");
+  const negative = changePct.startsWith("-"),
+    [whole, part = ""] = changePct.replace(/^-/u, "").split("."),
+    precision = 10n ** BigInt(part.length);
+  const value = (BigInt(whole!) * precision + BigInt(part || "0")) * (negative ? -1n : 1n),
+    clamp = BigInt(c.moveClampPct) * precision;
+  const bounded = value > clamp ? clamp : value < -clamp ? -clamp : value;
+  return c.height / 2 - Number((bounded * BigInt(c.moveRangePixels)) / clamp);
+}
+export function flyerV2Course(
+  seed: number,
+  day: string,
+  catalogVersion: string,
+  segments: readonly FlyerSegment[],
+): FlyerCourse {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !catalogVersion)
+    throw new RangeError("Invalid course day.");
+  const order = flyerCourse(
+    seed,
+    segments.map((s) => ({
+      ...s,
+      prices: Array.from({ length: 10 }, () => s.prices.at(-1) ?? "0"),
+    })),
+  ).segments;
+  const originals = new Map(segments.map((s) => [s.ticker, s]));
+  if (originals.size !== segments.length) throw new RangeError("Duplicate stock.");
+  return {
+    version: "flyer-2",
+    seed,
+    day,
+    catalogVersion,
+    segments: order.map((s) => {
+      const original = originals.get(s.ticker)!;
+      if (original.prices.length !== 2) throw new RangeError("Invalid reference prices.");
+      flyerCenters(Array(10).fill(original.prices[0]!));
+      return {
+        ...original,
+        asset: { ...original.asset },
+        prices: [...original.prices],
+        centers: [flyerMoveCenter(original.changePct)],
+      };
+    }),
+  };
+}
+export function flyerAssetIndex(course: FlyerCourse, pipeIndex: number): number {
+  return (
+    (course.version === "flyer-2" ? pipeIndex : Math.floor(pipeIndex / c.pipesPerSegment)) %
+    course.segments.length
+  );
 }
 export function initialFlyer(): FlyerState {
   return {
@@ -84,11 +144,12 @@ export function initialFlyer(): FlyerState {
 }
 export function flyerPipe(course: FlyerCourse, index: number, distance: number): FlyerPipe {
   const segmentIndex = Math.floor(index / c.pipesPerSegment),
-    segment = course.segments[segmentIndex % course.segments.length]!;
+    segment = course.segments[flyerAssetIndex(course, index)]!;
   return {
     index,
     x: (c.firstPipeX + index * c.pipeSpacing) * c.scale - distance,
-    center: segment.centers[index % c.pipesPerSegment]! * c.scale,
+    center:
+      segment.centers[course.version === "flyer-2" ? 0 : index % c.pipesPerSegment]! * c.scale,
     gap: Math.max(c.minimumGap, c.initialGap - segmentIndex * c.gapRamp) * c.scale,
     segment,
   };
@@ -99,6 +160,9 @@ export function stepFlyer(course: FlyerCourse, state: FlyerState, input?: FlyerI
   if (input && (input.tick !== state.tick || (input.action === "press") === state.held))
     throw new RangeError("Invalid input transition.");
   const held = input ? input.action === "press" : state.held;
+  // Countdown ticks are part of the recorded wall-clock duration, not extra time.
+  if (course.version === "flyer-2" && state.tick < c.countdownSeconds * c.ticksPerSecond)
+    return { ...state, tick: state.tick + 1, held };
   const velocity = Math.max(
     -c.maxRiseSpeed,
     Math.min(c.maxFallSpeed, state.velocity + (held ? -c.riseAcceleration : c.gravity)),
@@ -131,7 +195,7 @@ export function replayFlyer(
   maxTicks: number,
 ): FlyerState {
   if (
-    course.version !== c.version ||
+    (course.version !== c.version && course.version !== c.legacyVersion) ||
     !course.segments.length ||
     !Number.isSafeInteger(ticks) ||
     ticks < 1 ||

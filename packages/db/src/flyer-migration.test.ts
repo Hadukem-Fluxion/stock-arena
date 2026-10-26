@@ -3,7 +3,7 @@ import { expect, it } from "vitest";
 import { createLocalDatabase } from "./client.js";
 import { flyerSessions, gameControls, pointsLedger } from "./schema.js";
 import { syntheticFlyerCourse } from "../../game-core/src/testing/flyer-fixture.js";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 it("adds Flyer without rewriting historical points and protects its frozen session", async () => {
   const db = createLocalDatabase();
   try {
@@ -23,7 +23,7 @@ it("adds Flyer without rewriting historical points and protects its frozen sessi
     expect(await db.db.select().from(pointsLedger)).toMatchObject([
       { amount: 17, refId: "synthetic:before-flyer" },
     ]);
-    expect(await db.db.select().from(flyerSessions)).toEqual([]);
+    expect(await db.db.select({ id: flyerSessions.id }).from(flyerSessions)).toEqual([]);
     expect((await db.db.select().from(gameControls)).map((r) => r.game).sort()).toEqual([
       "checkin",
       "flyer",
@@ -31,16 +31,11 @@ it("adds Flyer without rewriting historical points and protects its frozen sessi
       "invite",
       "quiz",
     ]);
-    const [session] = await db.db
-      .insert(flyerSessions)
-      .values({
-        userId: "00000000-0000-4000-8000-000000000001",
-        startedAt: new Date("2026-10-25T12:00:00Z"),
-        expiresAt: new Date("2026-10-25T12:10:00Z"),
-        maxTicks: 36000,
-        course: syntheticFlyerCourse(3),
-      })
-      .returning();
+    // Exercise migration 0014's columns, independently of later schema additions.
+    const inserted = await db.db.execute<{ id: string }>(sql`INSERT INTO flyer_sessions
+      (user_id,started_at,expires_at,max_ticks,course) VALUES
+      ('00000000-0000-4000-8000-000000000001','2026-10-25T12:00:00Z','2026-10-25T12:10:00Z',36000,${JSON.stringify(syntheticFlyerCourse(3))}::jsonb) RETURNING id`);
+    const session = inserted.rows[0];
     await expect(
       db.db
         .update(flyerSessions)

@@ -95,6 +95,16 @@ export const ASSETS = {
 
 export type Ticker = keyof typeof ASSETS;
 export type AssetCatalog = Readonly<Record<string, Asset>>;
+/** A price reference need not have a confirmed Mantle deployment. */
+export type ReferenceAsset = Omit<Asset, "token" | "wrapped"> &
+  Partial<Pick<Asset, "token" | "wrapped">> & { primaryColor?: string; priceSymbol?: string };
+export type ReferenceCatalog = Readonly<Record<string, ReferenceAsset>>;
+export const NEUTRAL_ASSET_COLOR = "#7c8b9e";
+export {
+  EXTENDED_ASSETS,
+  EXTENDED_CATALOG_VERSION,
+  EXTENDED_CATALOG_METADATA,
+} from "./catalog/extended.generated.js";
 
 export function assetTickers<C extends AssetCatalog>(
   catalog: C,

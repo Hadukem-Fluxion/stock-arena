@@ -21,6 +21,7 @@ import { GameControlError } from "./game-control.js";
 import { registerPublicStats } from "./public-stats.js";
 import { registerReferrals, ReferralError } from "./referrals.js";
 import { registerFlyer, FlyerError } from "./flyer.js";
+import type { FlyerOptions } from "./flyer.js";
 
 export const VERSION = "0.1.0";
 
@@ -34,6 +35,7 @@ export function buildServer(
     telegram?: { webhookSecret?: string };
     logger?: false | { stream: Writable };
     prices?: PricesOptions;
+    flyer?: FlyerOptions;
   } = {},
 ): FastifyInstance {
   const app = Fastify({
@@ -67,7 +69,7 @@ export function buildServer(
     database: auth.database,
     now: options.auth?.now ?? (() => new Date()),
     env: options.auth?.env ?? process.env,
-    catalog: options.checkin?.catalog,
+    ...options.flyer,
   });
   registerReferrals(app, {
     database: auth.database,

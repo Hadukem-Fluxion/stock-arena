@@ -279,7 +279,10 @@ for (const width of [390, 1440])
         for (const screen of ["flyer", "invite"] as const) {
           await page.goto(`/#tgWebAppData=mock&screen=${screen}`);
           await expect(
-            page.getByRole("heading", { name: en.games[screen].name, exact: true }),
+            page.getByRole("heading", {
+              name: screen === "flyer" ? en.flyer.runTitle : en.games[screen].name,
+              exact: true,
+            }),
           ).toBeVisible();
           if (screen === "flyer")
             await expect(page.getByText(en.flyer.configuration, { exact: true })).toBeVisible();
