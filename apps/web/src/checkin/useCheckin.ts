@@ -71,5 +71,5 @@ export function useCheckin(platform: PlatformAdapter, enabled: boolean) {
       document.removeEventListener("visibilitychange", visible);
     };
   }, [allowed, run, view]);
-  return { view, busy, error, award: () => run(true), reload: () => run(), allowed };
+  return { view, busy, error, award: () => run(true), reload: run, allowed };
 }

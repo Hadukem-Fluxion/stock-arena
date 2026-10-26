@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import type { Asset } from "@stock-arena/game-core";
+import type { FlyerCourse, FlyerInput } from "@stock-arena/game-core";
 import {
   bigint,
   boolean,
@@ -236,6 +237,42 @@ export const hlRounds = pgTable(
   ],
 );
 
+export const flyerSessions = pgTable(
+  "flyer_sessions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id),
+    startedAt: instant("started_at").notNull(),
+    expiresAt: instant("expires_at").notNull(),
+    maxTicks: integer("max_ticks").notNull(),
+    course: jsonb("course").$type<FlyerCourse>().notNull(),
+    state: text("state", { enum: ["active", "finished", "cancelled", "expired", "void"] })
+      .default("active")
+      .notNull(),
+    finishedAt: instant("finished_at"),
+    day: date("day"),
+    score: integer("score"),
+    ticks: integer("ticks"),
+    inputs: jsonb("inputs").$type<FlyerInput[]>(),
+  },
+  (t) => [
+    uniqueIndex("flyer_one_active_user")
+      .on(t.userId)
+      .where(sql`${t.state} = 'active'`),
+    index("flyer_user_finished_idx").on(t.userId, t.finishedAt),
+    index("flyer_day_score_idx").on(t.day, t.score, t.finishedAt),
+    check("flyer_state", sql`${t.state} IN ('active','finished','cancelled','expired','void')`),
+    check("flyer_score", sql`${t.score} IS NULL OR ${t.score} >= 0`),
+    check("flyer_times", sql`${t.expiresAt} > ${t.startedAt} AND ${t.maxTicks} > 0`),
+    check(
+      "flyer_result",
+      sql`(${t.finishedAt} IS NULL) = (${t.score} IS NULL) AND (${t.score} IS NULL) = (${t.ticks} IS NULL) AND (${t.score} IS NULL) = (${t.inputs} IS NULL) AND (${t.score} IS NULL) = (${t.day} IS NULL)`,
+    ),
+  ],
+);
+
 export const priceSnapshots = pgTable(
   "price_snapshots",
   {
@@ -278,7 +315,9 @@ export const tickerStatus = pgTable("ticker_status", {
 export const gameControls = pgTable(
   "game_controls",
   {
-    game: text("game", { enum: ["checkin", "quiz", "higher_lower", "invite"] }).primaryKey(),
+    game: text("game", {
+      enum: ["checkin", "quiz", "higher_lower", "invite", "flyer"],
+    }).primaryKey(),
     paused: boolean("paused").default(false).notNull(),
     reason: text("reason").default("").notNull(),
     updatedAt: instant("updated_at").defaultNow().notNull(),
@@ -286,7 +325,7 @@ export const gameControls = pgTable(
   (table) => [
     check(
       "game_controls_game",
-      sql`${table.game} IN ('checkin', 'quiz', 'higher_lower', 'invite')`,
+      sql`${table.game} IN ('checkin', 'quiz', 'higher_lower', 'invite', 'flyer')`,
     ),
   ],
 );

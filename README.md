@@ -11,6 +11,7 @@ Free-to-play mini games about tokenized US stocks, running as a **Discord Activi
 | Daily Check-in                   | Once per UTC day. Reveals the Stock of the Day (live price, 24h change, one fact). Streak bonuses on day 7 and day 30. |
 | Daily Quiz                       | 3 multiple-choice questions, 30 s each, one attempt per day.                                                           |
 | Higher or Lower                  | Predict one stock Up or Down over 15 minutes. Three parallel runs, up to 10 correct per run; +5 per correct pick.      |
+| mStocks Flyer                    | Hold to rise through real primary-price charts. Your daily best earns 1 point per pipe, up to 50 per UTC day.          |
 | Invite friends                   | +20 to the friend at first check-in; +50 to the inviter when the friend earns 200 game points.                         |
 | Weekly Fantasy Portfolio (later) | Pick 3 stocks plus a captain; scored on weekly % change.                                                               |
 
@@ -37,7 +38,7 @@ Full rules and point values: `docs/GAME_RULES.md`, implemented in `packages/game
 ## Project status
 
 - Done: scaffold, game rules and scoring in `packages/game-core` (tested), TWAP and price health checks in `packages/fluxion-oracle` (tested).
-- T26 predictions and T28–T30 admin controls are integrated. T31 rewards are integrated via PR #27. T33, quiz option ordering and T35 are integrated. T34 referrals are implemented for review; next is T27 (Flyer). Track review and dependencies in `docs/TASKS.md`.
+- T26 predictions and T28–T30 admin controls are integrated. T31 rewards are integrated via PR #27. T33, quiz option ordering and T35 are integrated. T34 referrals are integrated via PR #34. T27 Flyer is implemented for review. Track review and dependencies in `docs/TASKS.md`.
 - T28 adds the standalone `/admin` hub: Discord web login, revocable 12-hour admin
   sessions, four staff roles, owner-managed team access and append-only audit.
   Setup is in [DEPLOY.md](docs/DEPLOY.md#admin-hub-t28); the English
@@ -441,8 +442,7 @@ Home, Markets, Ranks and Profile share bottom navigation from 360px to 1440px.
 Quiz and Higher or Lower have dedicated screens with a Back to home button,
 plus Telegram native BackButton support. Hash navigation preserves platform launch
 data across reloads. Home shows a compact daily stock, games and today's top three.
-Flyer is disabled with Soon until T27; direct links show
-waiting screens. Higher or Lower keeps three run tabs, large Up/Down controls,
+Flyer and Invite friends have dedicated screens and active Home cards. Higher or Lower keeps three run tabs, large Up/Down controls,
 pending countdowns and expandable rules. All price/ranking/game state still comes
 from existing APIs; this frontend change has no migration. The app keeps the approved brand palette,
 regardless of Telegram's theme. Only Telegram's header/background colors match our
@@ -581,8 +581,8 @@ and Telegram remains pending the post-merge seed and platform checks.
 ## Invite friends (T34)
 
 Your friend gets +20 on their first check-in. You get +50 when they earn 200
-points from games. No percentage commissions. Check-in/streak, quiz and Higher
-or Lower awards count; referral bonuses and admin adjustments do not.
+points from games. No percentage commissions. Check-in/streak, quiz, Higher
+or Lower and Flyer awards count; referral bonuses and admin adjustments do not.
 Share the platform link/code from Home. New players must register it before
 playing, within 24 hours. A signed Telegram start_param or Discord SDK customId
 can attach it at first login; manual entry is the fallback. The assignment stays
@@ -595,3 +595,32 @@ extra claims stay pending for retry on a later game action. Invite maintenance
 pauses claims/bonuses while games remain playable. Admin voids append negative
 corrections for paid bonuses and an audit event. No real database operation is
 part of implementation; all tests/captures use synthetic data.
+
+## mStocks Flyer (T27)
+
+Hold to rise, release to fall. The canonical 360×480 playfield uses integer physics
+at 60 Hz on both client and server, with touch/mouse/Space controls. Ten pipes per
+segment follow ten primary xstocks price samples from the last 24 hours. The API
+selects and freezes catalog order, prices, provider metadata and config version;
+missing/incomplete stocks are skipped and pools never enter the course. With no
+complete chart the game clearly waits for more history, without starting a session.
+
+Each user's daily best earns one point per pipe, capped at 50 per UTC day. Only
+new best-point deltas are inserted into points_ledger with reason flyer_best;
+they count in main rankings and the 200 gameplay-point referral milestone.
+Flyer also has best-score rankings for Today/Week/Season. Finish time defines the
+UTC day. After reaching the points cap players can keep improving their score,
+subject to the privately configured finish limit.
+
+Migration 0014 adds frozen, nondeletable sessions and the Flyer maintenance switch.
+Set FLYER_MAX_FINISHES_PER_DAY and FLYER_MAX_SESSION_SECONDS privately on the API;
+no defaults or operational thresholds are committed. Missing/invalid values leave
+the rest of the app working and show Flyer as being prepared. Session length must
+be below the public 10-minute expiry. Setup: docs/DEPLOY.md. No new service is needed.
+
+The server replays every finish and checks elapsed wall time within 15%, terminal
+tick, ownership, expiry, reuse and score. Leaving the screen keeps the server
+session until it is discarded/expired; no score is granted for an unfinished game.
+The official Fluxion PNG supplied by Hadukem is used unchanged through a web brand
+configuration; provider pipe marks come from the existing provider configuration.
+Review artifacts contain only synthetic data, in docs/review/t27.

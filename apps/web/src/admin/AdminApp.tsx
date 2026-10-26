@@ -1,5 +1,6 @@
 import { Rewards } from "./Rewards.js";
 import { ReferralOperations } from "./Referrals.js";
+import { FlyerOperations } from "./Flyer.js";
 import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { en } from "../copy/en.js";
@@ -22,7 +23,8 @@ type Screen =
   | "tickers"
   | "seasons"
   | "rewards"
-  | "referrals";
+  | "referrals"
+  | "flyer";
 function message(error: unknown): string {
   const code = error instanceof AdminClientError ? error.code : "generic";
   return Object.hasOwn(copy.error, code)
@@ -106,6 +108,7 @@ export function AdminApp() {
     ...(session?.permissions.includes("team:read") ? ["team"] : []),
     ...(session?.permissions.includes("quiz:read") ? ["quiz"] : []),
     ...(session?.permissions.includes("players:read") ? ["players"] : []),
+    ...(session?.permissions.includes("players:read") ? ["flyer"] : []),
     ...(session?.permissions.includes("flags:read") ? ["flags"] : []),
     ...(session?.permissions.includes("games:write") ? ["games", "tickers"] : []),
     ...(session?.permissions.includes("seasons:write") ? ["seasons"] : []),
@@ -280,6 +283,15 @@ export function AdminApp() {
                 session={session}
                 busy={busy}
                 revision={revision}
+                write={write}
+                onError={operationError}
+              />
+            )}
+            {screen === "flyer" && (
+              <FlyerOperations
+                session={session}
+                revision={revision}
+                busy={busy}
                 write={write}
                 onError={operationError}
               />

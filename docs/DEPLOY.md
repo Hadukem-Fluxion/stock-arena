@@ -145,3 +145,24 @@ payload do /start no webhook. Após a implantação pelo operador, valide uma co
 nova em cada plataforma: convite registrado no login, +20 no primeiro check-in
 e +50 ao convidador somente após 200 pontos de jogos do amigo. O controle
 Invite friends no admin pausa cadastro/bônus sem interromper os outros jogos.
+
+## mStocks Flyer (T27)
+
+Antes da API desta versão, aplique a migration 0014 (nova tabela flyer_sessions e
+controle de manutenção). Nenhum banco real é alterado pelo Codex nesta entrega.
+O operador configura na API duas variáveis privadas, sem valores padrão no repo:
+
+- FLYER_MAX_FINISHES_PER_DAY: inteiro positivo, escolhido pelo Hadukem.
+- FLYER_MAX_SESSION_SECONDS: inteiro positivo menor que os 600 segundos da
+  expiração pública da sessão, reservando tempo para enviar o resultado.
+
+Não coloque valores de antifraude em PR, documentação pública ou conversa. Sem
+valores válidos, a API continua saudável e os outros jogos funcionam; o Flyer
+informa que está sendo preparado. Worker, Vercel e bots não precisam dessas variáveis.
+Rebuild/deploy e mudanças no .env real são feitos pelo operador após o merge.
+
+O percurso precisa de amostras primárias em dez faixas das últimas 24 horas.
+Não usa pools nem dados fictícios como fallback. Após iniciar um banco sem histórico,
+aguarde a coleta real; ausência de um gráfico completo não consome uma sessão.
+Valide Discord e Telegram: iniciar, segurar/soltar fora do canvas, terminar uma
+partida, ver melhor resultado/pontos e rankings; conferir pausa e void no admin.

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { AdminClientError } from "./client.js";
 import { assetSchema } from "../checkin/client.js";
 const instant = z.string().datetime({ offset: true });
-const game = z.enum(["checkin", "quiz", "higher_lower", "invite"]);
+const game = z.enum(["checkin", "quiz", "higher_lower", "invite", "flyer"]);
 const games = z.object({
   entries: z.array(z.object({ game, paused: z.boolean(), reason: z.string(), updatedAt: instant })),
 });

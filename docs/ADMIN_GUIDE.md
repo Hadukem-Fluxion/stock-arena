@@ -408,3 +408,28 @@ cannot reverse twice. Original ledger/audit rows cannot be changed or deleted.
 Voids do not free daily quota. At 50 qualifications per inviter/UTC day, pending
 claims retry on a later game action after the next UTC day; do not manually add
 points to work around that cap. No automated multi-account detection is included.
+
+## Flyer operations (T27)
+
+Flyer sessions is available to every Staff role. Copy a player's internal user ID
+from Players, paste it into the filter and select Find flights. The list shows
+session state, score and server UTC timestamps, with pagination. It never exposes
+session tokens or reward destination data.
+
+Owner/admin may Void with a required note. The session remains stored, excluded
+from score rankings. The server recalculates that day's best valid score and
+appends a negative admin_adjustment only when the net paid daily-best points exceed
+that entitlement. If another valid flight still covers the cap, no correction is
+needed. Every void is audited as flyer.voided; retrying cannot reverse twice. The
+original ledger/course/input log cannot be edited or deleted. Existing finish
+quota is not freed. Point corrections use the actual administrative review time.
+
+Use Games → mStocks Flyer for maintenance. Starting/finishing is blocked without
+consuming a finish; reads and explicit discard work. An in-progress session still
+expires after ten minutes. Operational limits live in private API variables,
+not the public repository; missing configuration keeps the start button disabled.
+
+flyer_best awards count toward referral qualification; admin adjustments stay
+excluded under T34's existing rule. A Flyer void does not automatically cancel an
+already rewarded referral. Review a suspicious referral separately in Invites,
+where its bonuses can be voided with a required note and immutable corrections.

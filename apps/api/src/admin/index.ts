@@ -1,5 +1,6 @@
 import { registerRewards } from "./rewards.js";
 import { registerAdminReferrals } from "./referrals.js";
+import { registerAdminFlyer } from "./flyer.js";
 import {
   adminActions,
   adminControl,
@@ -114,6 +115,7 @@ export function registerAdmin(
     };
   };
   registerAdminReferrals(app, { database: options.database, context });
+  registerAdminFlyer(app, { database: options.database, context });
   async function authenticate(request: FastifyRequest) {
     const token = cookieValue(request.headers.cookie, SESSION_COOKIE);
     let userId: string;

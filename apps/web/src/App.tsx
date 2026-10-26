@@ -1,5 +1,6 @@
 import { RewardProfile } from "./rewards/RewardProfile.js";
 import { InvitePanel } from "./referrals/InvitePanel.js";
+import { FlyerPanel } from "./flyer/FlyerPanel.js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { MouseEvent, ReactNode } from "react";
 import { ASSETS, GAME_CONFIG, assetTickers, gameDay, stockOfTheDay } from "@stock-arena/game-core";
@@ -32,9 +33,14 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
     [legal, setLegal] = useState(false),
     [runsLeft, setRunsLeft] = useState<number | null>(null);
   const dialog = useRef<HTMLDialogElement>(null);
+  const [flyerBest, setFlyerBest] = useState<number | null>(null);
   const checkin = useCheckin(platform, login.state === "ready"),
     prices = usePrices(platform, login.state === "ready");
   const catalog: AssetCatalog = checkin.view?.catalog ?? prices.view?.catalog ?? ASSETS;
+  const reloadCheckin = checkin.reload;
+  const flyerAward = useCallback(() => {
+    void reloadCheckin();
+  }, [reloadCheckin]);
   const tickers = assetTickers(catalog),
     today = checkin.view?.day ?? gameDay(new Date()),
     featured = checkin.view?.stock.ticker ?? stockOfTheDay(today, tickers),
@@ -202,6 +208,7 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
               ←
             </button>
             <h1>{game && en.games[game].name}</h1>
+            {screen === "flyer" && <span className="pill number">{en.flyer.best(flyerBest)}</span>}
           </div>
         )}
         {screen === "home" && (
@@ -244,14 +251,7 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
               <h2 id="games-title">{en.labels.games}</h2>
               <div className="game-list">
                 {(["quiz", "higherLower", "flyer"] as const).map((game, index) => (
-                  <button
-                    className="game-tile"
-                    key={game}
-                    disabled={game === "flyer"}
-                    onClick={() => {
-                      if (game !== "flyer") navigate(game);
-                    }}
-                  >
+                  <button className="game-tile" key={game} onClick={() => navigate(game)}>
                     <span className="game-icon" aria-hidden="true">
                       {["?", "↗", "◇"][index]}
                     </span>
@@ -260,11 +260,9 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
                       <span className="caption muted">{en.games[game].rule}</span>
                     </span>
                     <span className="game-badge">
-                      {game === "flyer"
-                        ? en.navigation.soon
-                        : game === "higherLower" && runsLeft !== null
-                          ? en.navigation.runsLeft(runsLeft)
-                          : en.navigation.play}
+                      {game === "higherLower" && runsLeft !== null
+                        ? en.navigation.runsLeft(runsLeft)
+                        : en.navigation.play}
                     </span>
                   </button>
                 ))}
@@ -314,8 +312,12 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
         )}
         {screen === "flyer" && (
           <section className="card game-screen">
-            <span className="game-badge">{en.navigation.soon}</span>
-            <p>{en.navigation.flyerPending}</p>
+            <FlyerPanel
+              platform={platform}
+              enabled={login.state === "ready"}
+              onAward={flyerAward}
+              onBest={setFlyerBest}
+            />
           </section>
         )}
         {screen === "markets" && (

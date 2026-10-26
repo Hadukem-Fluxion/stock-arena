@@ -130,8 +130,8 @@ points from games. There is no percentage or recurring commission.
 
 Register one invite before playing and within 24 hours of account creation,
 through a platform link or the manual code field. No self-invites, reassignment,
-or repeat welcome bonuses. Only check-in/streak, completed quiz and Higher or
-Lower points count toward 200; referral and administrative points are excluded.
+or repeat welcome bonuses. Only check-in/streak, completed quiz, Higher or
+Lower and Flyer points count toward 200; referral and administrative points are excluded.
 A friend who reaches 200 before checking in can receive the welcome bonus later.
 
 An inviter can qualify up to 50 friends per UTC day. Capped claims remain pending
@@ -141,3 +141,40 @@ new ledger corrections and a required staff note, never deletes history, and
 never frees previously used daily qualification quota. These are points only;
 registration does not promise a monetary reward. No multi-account detection is
 claimed by this feature.
+
+## mStocks Flyer
+
+Hold touch, mouse or Space to rise; release to fall. Gravity and rising acceleration
+are continuous, not tap impulses. Stock segments each contain ten pipes following
+a sampled primary-price chart from the last 24 hours, normalized between top and
+bottom margins. Catalog order is chosen by the server and repeats if the flight
+outlasts the catalog. No fixed seven-asset assumption; missing charts are skipped.
+Pools are never course data. If no complete chart exists, no session starts.
+
+Your best verified score per UTC day earns one point per pipe, up to 50 points.
+Only the increase above previously paid daily-best points is awarded. Flyer points
+count in the main leaderboard and toward a referred friend's 200 gameplay points.
+Its own Today/Week/Season rankings use the best individual verified flight in the
+window, with earliest attainment breaking ties. Finish time selects the game day.
+Reaching the 50-point cap does not stop leaderboard play; private operational
+finish/session limits still apply. Invalid, reused or expired logs grant no points.
+
+The server stores and replays the input transitions at 60 Hz. A pending held press
+at collision is valid; an input at/after the terminal tick is not. Starting and
+finishing pause for maintenance without consuming a finish; cancellation remains
+available. Maintenance does not extend the 10-minute session expiry. Abandoned
+flights can be explicitly discarded without points.
+
+The versioned public simulation config documents units and difficulty: 360×480 px,
+1000 integer units/px, rise acceleration 0.14 px/tick² and gravity 0.12 px/tick²,
+maximum rise 216 px/s and fall 240 px/s. Scroll starts at 108 px/s, adds 9 per
+segment and caps at 168; gaps start at 180 px, shrink by 8 and stop at 130. Pipes
+are 48 px wide, spaced 210 px apart; chart margins are 100 px. Client viewport
+size changes drawing scale only, never physics or scoring.
+
+Owner/admin may void a flight with a reason. It leaves score rankings and the
+best remaining valid score determines that day's corrected entitlement. Any excess
+paid points are reversed with a new negative admin_adjustment at the review time;
+original sessions/ledger rows remain unchanged. Voids do not free finish quota.
+Referral awards already paid are reviewed separately under the existing referral
+void controls; Flyer voids do not automatically reassign or void a referral.
