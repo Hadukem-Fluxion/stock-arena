@@ -162,7 +162,7 @@ strict. Esses configs excluem apenas testes; o CI geral continua executando
 e semispace de 1MiB para reduzir alocações temporárias. São opções apenas do build,
 sem mudar os limites/runtime dos serviços.
 
-`TYPECHECK_HEAP_MB` é um **build-arg**, padrão **288 MiB**, não uma variável de produção.
+`TYPECHECK_HEAP_MB` é um **build-arg**, padrão **280 MiB**, não uma variável de produção.
 Em emergência, o operador pode ajustar explicitamente o teto, por exemplo:
 
 ```bash
@@ -172,7 +172,7 @@ sudo APP_RELEASE=$(sudo git rev-parse HEAD) docker compose -f deploy/lightsail/c
 O Compose também encaminha essa opção para o roteiro existente. Após aprovação,
 uma execução emergencial que precise explicitamente do teto anterior usa
 `sudo TYPECHECK_HEAP_MB=512 bash deploy/lightsail/deploy.sh deploy`.
-Sem esse override, o build usa 288MiB. Não é necessário mudar o plano da instância.
+Sem esse override, o build usa 280MiB. Não é necessário mudar o plano da instância.
 
 Aumentar o heap aumenta a demanda de memória; não substitui o limite de RAM/swap
 do servidor nem a meta de RSS. O teto de heap não representa o RSS total do Node.

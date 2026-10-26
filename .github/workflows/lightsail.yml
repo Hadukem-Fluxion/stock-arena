@@ -62,7 +62,7 @@ jobs:
         run: |
           docker inspect $(docker ps -q --filter name=buildx_buildkit) --format '{{.HostConfig.Memory}} {{.HostConfig.MemorySwap}}' | grep -x '1073741824 3221225472'
       - name: Build Lightsail image within 1 GiB RAM and 3 GiB total RAM+swap
-        run: docker buildx build --load --no-cache --build-arg TYPECHECK_HEAP_MB=288 -f deploy/lightsail/Dockerfile -t mstocks-arena:memory .
+        run: docker buildx build --load --no-cache --build-arg TYPECHECK_HEAP_MB=280 -f deploy/lightsail/Dockerfile -t mstocks-arena:memory .
       - name: Verify runtime catalog loading without any database
         run: docker run --rm --entrypoint pnpm mstocks-arena:memory --filter @stock-arena/api exec tsx -e 'import { EXTENDED_ASSETS } from "@stock-arena/game-core/catalog"; if (Object.keys(EXTENDED_ASSETS).length < 1) process.exit(1)'
   containers:
