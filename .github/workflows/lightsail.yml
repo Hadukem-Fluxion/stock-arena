@@ -35,6 +35,9 @@ jobs:
         run: node after/scripts/lightsail/measure-typecheck.mjs --root before --label before --output memory-report --limit-mb 0 --allow-failure --docker-profile
       - name: Require sequential production typechecks below 400 MB each
         run: node after/scripts/lightsail/measure-typecheck.mjs --root after --label after --output memory-report --production
+      - name: Measure the conservative 320 MiB build-arg profile
+        if: always()
+        run: node after/scripts/lightsail/measure-typecheck.mjs --root after --label conservative --heap 320 --output memory-report --production
       - uses: actions/upload-artifact@v4
         if: always()
         with:
