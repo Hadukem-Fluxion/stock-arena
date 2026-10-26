@@ -159,7 +159,7 @@ no barrel compartilhado com a web. Dados, versão, catálogo core e jogos não m
 O Docker executa `typecheck:production` da API e depois do worker, com o mesmo modo
 strict. Esses configs excluem apenas testes; o CI geral continua executando
 `pnpm typecheck` completo, incluindo testes. O compilador usa `--optimize-for-size`
-e semispace de 4MiB para reduzir alocações temporárias. São opções apenas do build,
+e semispace de 1MiB para reduzir alocações temporárias. São opções apenas do build,
 sem mudar os limites/runtime dos serviços.
 
 `TYPECHECK_HEAP_MB` é um **build-arg**, padrão **288 MiB**, não uma variável de produção.

@@ -11,8 +11,8 @@ COPY . .
 ARG TYPECHECK_HEAP_MB=288
 RUN pnpm install --frozen-lockfile \
     && pnpm verify:node \
-    && NODE_OPTIONS="--max-old-space-size=${TYPECHECK_HEAP_MB} --max-semi-space-size=4" pnpm --filter @stock-arena/api typecheck:production \
-    && NODE_OPTIONS="--max-old-space-size=${TYPECHECK_HEAP_MB} --max-semi-space-size=4" pnpm --filter @stock-arena/worker typecheck:production
+    && NODE_OPTIONS="--max-old-space-size=${TYPECHECK_HEAP_MB} --max-semi-space-size=1" pnpm --filter @stock-arena/api typecheck:production \
+    && NODE_OPTIONS="--max-old-space-size=${TYPECHECK_HEAP_MB} --max-semi-space-size=1" pnpm --filter @stock-arena/worker typecheck:production
 
 # Tests may mount an isolated local database; production requires DATABASE_URL.
 RUN mkdir -p packages/db/.local && chown node:node packages/db/.local

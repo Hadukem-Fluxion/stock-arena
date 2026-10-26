@@ -44,7 +44,7 @@ export function measure({
       config = production ? "tsconfig.production.json" : "tsconfig.json";
     const args = [
       `--max-old-space-size=${heap}`,
-      ...(production ? ["--max-semi-space-size=4", "--optimize-for-size"] : []),
+      ...(production ? ["--max-semi-space-size=1", "--optimize-for-size"] : []),
       join(root, "node_modules/typescript/bin/tsc"),
       "-p",
       join(root, `apps/${name}/${config}`),
