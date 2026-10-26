@@ -38,7 +38,7 @@ Full rules and point values: `docs/GAME_RULES.md`, implemented in `packages/game
 ## Project status
 
 - Done: scaffold, game rules and scoring in `packages/game-core` (tested), TWAP and price health checks in `packages/fluxion-oracle` (tested).
-- T26 predictions and T28–T30 admin controls are integrated. T31 rewards are integrated via PR #27. T33, quiz option ordering and T35 are integrated. T34 referrals are integrated via PR #34. T27 Flyer is implemented for review. Track review and dependencies in `docs/TASKS.md`.
+- T26 predictions and T28–T30 admin controls are integrated. T31 rewards are integrated via PR #27. T33, quiz option ordering and T35 are integrated. T34 referrals are integrated via PR #34. T27 Flyer is integrated via PR #35; its closed-market history follow-up is under review. Track review and dependencies in `docs/TASKS.md`.
 - T28 adds the standalone `/admin` hub: Discord web login, revocable 12-hour admin
   sessions, four staff roles, owner-managed team access and append-only audit.
   Setup is in [DEPLOY.md](docs/DEPLOY.md#admin-hub-t28); the English
@@ -600,7 +600,12 @@ part of implementation; all tests/captures use synthetic data.
 
 Hold to rise, release to fall. The canonical 360×480 playfield uses integer physics
 at 60 Hz on both client and server, with touch/mouse/Space controls. Ten pipes per
-segment follow ten primary xstocks price samples from the last 24 hours. The API
+segment follow ten points sampled by position from the latest primary xstocks
+observations, bounded to one day's polling budget (24h / configured poll interval).
+Closed-market gaps do not consume that budget, so a reopening combines the new
+session with earlier stored observations. At least ten distinct timestamps are
+required; hourly retained history remains usable. Charts whose newest observation
+is more than 120 seconds old are labeled "Last session". The API
 selects and freezes catalog order, prices, provider metadata and config version;
 missing/incomplete stocks are skipped and pools never enter the course. With no
 complete chart the game clearly waits for more history, without starting a session.

@@ -24,6 +24,7 @@ import { buildServer } from "./server.js";
 import { createSessions } from "./auth/session.js";
 import { digest, hmac, SESSION_COOKIE } from "./admin/security.js";
 import { ensureInviteCode } from "./referrals.js";
+import { retainPriceSnapshots } from "../../worker/src/retention.js";
 const db = createLocalDatabase(),
   secret = "synthetic-flyer-session-secret-for-tests-only",
   origin = "https://arena.example";
@@ -95,7 +96,7 @@ async function seedPrices(
       ticker: `SYN${i}`,
       priceUsd: "100",
       source,
-      takenAt: new Date(now.getTime() - 86400000 + (b + 0.5) * 8640000),
+      takenAt: new Date(now.getTime() - 86400000 + (b === 9 ? 10 : b + 0.5) * 8640000),
     })),
   ).flat();
   if (rows.length) await db.db.insert(priceSnapshots).values(rows);
@@ -183,6 +184,161 @@ it("skips incomplete assets, cannot build from pools alone and consumes no sessi
   expect(
     await db.db.select().from(flyerSessions).where(eq(flyerSessions.userId, p.id)),
   ).toHaveLength(1);
+});
+async function seedWindow(ticker: string, end: Date, missingFirstBucket = false) {
+  await db.db.insert(priceSnapshots).values(
+    Array.from({ length: 10 }, (_, bucket) => ({
+      ticker,
+      source: "xstocks" as const,
+      priceUsd: "100",
+      takenAt: new Date(end.getTime() - 86400000 + (bucket === 9 ? 10 : bucket + 0.5) * 8640000),
+    })).slice(missingFirstBucket ? 1 : 0),
+  );
+}
+it.each([
+  { name: "weekend", at: "2026-10-25T23:00:00Z", last: "2026-10-23T21:00:00Z" },
+  { name: "holiday", at: "2026-12-25T23:00:00Z", last: "2026-12-24T21:00:00Z" },
+])(
+  "keeps $name courses available from each ticker's latest primary window",
+  async ({ at, last }) => {
+    now = new Date(at);
+    const first = new Date(last),
+      second = new Date(first.getTime() - 3600000);
+    await seedWindow("SYN0", first);
+    await seedWindow("SYN1", second);
+    await seedWindow("SYN2", first, true);
+    await db.db.insert(priceSnapshots).values([
+      { ticker: "SYN0", source: "fluxion_pool", priceUsd: "999", takenAt: now },
+      {
+        ticker: "SYN1",
+        source: "xstocks",
+        priceUsd: "888",
+        takenAt: new Date(now.getTime() + 60000),
+      },
+    ]);
+    await retainPriceSnapshots(db, now);
+    const p = await player(),
+      s = await start(p);
+    expect(s.course.segments.map((s) => s.ticker).sort()).toEqual(["SYN0", "SYN1"]);
+    for (const segment of s.course.segments) {
+      expect(segment.prices).toEqual(Array(10).fill("100"));
+      expect(segment.lastSession).toBe(true);
+      expect(segment.windowEndsAt).toBe((segment.ticker === "SYN0" ? first : second).toISOString());
+    }
+    await db.db.delete(priceSnapshots);
+    expect((await finish(p, s)).response.statusCode).toBe(200);
+  },
+);
+it("keeps intraday sampling and normalization unchanged and labels only windows older than 120 seconds", async () => {
+  const ends = [now, new Date(now.getTime() - 120000), new Date(now.getTime() - 120001)];
+  for (const [i, end] of ends.entries()) await seedWindow(`SYN${i}`, end);
+  // Exercise the existing first/last choice within each bucket with real price variation.
+  await db.db.insert(priceSnapshots).values([
+    {
+      ticker: "SYN0",
+      source: "xstocks",
+      priceUsd: "90",
+      takenAt: new Date(now.getTime() - 86400000 + 1000),
+    },
+    { ticker: "SYN0", source: "xstocks", priceUsd: "110", takenAt: now },
+  ]);
+  // Avoid a tied timestamp for the last bucket in this fixture.
+  await db.db
+    .delete(priceSnapshots)
+    .where(
+      and(
+        eq(priceSnapshots.ticker, "SYN0"),
+        eq(priceSnapshots.priceUsd, "100"),
+        eq(priceSnapshots.takenAt, now),
+      ),
+    );
+  const s = await start(await player());
+  expect(s.course.segments.find((s) => s.ticker === "SYN0")).toMatchObject({
+    prices: ["90", ...Array(8).fill("100"), "110"],
+    centers: [380, ...Array(8).fill(240), 100],
+    lastSession: false,
+    windowEndsAt: now.toISOString(),
+  });
+  expect(s.course.segments.find((s) => s.ticker === "SYN1")!.lastSession).toBe(false);
+  expect(s.course.segments.find((s) => s.ticker === "SYN2")!.lastSession).toBe(true);
+});
+it.each([
+  {
+    name: "Saturday",
+    at: "2026-10-24T12:00:00Z",
+    previous: "2026-10-23T20:00:00Z",
+    reopens: false,
+  },
+  {
+    name: "Monday reopening",
+    at: "2026-10-26T01:00:00Z",
+    previous: "2026-10-23T20:00:00Z",
+    reopens: true,
+  },
+  {
+    name: "midweek holiday",
+    at: "2026-11-12T01:00:00Z",
+    previous: "2026-11-10T20:00:00Z",
+    reopens: true,
+  },
+])(
+  "builds $name charts across closed-market gaps using existing primary samples",
+  async ({ at, previous, reopens }) => {
+    now = new Date(at);
+    const before = new Date(previous);
+    await db.db.insert(priceSnapshots).values(
+      Array.from({ length: 241 }, (_, i) => ({
+        ticker: "SYN0",
+        source: "xstocks" as const,
+        priceUsd: String(100 + i),
+        takenAt: new Date(before.getTime() + i * GAME_CONFIG.prices.pollSeconds * 1000),
+      })),
+    );
+    if (reopens)
+      await db.db.insert(priceSnapshots).values(
+        Array.from({ length: 241 }, (_, i) => ({
+          ticker: "SYN0",
+          source: "xstocks" as const,
+          priceUsd: String(400 + i),
+          takenAt: new Date(now.getTime() - 3600000 + i * GAME_CONFIG.prices.pollSeconds * 1000),
+        })),
+      );
+    await seedWindow("SYN1", before, true);
+    // Pools, future quotes and duplicate timestamps cannot manufacture a complete chart.
+    await db.db.insert(priceSnapshots).values([
+      { ticker: "SYN1", source: "xstocks", priceUsd: "100", takenAt: before },
+      { ticker: "SYN1", source: "fluxion_pool", priceUsd: "999", takenAt: now },
+      {
+        ticker: "SYN1",
+        source: "xstocks",
+        priceUsd: "999",
+        takenAt: new Date(now.getTime() + 60000),
+      },
+    ]);
+    await retainPriceSnapshots(db, now);
+    const s = await start(await player());
+    expect(s.course.segments.map((segment) => segment.ticker)).toEqual(["SYN0"]);
+    const segment = s.course.segments[0]!;
+    expect(segment.prices).toHaveLength(10);
+    expect(Number(segment.prices[0])).toBeLessThan(400);
+    expect(segment.prices.at(-1)).toBe(reopens ? "640" : "340");
+    expect(segment.lastSession).toBe(!reopens);
+    expect(segment.windowEndsAt).toBe(
+      (reopens ? now : new Date(before.getTime() + 3600000)).toISOString(),
+    );
+  },
+);
+it("limits intraday history to one polling-day budget and preserves its first and last prices", async () => {
+  const count = Math.ceil(86400 / GAME_CONFIG.prices.pollSeconds);
+  await db.db.execute(sql`INSERT INTO price_snapshots (ticker,price_usd,source,taken_at)
+    SELECT 'SYN0',100+i,'xstocks',${now}::timestamptz-(${count}-i)*${GAME_CONFIG.prices.pollSeconds}*interval '1 second'
+    FROM generate_series(0,${count}) i`);
+  const s = await start(await player()),
+    segment = s.course.segments[0]!;
+  expect(segment.prices).toHaveLength(10);
+  expect(segment.prices[0]).toBe("101");
+  expect(segment.prices.at(-1)).toBe(String(100 + count));
+  expect(segment.lastSession).toBe(false);
 });
 it("serializes start and accepts exactly one finish; no client-provided score is trusted", async () => {
   await seedPrices();

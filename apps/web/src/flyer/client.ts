@@ -11,6 +11,8 @@ const segment = z.object({
   centers: z.array(z.number().int()).length(10),
   changePct: z.string(),
   fact: z.string().nullable(),
+  windowEndsAt: instant.optional(),
+  lastSession: z.boolean().optional(),
 });
 export const courseSchema = z.object({
   version: z.literal(GAME_CONFIG.flyer.version),

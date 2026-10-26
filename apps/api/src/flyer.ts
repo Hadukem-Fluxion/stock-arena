@@ -85,16 +85,36 @@ export async function flyerDayTotals(tx: FlyerTx, userId: string, day: string) {
 async function courseFromPrices(tx: FlyerTx, catalog: AssetCatalog, now: Date) {
   const refs = [...new Set(Object.values(catalog).map((a) => a.referenceTicker))];
   if (!refs.length) throw new FlyerError("FLYER_UNAVAILABLE", 503);
-  const start = new Date(now.getTime() - 86400000);
-  const result = await tx.execute<{ ticker: string; price_usd: string; bucket: number }>(sql`
-    SELECT DISTINCT ON (ticker,bucket) ticker,price_usd::text,bucket FROM (
-      SELECT ticker,price_usd,taken_at,least(${c.pipesPerSegment - 1},floor(extract(epoch FROM(taken_at-${start}::timestamptz))/${86400 / c.pipesPerSegment})::int) AS bucket
-      FROM price_snapshots WHERE source='xstocks' AND price_usd>0 AND taken_at>=${start} AND taken_at<=${now}
-      AND ticker IN (${sql.join(
-        refs.map((r) => sql`${r}`),
-        sql`,`,
-      )})
-    ) sampled ORDER BY ticker,bucket,CASE WHEN bucket=0 THEN taken_at END ASC,taken_at DESC`);
+  // A day's polling budget spans market closures and survives hourly retention.
+  const sampleLimit = Math.max(
+    c.pipesPerSegment,
+    Math.ceil(86400 / GAME_CONFIG.prices.pollSeconds),
+  );
+  const result = await tx.execute<{
+    ticker: string;
+    price_usd: string;
+    bucket: number;
+    window_end: Date | string;
+  }>(sql`
+    WITH catalog(ticker) AS (VALUES ${sql.join(
+      refs.map((r) => sql`(${r}::text)`),
+      sql`, `,
+    )}),
+    recent AS (
+      SELECT catalog.ticker,samples.price_usd,samples.taken_at FROM catalog
+      CROSS JOIN LATERAL (
+        SELECT DISTINCT ON (taken_at) price_usd,taken_at FROM price_snapshots
+        WHERE ticker=catalog.ticker AND source='xstocks' AND price_usd>0 AND taken_at<=${now}
+        ORDER BY taken_at DESC,price_usd DESC LIMIT ${sampleLimit}
+      ) samples
+    ), sampled AS (
+      SELECT ticker,price_usd,taken_at,
+        max(taken_at) OVER (PARTITION BY ticker) AS window_end,
+        ntile(${c.pipesPerSegment}) OVER (PARTITION BY ticker ORDER BY taken_at) AS bucket
+      FROM recent
+    )
+    SELECT DISTINCT ON (ticker,bucket) ticker,price_usd::text,bucket,window_end
+    FROM sampled ORDER BY ticker,bucket,CASE WHEN bucket=1 THEN taken_at END ASC,taken_at DESC`);
   const segments: FlyerSegment[] = [];
   for (const [ticker, asset] of Object.entries(catalog)) {
     const rows = result.rows.filter((r) => r.ticker === asset.referenceTicker);
@@ -110,6 +130,10 @@ async function courseFromPrices(tx: FlyerTx, catalog: AssetCatalog, now: Date) {
         centers: [],
         changePct: predictionChange(prices[0]!, prices.at(-1)!),
         fact: facts[0] ?? null,
+        windowEndsAt: new Date(rows[0]!.window_end).toISOString(),
+        lastSession:
+          now.getTime() - new Date(rows[0]!.window_end).getTime() >
+          GAME_CONFIG.prices.staleAfterSeconds * 1000,
       };
       // Reject invalid decimals before freezing a course, without exposing provider data.
       flyerCourse(0, [candidate]);

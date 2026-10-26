@@ -36,9 +36,39 @@ referral qualification and audited role-restricted voids.
 
 Apply migration `0014` before the matching API, then configure the two private
 API operational limits listed in `docs/DEPLOY.md`. No values are included in this
-repository. A course needs primary snapshots in all ten time buckets of its last
-24 hours; incomplete assets are skipped, with no pool or invented-price fallback.
+repository. A course needs at least ten distinct primary observations, bounded
+by one configured polling day's sample count. Closed-market gaps consume no
+samples; incomplete assets are skipped, with no pool or invented-price fallback.
 
 Hadukem should verify real Discord/Telegram play, held-input release, results,
 points, rankings and admin maintenance/void controls on the deployed version.
 This PR performs no merge, deployment or real database operation.
+
+## Closed-market follow-up
+
+PR #35 is integrated. The follow-up changes only course history selection and its
+label; scoring, replay, input, limits and existing frozen sessions stay compatible.
+There is no new migration. Each ticker uses its latest N distinct primary
+observations at/before server now, N = ceil(24h / configured poll interval), with
+ntile(10) by position and preserved first/last prices. This approved sample-count
+alternative spans closed-market gaps and remains usable after hourly retention;
+it does not require 24 consecutive wall-clock hours after reopening. Fewer than
+ten observations skips the ticker. History ending more than the existing
+120-second freshness tolerance ago displays "Last session".
+
+New synthetic API cases cover Friday-to-Sunday history after retention, a holiday,
+different last observations per ticker, insufficient data, ignored pools/future
+samples and intraday normalization. The urgent scheduled 26/10 correction also
+covers Saturday, Monday 01:00 UTC with Friday + one hour of new data, a midweek
+holiday, deduplicated timestamps and the one-day sample budget. Browser evidence:
+
+- `flyer-last-session-390.png` and `flyer-last-session-result-390.png`.
+- `flyer-last-session-1440.png` and `flyer-last-session-result-1440.png`.
+- `flyer-getting-charts-390.png` and `flyer-getting-charts-1440.png`: friendly
+  preparation state; the test retries the start request successfully and checks
+  that the Home card remains usable.
+
+Scheduled correction validation: 597 unit/integration tests passed (eight
+POSIX-only checks skip on Windows), all 98 browser tests passed, plus lint,
+format check, TypeScript and workspace build. Real deployment/database operations
+remain outside this delivery.

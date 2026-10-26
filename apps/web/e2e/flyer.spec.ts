@@ -10,9 +10,14 @@ import { setupPrediction } from "./prediction-fixture.js";
 const c = en.flyer,
   sessionId = "a1000000-0000-4000-8000-000000000001";
 test.use({ video: { mode: "on", size: { width: 390, height: 844 } } });
-async function fixture(page: Page, count = 3, maintenance = false) {
+async function fixture(page: Page, count = 3, maintenance = false, lastSession = false) {
   const host = await setupPrediction(page, count),
     course = syntheticFlyerCourse(count);
+  if (lastSession)
+    for (const segment of course.segments) {
+      segment.lastSession = true;
+      segment.windowEndsAt = "2026-10-23T21:00:00Z";
+    }
   let best = 0,
     paid = 0,
     active = false;
@@ -161,6 +166,31 @@ for (const width of [390, 1440])
         await f.close();
       }
     });
+for (const width of [390, 1440])
+  test(`Flyer last session label survives replay and result at ${width}px`, async ({
+    page,
+  }, info) => {
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
+    const f = await fixture(page, 3, false, true);
+    try {
+      await page.goto("/#tgWebAppData=synthetic&screen=flyer");
+      await page.getByRole("button", { name: c.start, exact: true }).click();
+      await expect(page.locator(".flyer-status")).toContainText(c.lastSession);
+      await drive(page, 1);
+      await expect
+        .poll(async () => Number(await page.locator("canvas").getAttribute("data-tick")))
+        .toBeGreaterThan(150);
+      await capture(page, info, `flyer-last-session-${width}.png`);
+      await expect(page.getByText(c.newBest, { exact: true })).toBeVisible({ timeout: 20000 });
+      await expect(
+        page.locator(".flyer-chart").getByText(c.lastSession, { exact: true }),
+      ).toBeVisible();
+      expect(f.finishes).toHaveLength(1);
+      await capture(page, info, `flyer-last-session-result-${width}.png`);
+    } finally {
+      await f.close();
+    }
+  });
 test("Flyer releases outside canvas, blocks touch menus and remains usable in landscape", async ({
   page,
 }, info) => {
@@ -243,6 +273,37 @@ test("Flyer keeps its flight through the 15-second parent refresh and meets the 
     await f.close();
   }
 });
+for (const width of [390, 1440])
+  test(`Flyer getting charts ready at ${width}px retries without a broken Home card`, async ({
+    page,
+  }, info) => {
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 1000 });
+    const f = await fixture(page);
+    let attempts = 0;
+    await page.route("**/api/flyer/start", async (route) => {
+      attempts++;
+      if (attempts === 1)
+        return route.fulfill({ status: 503, json: { error: { code: "FLYER_UNAVAILABLE" } } });
+      return route.fallback();
+    });
+    try {
+      await page.goto("/#tgWebAppData=synthetic");
+      const card = page.getByRole("button", { name: en.games.flyer.name });
+      await expect(card).toBeEnabled();
+      await card.click();
+      await page.getByRole("button", { name: c.start, exact: true }).click();
+      await expect(page.getByText(c.gettingCharts, { exact: true })).toBeVisible();
+      await expect(page.getByRole("alert")).toHaveCount(0);
+      await capture(page, info, `flyer-getting-charts-${width}.png`);
+      await page.getByRole("button", { name: c.retry, exact: true }).click();
+      await expect(page.locator(".flyer-stage canvas")).toBeVisible();
+      expect(attempts).toBe(2);
+      await page.getByRole("button", { name: en.navigation.back, exact: true }).click();
+      await expect(card).toBeEnabled();
+    } finally {
+      await f.close();
+    }
+  });
 test("Flyer browser preview cannot start or submit, and maintenance blocks start", async ({
   page,
 }) => {
