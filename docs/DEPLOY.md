@@ -178,7 +178,7 @@ O workflow **Lightsail containers** adiciona dois gates:
 - `typecheck-memory`: mede antes/depois sequencialmente com `/usr/bin/time -v`,
   Node da `.nvmrc`, configs/perfil do Docker de cada revisão. O perfil antigo pode
   registrar OOM; isso não é reportado como sucesso. O perfil novo deve terminar e
-  ficar **abaixo de 400MiB de RSS por compilador**. Logs, `.time` e JSON ficam no
+  ficar **abaixo de 400 MB de RSS por compilador**. Logs, `.time` e JSON ficam no
   artifact `typecheck-memory` e o resumo da execução mostra a tabela.
 - `memory-bounded-image`: Buildx em container dedicado, **1GiB RAM e 3GiB total
   RAM+swap**, com swap do host garantido, limites Docker verificados e build sem

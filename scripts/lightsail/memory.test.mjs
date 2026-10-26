@@ -1,10 +1,12 @@
 import { readFileSync } from "node:fs";
 import { URL } from "node:url";
 import { expect, it } from "vitest";
-import { peakRss } from "./measure-typecheck.mjs";
+import { peakRss, withinBudget } from "./measure-typecheck.mjs";
 it("parses compiler peak RSS and refuses missing measurements", () => {
   expect(peakRss("Maximum resident set size (kbytes): 312480\n")).toBe(312480);
   expect(() => peakRss("Exit status: 0\n")).toThrow();
+  expect(withinBudget(390624, 400)).toBe(true);
+  expect(withinBudget(390625, 400)).toBe(false);
 });
 it("keeps full CI typechecking and sequential strict production checks with an adjustable heap", () => {
   const file = (p) => readFileSync(new URL(p, import.meta.url), "utf8");

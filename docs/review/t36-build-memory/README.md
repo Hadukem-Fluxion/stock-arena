@@ -15,6 +15,13 @@ excluding test files. Full source/test typechecking remains in the normal CI job
 The build-only heap argument defaults to 512MiB; temporary V8 allocations use a
 4MiB semispace and size-oriented compilation. Service runtime limits are unchanged.
 
+The first Linux probe still exceeded the target (API 444.16MiB, worker 456.90MiB),
+despite the bounded image passing. The remaining broad viem imports are narrowed:
+the API loads the same checksum function through a Zod-validated one-function
+runtime contract; the oracle keeps only the pinned Mantle chain definition with
+an explicit `Chain` annotation. Equivalence tests compare both with viem 2.57.7.
+No checksum, pool address, chain behavior or game rule changes.
+
 ## Reproducible Linux measurements
 
 `scripts/lightsail/measure-typecheck.mjs` measures each compiler directly with
@@ -22,7 +29,7 @@ The build-only heap argument defaults to 512MiB; temporary V8 allocations use a
 The `typecheck-memory` CI job uploads raw `.time`, compiler logs and before/after
 JSON, and publishes peak RSS in the workflow summary. Old heap failures are
 recorded as failures, never converted into successful typechecks. The new profile
-is gated below 400MiB per sequential compiler. The measured report is recorded
+is gated below 400 MB per sequential compiler. The measured report is recorded
 here after CI execution; local Windows diagnostics are not substituted for Linux.
 
 The separate uncached image build uses a dedicated BuildKit container capped at
@@ -30,7 +37,7 @@ The separate uncached image build uses a dedicated BuildKit container capped at
 at least 2GiB swap. Existing container isolation/PGlite smoke checks remain.
 See DEPLOY.md for reproduction and the emergency heap build-arg.
 
-Local validation: 632 unit/integration tests passed, eight POSIX-only checks skip
+Local validation: 634 unit/integration tests passed, eight POSIX-only checks skip
 on Windows. Full typecheck and strict production typechecks passed. No new library
 version was introduced: game-core declares the existing Zod version for its
 server-only loader. No `.env`, secret or private quiz content was accessed.

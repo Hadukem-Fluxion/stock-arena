@@ -10,6 +10,9 @@ export function peakRss(text) {
   if (!match) throw new Error("GNU time did not report peak RSS.");
   return Number(match[1]);
 }
+export function withinBudget(rssKiB, limitMB) {
+  return limitMB === 0 || rssKiB * 1024 < limitMB * 1_000_000;
+}
 export function measure({
   root,
   label,
@@ -65,7 +68,8 @@ export function measure({
       exitCode: run.status,
       peakRssKiB: rssKiB,
       peakRssMiB: Number((rssKiB / 1024).toFixed(2)),
-      passed: run.status === 0 && (limit === 0 || rssKiB < limit * 1024),
+      peakRssMB: Number(((rssKiB * 1024) / 1_000_000).toFixed(2)),
+      passed: run.status === 0 && withinBudget(rssKiB, limit),
     });
   }
   const report = {
@@ -74,7 +78,7 @@ export function measure({
     node: process.version,
     platform: process.platform,
     heapMiB: heap,
-    limitMiB: limit,
+    limitMB: limit,
     production,
     entries,
   };
@@ -98,7 +102,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
       label: value("--label", "after"),
       output: value("--output", ".corepack/typecheck-memory"),
       heap: Number(value("--heap", "512")),
-      limit: Number(value("--limit-mib", "400")),
+      limit: Number(value("--limit-mb", "400")),
       production:
         args.includes("--production") ||
         (args.includes("--docker-profile") &&

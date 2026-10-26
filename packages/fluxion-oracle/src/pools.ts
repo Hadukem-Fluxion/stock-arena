@@ -1,5 +1,5 @@
 import { createPublicClient, http } from "viem";
-import { mantle } from "viem/chains";
+import { mantle } from "./mantle.js";
 import { TICKERS } from "@stock-arena/game-core";
 import type { Ticker } from "@stock-arena/game-core";
 import { OracleError, retry } from "./retry.js";

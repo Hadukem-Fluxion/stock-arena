@@ -32,8 +32,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
         working-directory: after
       - name: Measure previous Docker typechecks (failure is recorded)
-        run: node after/scripts/lightsail/measure-typecheck.mjs --root before --label before --output memory-report --limit-mib 0 --allow-failure --docker-profile
-      - name: Require sequential production typechecks below 400 MiB each
+        run: node after/scripts/lightsail/measure-typecheck.mjs --root before --label before --output memory-report --limit-mb 0 --allow-failure --docker-profile
+      - name: Require sequential production typechecks below 400 MB each
         run: node after/scripts/lightsail/measure-typecheck.mjs --root after --label after --output memory-report --production
       - uses: actions/upload-artifact@v4
         if: always()

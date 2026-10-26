@@ -37,7 +37,7 @@ move generated catalog data out of the TypeScript literal graph into runtime
 validated JSON; preserve contents/version/rules. Keep complete CI typechecking,
 use sequential strict production checks in Docker, and expose a build-only heap
 argument (default 512MiB). Measure API/worker compiler peak RSS before/after with
-GNU time on Node 24.19.0; gate production checks below 400MiB. Add an effective
+GNU time on Node 24.19.0; gate production checks below 400 MB. Add an effective
 1GiB RAM + 2GiB swap image-build CI job and document reproduction/emergency heap
 adjustment. No merge, deployment or real database operation.
 
