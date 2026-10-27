@@ -234,9 +234,10 @@ test.describe("Flyer v3 touch input", () => {
 
 test("Flyer fullscreen keeps login error and retry reachable", async ({ page }) => {
   const f = await setupV3(page, 3, "telegram");
-  let attempts = 0;
+  await expect(page.getByRole("button", { name: copy.tapPlay, exact: true })).toBeEnabled();
+  let unavailable = true;
   await page.route("**/api/auth/telegram", (route) =>
-    ++attempts === 1
+    unavailable
       ? route.fulfill({ status: 503, json: { error: { code: "AUTH_UNAVAILABLE" } } })
       : route.fallback(),
   );
@@ -244,6 +245,7 @@ test("Flyer fullscreen keeps login error and retry reachable", async ({ page }) 
     await page.reload();
     const retry = page.getByRole("button", { name: en.auth.retry, exact: true });
     await expect(retry).toBeVisible();
+    unavailable = false;
     await retry.click();
     await expect(page.getByRole("button", { name: copy.tapPlay, exact: true })).toBeEnabled();
     await expect(retry).toBeHidden();
