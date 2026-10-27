@@ -1,0 +1,2 @@
+ALTER TABLE "flyer_v3_daily_courses" DROP CONSTRAINT "flyer_daily_v3";--> statement-breakpoint
+ALTER TABLE "flyer_v3_daily_courses" ADD CONSTRAINT "flyer_daily_v3" CHECK ("flyer_v3_daily_courses"."course"->>'version' IN ('flyer-3','flyer-3b') AND "flyer_v3_daily_courses"."course"->>'day'="flyer_v3_daily_courses"."day"::text);

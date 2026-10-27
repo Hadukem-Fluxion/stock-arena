@@ -1,3 +1,4 @@
+import { dailyV3Course } from "./flyer.js";
 import { randomUUID } from "node:crypto";
 import { beforeAll, afterAll, beforeEach, afterEach, it, expect } from "vitest";
 import { eq, sql } from "drizzle-orm";
@@ -42,7 +43,7 @@ beforeEach(async () => {
   app = buildServer({
     logger: false,
     auth: { database: db, env, now: () => now },
-    flyer: { catalog },
+    flyer: { catalog, createCourse: dailyV3Course },
   });
 });
 afterEach(() => app.close());

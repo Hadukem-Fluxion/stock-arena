@@ -59,6 +59,19 @@ export const courseSchema = z.discriminatedUnion("version", [
       )
       .nonempty(),
   }),
+  courseBase.extend({
+    version: z.literal("flyer-3b"),
+    day: z.string(),
+    catalogVersion: z.string(),
+    segments: z
+      .array(
+        segment.extend({
+          prices: z.array(z.string()).length(2),
+          centers: z.array(z.number().int()).length(1),
+        }),
+      )
+      .nonempty(),
+  }),
 ]);
 export const flyerViewSchema = z.object({
   day: z.string(),

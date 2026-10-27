@@ -2,7 +2,7 @@
 
 One brief = one pull request. Paste the whole brief into Codex together with AGENTS.md. This file and `docs/ROADMAP.md` are the official Task Board; there is no external board. Keep them updated with implementation/review status and dependencies. Non-code tasks (T00, T01, T05, T06, T17, T20) are done by people or Claude and are not listed here.
 
-## Task Board updates — 2026-10-26
+## Task Board updates — 2026-10-27
 
 | Task                | State / dependency                                                                                   |
 | ------------------- | ---------------------------------------------------------------------------------------------------- |
@@ -21,12 +21,35 @@ One brief = one pull request. Paste the whole brief into Codex together with AGE
 | T34                 | Integrated via PR #34; simplified 200-point qualification                                            |
 | T27 mStocks Flyer   | Integrated via PRs #35/#36; cross-session history and friendly chart retry retained for v1           |
 | T36 Daylight Market | Integrated via PR #37; build-memory follow-up integrated via PR #38; rollout is operator-owned       |
-| T37 Flyer v3        | Implementation complete; review on t37-flyer-gameplay; evidence in docs/review/t37                   |
+| T37 Flyer v3        | Integrated via PR #39; follow-up on t37-flyer-polish                                                 |
+| T37 follow-up       | Implemented for review: flyer-3b trails, clean title and canvas-contained exit                       |
 | T32                 | Settlement query optimization; required before T19 load test; not part of T26                        |
 
 Campaign decision for Mantle (not code): accepted reward identifiers (Bybit UID,
 Mantle address or both) and manual delivery process. Keep both fields optional
 until confirmed. This table records the official task status changes.
+
+## T37 follow-up — More coins and layout polish
+
+After PR #39 is merged, one PR on t37-flyer-polish. No merge, deployment or real
+database operations. The approved exit/focus-loss behavior remains unchanged.
+
+- Version new coin positions as **flyer-3b**; flyer-3 keeps its exact coin positions,
+  physics, inputs and replay. Every seeded trail has 1–3 coins; trails are spaced
+  exactly 3 or 4 buildings apart, between buildings, outside forced collisions.
+  Physics, per-coin score, daily-best delta and campaign cap remain unchanged.
+- Existing immutable daily courses stay untouched. New daily courses use v3b;
+  a day already frozen as v3 continues using v3 for all players until UTC rollover.
+  Migration 0017 only allows the extra protocol in the existing JSON check.
+- Lobby title area contains sky/clouds only: no upper stock buildings or company
+  logo badges behind mStocks FLYER; decorative buildings remain below the title.
+- While playing, place the exit button at the top-left inside the visible canvas
+  bounds, including desktop letterboxing and resize; retain mobile safe areas.
+- Tests: exact released v3 coin/replay fixture; deterministic v3b spacing,
+  collision clearance, shared replay and unique pickup; unchanged cap/awards;
+  existing course/open-session migration and next-day activation; Discord and
+  Telegram at 360×640, 390×844, 1440×900, including title-region pixel checks and
+  actual button/canvas bounds. Evidence: docs/review/t37-follow-up.
 
 ## T37 — Flyer full-screen, tap-to-flap, charts and coins
 

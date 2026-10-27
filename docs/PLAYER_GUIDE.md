@@ -96,7 +96,9 @@ maintenance and the UTC daily qualification cap.
 Open mStocks Flyer on Home and choose TAP TO PLAY. Tap/click the playfield or
 press Space to flap; gravity pulls you down between taps. Avoid the stock buildings
 and collect optional coins: each building passed and each coin adds 1 to your run
-score. Coin contact is checked by the server, as is the whole flight.
+score. New courses place a coin trail every 3–4 buildings. A daily course already
+started before this update keeps its original coin positions until the next UTC
+day. Coin contact is checked by the server, as is the whole flight.
 
 Each building represents an S&P 500 stock. A positive 24h/last-session move places
 its gap higher; a negative move places it lower. The course is identical for all

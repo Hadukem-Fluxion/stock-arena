@@ -48,8 +48,8 @@ export const GAME_CONFIG = {
     qualifyingGamePoints: 200,
   },
   flyer: {
-    version: "flyer-3",
-    previousVersion: "flyer-2",
+    version: "flyer-3b",
+    previousVersion: "flyer-3",
     legacyVersion: "flyer-1",
     v3: {
       gravity: 220,
@@ -66,6 +66,7 @@ export const GAME_CONFIG = {
       chartPoints: 10,
       visibleCharts: 12,
     },
+    v3b: { coinTrailMinPipes: 3, coinTrailMaxPipes: 4 },
     // V2 gap centers span 160..320px; +/-5% reaches the clamp.
     moveClampPct: 5,
     moveRangePixels: 80,

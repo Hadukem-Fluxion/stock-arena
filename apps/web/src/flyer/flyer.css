@@ -99,6 +99,10 @@
   font-size: 23px;
   box-shadow: 0 3px 0 #163a4855;
 }
+.is-playing .flight-top {
+  left: max(calc(var(--flight-canvas-left, 0px) + 12px), env(safe-area-inset-left));
+  right: max(calc(var(--flight-canvas-right, 0px) + 12px), env(safe-area-inset-right));
+}
 .flight-content {
   height: 100%;
   width: min(100%, 480px);

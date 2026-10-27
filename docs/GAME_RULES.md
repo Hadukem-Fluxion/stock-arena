@@ -152,8 +152,10 @@ one frozen S&P 500/xStocks course shared by everyone; no stock repeats until the
 catalog is exhausted. Official logos/colors identify buildings, with names/moves
 in accessible announcements and results.
 
-One to three optional coins appear per ten-building group, in deterministic
-trails between buildings. Only actual integer circle-circle contact collects a
+New flyer-3b courses place one to three optional coins in a deterministic trail
+every 3–4 buildings, between buildings. Already frozen flyer-3 courses keep their
+original ten-building groups and exact replay. A day already frozen on v3 does
+not change mid-day; the next new UTC daily course uses v3b. Only actual integer circle-circle contact collects a
 coin, exactly once. **Run score = buildings passed + coins collected.** Coins
 change the run score, not the 50-point daily campaign cap. The server derives
 all counts; the client never supplies coin totals.
@@ -165,7 +167,7 @@ is available. Temporary samples retain 26h; frozen summaries/courses survive tha
 retention. Incomplete/halted stocks are skipped when freezing a daily course.
 No usable summary means no session is consumed. Pools never supply course data.
 Already open flyer-1/flyer-2 sessions retain their original hold physics and
-replay rules; new sessions use flyer-3. The daily course does not update mid-day.
+replay rules; new daily courses use flyer-3b (a day already frozen as flyer-3 stays unchanged). The daily course does not update mid-day.
 
 Your best verified score per UTC day earns one point per score unit, up to 50 points.
 Only the increase above previously paid daily-best points is awarded. Flyer points

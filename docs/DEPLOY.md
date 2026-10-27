@@ -146,6 +146,16 @@ nova em cada plataforma: convite registrado no login, +20 no primeiro check-in
 e +50 ao convidador somente após 200 pontos de jogos do amigo. O controle
 Invite friends no admin pausa cadastro/bônus sem interromper os outros jogos.
 
+## Flyer v3b — follow-up da T37
+
+Aplicar **0017_flyer-3b** antes da API correspondente. Ela apenas amplia o CHECK
+do JSON de cursos diários para aceitar flyer-3 e flyer-3b, sem reescrever cursos,
+partidas ou ledger. Primeiro publicar o cliente que aceita flyer-1/2/3/3b; depois
+a API que cria os cursos v3b. Se o dia UTC já estiver congelado em v3, ele continua
+assim até a próxima data: nunca recalcular as moedas de partidas existentes.
+O rollback deve manter suporte aos quatro protocolos enquanto houver cursos e
+partidas nessas versões. Nenhuma dessas operações foi executada pelo Codex.
+
 ## mStocks Flyer (T27)
 
 ### T36 — Daylight Market e catálogo estendido

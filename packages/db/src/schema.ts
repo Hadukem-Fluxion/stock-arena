@@ -303,7 +303,7 @@ export const flyerV3DailyCourses = pgTable(
   (t) => [
     check(
       "flyer_daily_v3",
-      sql`${t.course}->>'version'='flyer-3' AND ${t.course}->>'day'=${t.day}::text`,
+      sql`${t.course}->>'version' IN ('flyer-3','flyer-3b') AND ${t.course}->>'day'=${t.day}::text`,
     ),
   ],
 );

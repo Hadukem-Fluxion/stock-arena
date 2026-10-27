@@ -411,6 +411,13 @@ points to work around that cap. No automated multi-account detection is included
 
 ## Flyer operations (T27/T36/T37)
 
+T37 follow-up adds flyer-3b with denser coin trails. Apply migration 0017 before
+the matching API; it only permits the new JSON protocol, without rewriting
+courses/sessions/ledger. A day already frozen on v3 stays v3; the next new day
+uses v3b. Ship the web client accepting all four versions before enabling the
+matching API. Preserve that protocol support during rollback; do not rewrite
+frozen courses to change coin frequency.
+
 T37 starts new sessions on flyer-3: fixed tap impulses and server-replayed coin
 collection. Score is buildings + coins; campaign awards still use the daily-best
 delta and cap of 50. Original v1/v2 courses and replays remain valid. Apply migration

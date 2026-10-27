@@ -9,9 +9,11 @@ export async function setupV3(
   count: number,
   host: "discord" | "telegram",
   charts = true,
+  protocol: "flyer-3" | "flyer-3b" = "flyer-3",
 ) {
   const parent = await setupPrediction(page, 3),
     course = syntheticV3Course(count);
+  course.version = protocol;
   if (!charts) for (const s of course.segments) delete s.chart;
   let finishes = 0;
   await page.addInitScript(() => {

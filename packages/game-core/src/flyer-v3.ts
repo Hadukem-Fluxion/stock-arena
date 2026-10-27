@@ -4,6 +4,17 @@ import type { FlyerCourse, FlyerSegment, FlyerState, FlyerInput } from "./flyer.
 const c = GAME_CONFIG.flyer,
   p = c.v3;
 export type FlyerCoin = { id: number; pipe: number; x: number; y: number; radius: number };
+export function isFlapFlyer(course: Pick<FlyerCourse, "version">) {
+  return course.version === "flyer-3" || course.version === "flyer-3b";
+}
+export function flyerV3bCourse(
+  seed: number,
+  day: string,
+  version: string,
+  segments: readonly FlyerSegment[],
+): FlyerCourse {
+  return { ...flyerV3Course(seed, day, version, segments), version: "flyer-3b" };
+}
 export function flyerV3Course(
   seed: number,
   day: string,
@@ -30,12 +41,18 @@ function hash(seed: number) {
   n ^= n << 5;
   return n >>> 0;
 }
-/** One optional 1–3-coin trail per ten pipes, derived solely from frozen course data. */
+/** V3 keeps its original ten-pipe groups; v3b alternates seeded 3/4-pipe gaps. */
 export function flyerCoins(course: FlyerCourse, group: number): FlyerCoin[] {
-  if (course.version !== "flyer-3" || !Number.isSafeInteger(group) || group < 0) return [];
+  if (!isFlapFlyer(course) || !Number.isSafeInteger(group) || group < 0) return [];
   const random = hash(course.seed ^ Math.imul(group + 1, 0x9e3779b1)),
     count = 1 + (random % 3);
-  const index = group * p.coinGroupPipes + ((random >>> 8) % p.coinGroupPipes);
+  const { coinTrailMinPipes: min, coinTrailMaxPipes: max } = c.v3b;
+  const pair = Math.floor(group / 2),
+    middle = min + (hash(course.seed ^ Math.imul(pair + 1, 0x85ebca6b)) % (max - min + 1));
+  const index =
+    course.version === "flyer-3b"
+      ? min - 1 + pair * (min + max) + (group % 2 ? middle : 0)
+      : group * p.coinGroupPipes + ((random >>> 8) % p.coinGroupPipes);
   const pipe = flyerPipe(course, index, 0),
     next = flyerPipe(course, index + 1, 0),
     sign = random & 16 ? 1 : -1;
@@ -53,8 +70,14 @@ export function flyerCoins(course: FlyerCourse, group: number): FlyerCoin[] {
     };
   });
 }
+/** Bounded nearby-trail lookup shared by rendering and replay. */
+export function flyerCoinGroup(course: FlyerCourse, pipes: number) {
+  return course.version === "flyer-3b"
+    ? Math.floor(pipes / (c.v3b.coinTrailMinPipes + c.v3b.coinTrailMaxPipes)) * 2
+    : Math.floor(pipes / p.coinGroupPipes);
+}
 export function flyerProgress(course: FlyerCourse, state: FlyerState) {
-  return course.version === "flyer-3" ? (state.pipes ?? 0) : state.score;
+  return isFlapFlyer(course) ? (state.pipes ?? 0) : state.score;
 }
 export function flyerBirdAngle(velocity: number) {
   return Math.max(
@@ -100,7 +123,7 @@ export function stepFlyerV3(
     if (!ended && i === pipes && right < (c.birdX - c.birdRadius) * c.scale) pipes++;
   }
   const picked = [...collected],
-    group = Math.floor(pipesBefore / p.coinGroupPipes);
+    group = flyerCoinGroup(course, pipesBefore);
   if (!ended)
     for (let g = Math.max(0, group - 1); g <= group + 1; g++)
       for (const coin of flyerCoins(course, g)) {
