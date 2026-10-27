@@ -1,0 +1,468 @@
+.shell[data-screen="flyer"] > .app-header,
+.shell[data-screen="flyer"] > nav {
+  display: none;
+}
+.shell[data-screen="flyer"] {
+  padding: 0;
+  max-width: none;
+}
+.shell[data-screen="flyer"] .connection {
+  position: fixed;
+  top: max(68px, env(safe-area-inset-top));
+  left: 12px;
+  right: 12px;
+  z-index: 40;
+  max-width: 560px;
+  margin: auto;
+}
+.flight-root {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  height: 100dvh;
+  overflow: hidden;
+}
+.flight-screen {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  color: #153848;
+  background: #152c38;
+  isolation: isolate;
+  color-scheme: light;
+  font-family: "Space Grotesk", sans-serif;
+}
+.flight-world {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+}
+.flight-world canvas {
+  position: absolute;
+  top: 0;
+  max-width: none;
+  display: block;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  outline-offset: -5px;
+}
+.flight-screen:not(.is-playing)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(#e7f8ff44, #ecf8ff22 40%, #f8fcf4bb);
+  z-index: -1;
+  pointer-events: none;
+}
+.flight-screen.is-result::after {
+  background: #ecf7f1e8;
+}
+.flight-screen button {
+  min-height: 44px;
+  min-width: 44px;
+  border: 2px solid #214557;
+  border-radius: 14px;
+  background: #f5fcf5;
+  color: #173c4c;
+  font:
+    700 14px "Space Grotesk",
+    sans-serif;
+  cursor: pointer;
+  padding: 8px 14px;
+}
+.flight-screen button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.flight-screen button:focus-visible,
+.flight-dialog button:focus-visible {
+  outline: 3px solid #0049b7;
+  outline-offset: 3px;
+}
+.flight-top {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  left: max(12px, env(safe-area-inset-left));
+  right: max(12px, env(safe-area-inset-right));
+  display: flex;
+  justify-content: space-between;
+  z-index: 4;
+  pointer-events: none;
+}
+.flight-top button {
+  pointer-events: auto;
+  background: #f9fff3e8;
+  font-size: 23px;
+  box-shadow: 0 3px 0 #163a4855;
+}
+.flight-content {
+  height: 100%;
+  width: min(100%, 480px);
+  margin: 0 auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+  padding: max(62px, env(safe-area-inset-top)) 20px max(18px, env(safe-area-inset-bottom));
+  text-align: center;
+}
+.flight-run-title {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 12px;
+  font-weight: 800;
+  margin: 0;
+}
+.flight-title {
+  display: flex;
+  flex-direction: column;
+  font-size: clamp(66px, 12dvh, 104px);
+  line-height: 0.86;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  color: #f9fff2;
+  text-shadow:
+    3px 0 #173f4d,
+    -3px 0 #173f4d,
+    0 3px #173f4d,
+    0 -3px #173f4d,
+    3px 6px #173f4d;
+  margin: 0 0 80px;
+}
+.flight-title span {
+  font-size: 0.39em;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  color: #173f4d;
+  text-shadow: none;
+}
+.flight-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.flight-stats > div {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid #356476;
+  border-radius: 16px;
+  padding: 8px;
+  background: #f5fcf4f2;
+  box-shadow: 0 4px 0 #224e5c33;
+}
+.flight-stats span {
+  font-size: 12px;
+  font-weight: 700;
+}
+.flight-stats strong {
+  font-size: 31px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.flight-stats small {
+  font-size: 16px;
+}
+.flight-lobby-stats {
+  grid-template-columns: 1fr 1fr;
+}
+.flight-screen progress {
+  display: block;
+  width: 100%;
+  height: 8px;
+  accent-color: #15966d;
+  border: 0;
+  margin: 5px 0 0;
+}
+.flight-screen .flight-play {
+  background: #ffd44c;
+  border: 3px solid #754c17;
+  font-size: 22px;
+  font-weight: 900;
+  box-shadow: 0 5px 0 #754c17;
+  border-radius: 18px;
+  min-height: 60px;
+  flex-shrink: 0;
+}
+.flight-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+.flight-actions button {
+  flex: 1;
+}
+.flight-start-hint {
+  font-size: 12px;
+  font-weight: 700;
+  margin: 0;
+}
+.flight-messages:empty {
+  display: none;
+}
+.flight-messages {
+  font-size: 13px;
+  background: #f5fcf4ed;
+  border-radius: 12px;
+}
+.flight-messages p {
+  margin: 6px;
+  padding: 2px;
+}
+.flight-messages button {
+  display: block;
+  margin: 4px auto;
+}
+.flight-hud {
+  position: absolute;
+  top: max(18px, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  pointer-events: none;
+  color: white;
+  text-shadow:
+    3px 3px #183e50,
+    -2px -2px #183e50,
+    2px -2px #183e50,
+    -2px 2px #183e50;
+}
+.flight-hud strong {
+  display: block;
+  font-size: 72px;
+  line-height: 1.1;
+}
+.flight-hud span {
+  display: block;
+  font-size: 22px;
+  color: #ffdd4a;
+}
+.flight-tap {
+  position: absolute;
+  top: 60%;
+  width: 100%;
+  text-align: center;
+  font-size: 25px;
+  font-weight: 800;
+  color: #163b4d;
+  text-shadow: 0 2px white;
+  margin: 0;
+  pointer-events: none;
+  animation: flight-blink 1.2s ease-in-out infinite;
+}
+@keyframes flight-blink {
+  50% {
+    opacity: 0.35;
+  }
+}
+.flight-game-over {
+  font-size: clamp(34px, 6dvh, 56px);
+  line-height: 1;
+  margin: 0;
+  color: #faffec;
+  text-shadow:
+    2px 0 #264d5a,
+    -2px 0 #264d5a,
+    0 2px #264d5a,
+    0 -2px #264d5a,
+    2px 4px #264d5a;
+  letter-spacing: -0.04em;
+}
+.flight-new {
+  position: absolute;
+  top: -9px;
+  right: -4px;
+  background: #ffd44c;
+  border: 1px solid #7c571b;
+  border-radius: 6px;
+  font-size: 10px;
+  padding: 2px 4px;
+  transform: rotate(7deg);
+}
+.flight-progress {
+  font-size: 12px;
+  font-weight: 700;
+}
+.flight-chart-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+}
+.flight-chart-heading h2 {
+  font-size: 16px;
+  margin: 0;
+}
+.flight-chart-heading button {
+  font-size: 12px;
+  padding: 4px 8px;
+}
+.flight-charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.flight-chart {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  align-items: center;
+  gap: 2px 6px;
+  position: relative;
+  border: 1px solid #496e7d;
+  background: #fafff6;
+  border-radius: 10px;
+  padding: 6px;
+  text-align: left;
+  overflow: hidden;
+}
+.flight-chart strong {
+  font-size: 11px;
+  color: #163e4c;
+}
+.flight-chart .number {
+  position: absolute;
+  right: 6px;
+  top: 8px;
+  font-size: 10px;
+  font-weight: 800;
+}
+.flight-chart svg {
+  grid-column: 1/-1;
+  width: 100%;
+  height: 26px;
+}
+.flight-chart small {
+  grid-column: 1/-1;
+  font-size: 10px;
+  color: #3b5966;
+}
+.flight-chart.rise {
+  color: #005aab;
+}
+.flight-chart.fall {
+  color: #a34709;
+}
+.flight-chart-missing {
+  grid-column: 1/-1;
+  font-size: 10px;
+  line-height: 1.15;
+  min-height: 26px;
+  color: #3c5662;
+}
+.flight-movers {
+  display: flex;
+  text-align: left;
+  gap: 8px;
+}
+.flight-movers section {
+  flex: 1;
+  min-width: 0;
+}
+.flight-movers h3 {
+  font-size: 10px;
+  margin: 0 0 3px;
+}
+.flight-movers span {
+  font-size: 10px;
+  display: block;
+  line-height: 1.2;
+}
+.is-result .flight-content {
+  gap: 8px;
+}
+.flight-dialog {
+  box-sizing: border-box;
+  width: min(94vw, 600px);
+  max-height: 85dvh;
+  overflow: auto;
+  border: 2px solid #31586a;
+  border-radius: 20px;
+  background: #edf9f3;
+  color: #163d4c;
+  padding: 18px;
+}
+.flight-dialog::backdrop {
+  background: #0b2436bb;
+}
+.flight-dialog header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.flight-dialog h2 {
+  font-size: 20px;
+}
+.flight-dialog button {
+  min-width: 44px;
+  min-height: 44px;
+  background: #f6fff2;
+  color: #163d4c;
+  border: 2px solid #30596c;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.flight-dialog ol {
+  list-style: none;
+  padding: 0;
+}
+.flight-dialog li {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 10px;
+  border-bottom: 1px solid #b2c8c8;
+}
+@media (max-height: 680px) {
+  .flight-content {
+    gap: 10px;
+    padding-top: 56px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+  .flight-title {
+    font-size: 67px;
+    margin-bottom: 45px;
+  }
+  .is-result .flight-content {
+    gap: 6px;
+    padding-top: 54px;
+  }
+  .flight-stats strong {
+    font-size: 27px;
+  }
+  .flight-stats > div {
+    padding: 7px;
+  }
+  .flight-screen .flight-play {
+    min-height: 52px;
+    font-size: 20px;
+  }
+  .flight-chart {
+    padding: 4px;
+  }
+  .flight-chart svg {
+    height: 21px;
+  }
+  .flight-movers {
+    gap: 6px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flight-tap {
+    animation: none;
+  }
+}
+@media (max-height: 500px) {
+  .flight-content {
+    overflow-y: auto;
+    justify-content: flex-start;
+    overscroll-behavior: contain;
+  }
+}

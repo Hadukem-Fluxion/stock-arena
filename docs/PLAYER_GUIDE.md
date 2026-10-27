@@ -93,19 +93,27 @@ maintenance and the UTC daily qualification cap.
 
 ## mStocks Flyer
 
-Open mStocks Flyer on Home. Start, then hold the playfield (or Space) to rise and
-release to fall. After 3-2-1, each building represents an S&P 500 stock. A positive
-24h/last-session move places its gap higher; a negative move places it lower.
-The course is identical for everyone on the same UTC day. Your daily best
-earns one point per pipe, up to 50 points; a new best pays only the improvement.
-After the points cap, keep playing for the Flyer leaderboard while your daily play
-limit permits. The result is verified by the server; the running score is provisional.
+Open mStocks Flyer on Home and choose TAP TO PLAY. Tap/click the playfield or
+press Space to flap; gravity pulls you down between taps. Avoid the stock buildings
+and collect optional coins: each building passed and each coin adds 1 to your run
+score. Coin contact is checked by the server, as is the whole flight.
 
-Keep the app open during your flight. Changing apps or losing the connection can
-make a round unverifiable. If you leave before finishing, discard the unfinished
-flight when you return or wait for its expiry. If charts are not ready, try later;
-no session is consumed. Results show the stocks you passed with the largest gains
-and declines. Decorative coins add no points. Sound unlocks only after your first
-deliberate touch/click and can be muted. Reduced motion disables decorative effects
-and Telegram vibrations. Existing flights from the earlier version keep their
-original charts until finished/discarded.
+Each building represents an S&P 500 stock. A positive 24h/last-session move places
+its gap higher; a negative move places it lower. The course is identical for all
+players on the same UTC day. Your daily best earns one campaign point per score
+unit up to 50 points; only an improvement pays more. The cap does not stop
+leaderboard play while the daily play limit permits.
+
+Leaving via End flight, changing apps or losing focus ends your current flight
+with its verified score. Keep the connection available until verification ends.
+If the app is forcibly closed or the connection fails, discard the unfinished
+flight when you return or wait for its expiry. There is no mid-flight pause.
+If charts are getting ready, retry later; no session is consumed.
+
+Results include your score, buildings, coins, earned points and frozen price
+charts for stocks passed. See all opens more charts; unavailable history has a
+clear placeholder. Top gainers/decliners remain visible. Ranks opens the Flyer
+leaderboard separately; Share sends a score link, not an automatic reward.
+Sound unlocks only after your first deliberate gesture and can be muted before
+the flight. Reduced motion disables decorative effects and Telegram vibrations.
+Earlier-version flights keep their original physics/replay until ended or discarded.

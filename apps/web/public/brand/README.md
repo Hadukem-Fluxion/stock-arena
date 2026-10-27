@@ -6,6 +6,8 @@ Hadukem supplied the official campaign-approved SVGs for the app's dark theme:
 - `mantle-mark-dark.svg`: Mantle symbol, used beside mStocks Arena in the header.
 - `fluxion-dark.svg`: Fluxion logo, used in the footer.
 - `fluxion-mark.png`: Fluxion symbol supplied by Hadukem for the Flyer bird; original PNG preserved without changes.
+- `fluxion-mark-white.png`: official transparent white Fluxion mark, supplied by Hadukem for the Flyer v3 bird body; used unchanged.
+- `fluxion-mark-black.png`: official transparent black Fluxion mark, reserved for future approved uses; preserved unchanged.
 - `xstocks-mark.svg`: xStocks symbol, used in the circular StockLogo badge and beside the xStocks name in the footer.
 
 The app uses a dark theme only; no light-background variants are needed. Preserve

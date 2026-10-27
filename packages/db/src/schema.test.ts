@@ -106,6 +106,8 @@ describe("migrations and typed client", () => {
       "flags",
       "flyer_daily_courses",
       "flyer_sessions",
+      "flyer_v3_daily_courses",
+      "flyer_v3_results",
       "game_controls",
       "hl_predictions",
       "hl_rounds",

@@ -11,7 +11,7 @@ Free-to-play mini games about tokenized US stocks, running as a **Discord Activi
 | Daily Check-in                   | Once per UTC day. Reveals the Stock of the Day (live price, 24h change, one fact). Streak bonuses on day 7 and day 30. |
 | Daily Quiz                       | 3 multiple-choice questions, 30 s each, one attempt per day.                                                           |
 | Higher or Lower                  | Predict one stock Up or Down over 15 minutes. Three parallel runs, up to 10 correct per run; +5 per correct pick.      |
-| mStocks Flyer                    | Hold to fly through an S&P 500 stock per building. Your daily best earns 1 point per pipe, up to 50 per UTC day.       |
+| mStocks Flyer                    | Tap to flap past S&P 500 stocks and collect coins. Score = buildings + coins; daily-best awards cap at 50 per UTC day. |
 | Invite friends                   | +20 to the friend at first check-in; +50 to the inviter when the friend earns 200 game points.                         |
 | Weekly Fantasy Portfolio (later) | Pick 3 stocks plus a captain; scored on weekly % change.                                                               |
 

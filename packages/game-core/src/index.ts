@@ -5,6 +5,7 @@ export * from "./facts.js";
 export * from "./assets.js";
 export * from "./prediction.js";
 export * from "./flyer.js";
+export * from "./flyer-v3.js";
 export type {
   Season,
   LeaderboardPeriod,

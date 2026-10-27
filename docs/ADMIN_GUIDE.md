@@ -409,7 +409,14 @@ Voids do not free daily quota. At 50 qualifications per inviter/UTC day, pending
 claims retry on a later game action after the next UTC day; do not manually add
 points to work around that cap. No automated multi-account detection is included.
 
-## Flyer operations (T27)
+## Flyer operations (T27/T36/T37)
+
+T37 starts new sessions on flyer-3: fixed tap impulses and server-replayed coin
+collection. Score is buildings + coins; campaign awards still use the daily-best
+delta and cap of 50. Original v1/v2 courses and replays remain valid. Apply migration
+0016 before the matching API; new daily courses/results are separate append-only
+tables. Frozen charts are optional display data. A manual exit or visibility loss
+finishes the verified current score; it never pauses the replay clock.
 
 T36 adds Daylight Market (`flyer-2`) without changing awards, daily caps or void
 permissions. New sessions reference a single immutable daily S&P 500 course;

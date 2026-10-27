@@ -167,7 +167,7 @@ async function drive(page: Page, host: "discord" | "telegram", goal: number) {
     host === "discord" ? page.frames().find((f) => f !== page.mainFrame())! : page.mainFrame();
   await frame.evaluate((goal) => {
     const loop = () => {
-      const canvas = document.querySelector<HTMLCanvasElement>(".flyer-stage canvas");
+      const canvas = document.querySelector<HTMLCanvasElement>(".flight-world canvas");
       if (!canvas) return;
       const held =
         Number(canvas.dataset.score ?? 0) < goal &&
@@ -198,9 +198,9 @@ for (const host of ["telegram", "discord"] as const)
           root = f.root;
         try {
           await expect(
-            root.getByRole("heading", { name: en.flyer.runTitle, exact: true }),
+            root.getByRole("heading", { name: /mStocks.*FLYER/, exact: false }),
           ).toBeVisible();
-          await root.getByRole("button", { name: en.flyer.start, exact: true }).click();
+          await root.getByRole("button", { name: en.flyer.tapPlay, exact: true }).click();
           const canvas = root.locator("canvas");
           await expect(canvas).toBeVisible();
           await expect(
@@ -270,7 +270,7 @@ test("Daylight 468-stock course stays within the emulated phone frame budget thr
   });
   const f = await setup(page, 468, "telegram");
   try {
-    await page.getByRole("button", { name: en.flyer.start, exact: true }).click();
+    await page.getByRole("button", { name: en.flyer.tapPlay, exact: true }).click();
     await expect(page.locator("canvas")).toBeVisible();
     await drive(page, "telegram", 100);
     await page.waitForTimeout(16000);
@@ -308,7 +308,7 @@ test("Daylight reduced motion still plays without Telegram vibration", async ({ 
   await page.emulateMedia({ reducedMotion: "reduce" });
   const f = await setup(page, 3, "telegram");
   try {
-    await page.getByRole("button", { name: en.flyer.start, exact: true }).click();
+    await page.getByRole("button", { name: en.flyer.tapPlay, exact: true }).click();
     await expect(page.locator("canvas")).toBeVisible();
     await drive(page, "telegram", 1);
     await expect(page.getByText(en.flyer.newBest, { exact: true })).toBeVisible({ timeout: 25000 });

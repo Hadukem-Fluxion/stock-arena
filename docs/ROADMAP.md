@@ -14,13 +14,20 @@ Ohio status (24/10): PRs #30/#31 are integrated. Hadukem reports cutover complet
 
 ## Who does what
 
-T36 build follow-up: PR #37 is integrated; Hadukem reports production is still
-healthy at 551d55d because the image's compiler exceeded its heap. The separate
-`t36-build-memory` PR reduces catalog/compiler cost, measures sequential compiler
-RSS and enforces a memory-bounded image build in CI. It changes no game rules or
-data; Codex performs no merge/deployment/real database operation.
+T37 is implemented for review on `t37-flyer-gameplay`, after merged memory PR #38.
+The approved Flyer v3 row defines full-height Start/Play/Game over screens,
+tap-to-flap physics, 1–3 real replay-verified coins per ten buildings and frozen
+primary-price result charts. Score is buildings + coins; the campaign daily-best
+cap remains 50. Open v1/v2 replays remain valid. Migration 0016 adds separate
+immutable v3 courses/results. Local checks/captures do not imply deployment or
+real database changes; Claude reviews and Hadukem merges.
 
-T36 is the current implementation/review task on `t36-daylight-market`: Flyer v2
+T36 build follow-up is integrated via PR #38: sequential production checks use
+the validated 280MiB heap, and CI gates compiler RSS below 400 MB plus a bounded
+1GiB image build. The last operator-reported deployment remains separate from
+these code changes; Codex performs no deployment or real database operation.
+
+T36 is integrated via PR #37: Flyer v2
 Daylight Market (approved artboard B) with a reproducible 2026-10-26 S&P 500 ∩
 xStocks catalog of 468 stocks. Core seven/poll/game rules stay independent. Bounded
 extended collection stores compact summaries and 26h temporary references; daily

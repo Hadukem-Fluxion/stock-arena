@@ -1,8 +1,9 @@
 import { GAME_CONFIG } from "./config.js";
 import type { ReferenceAsset } from "./assets.js";
+import { stepFlyerV3 } from "./flyer-v3.js";
 
 const c = GAME_CONFIG.flyer;
-export type FlyerInput = { tick: number; action: "press" | "release" };
+export type FlyerInput = { tick: number; action: "press" | "release" | "flap" };
 export type FlyerSegment = {
   ticker: string;
   asset: ReferenceAsset;
@@ -13,15 +14,20 @@ export type FlyerSegment = {
   /** Optional for sessions frozen before the per-ticker history window follow-up. */
   windowEndsAt?: string;
   lastSession?: boolean;
+  chart?: string[];
 };
 export type FlyerCourse = {
-  version: "flyer-1" | "flyer-2";
+  version: "flyer-1" | "flyer-2" | "flyer-3";
   seed: number;
   segments: FlyerSegment[];
   day?: string;
   catalogVersion?: string;
 };
-export type FlyerCourseReference = { version: "flyer-2"; dailyDay: string; seed: number };
+export type FlyerCourseReference = {
+  version: "flyer-2" | "flyer-3";
+  dailyDay: string;
+  seed: number;
+};
 export type StoredFlyerCourse = FlyerCourse | FlyerCourseReference;
 export type FlyerState = {
   tick: number;
@@ -31,6 +37,10 @@ export type FlyerState = {
   held: boolean;
   score: number;
   ended: boolean;
+  pipes?: number;
+  coins?: number;
+  collected?: number[];
+  started?: boolean;
 };
 export type FlyerPipe = {
   index: number;
@@ -127,7 +137,7 @@ export function flyerV2Course(
 }
 export function flyerAssetIndex(course: FlyerCourse, pipeIndex: number): number {
   return (
-    (course.version === "flyer-2" ? pipeIndex : Math.floor(pipeIndex / c.pipesPerSegment)) %
+    (course.version !== "flyer-1" ? pipeIndex : Math.floor(pipeIndex / c.pipesPerSegment)) %
     course.segments.length
   );
 }
@@ -143,21 +153,29 @@ export function initialFlyer(): FlyerState {
   };
 }
 export function flyerPipe(course: FlyerCourse, index: number, distance: number): FlyerPipe {
+  const physics = course.version === "flyer-3" ? c.v3 : c;
   const segmentIndex = Math.floor(index / c.pipesPerSegment),
     segment = course.segments[flyerAssetIndex(course, index)]!;
   return {
     index,
     x: (c.firstPipeX + index * c.pipeSpacing) * c.scale - distance,
     center:
-      segment.centers[course.version === "flyer-2" ? 0 : index % c.pipesPerSegment]! * c.scale,
-    gap: Math.max(c.minimumGap, c.initialGap - segmentIndex * c.gapRamp) * c.scale,
+      segment.centers[course.version !== "flyer-1" ? 0 : index % c.pipesPerSegment]! * c.scale,
+    gap:
+      Math.max(physics.minimumGap, physics.initialGap - segmentIndex * physics.gapRamp) * c.scale,
     segment,
   };
 }
 /** One fixed 60 Hz tick. All state/collision arithmetic is integer-only. */
 export function stepFlyer(course: FlyerCourse, state: FlyerState, input?: FlyerInput): FlyerState {
+  if (course.version === "flyer-3") return stepFlyerV3(course, state, input);
   if (state.ended) return state;
-  if (input && (input.tick !== state.tick || (input.action === "press") === state.held))
+  if (
+    input &&
+    (input.action === "flap" ||
+      input.tick !== state.tick ||
+      (input.action === "press") === state.held)
+  )
     throw new RangeError("Invalid input transition.");
   const held = input ? input.action === "press" : state.held;
   // Countdown ticks are part of the recorded wall-clock duration, not extra time.
@@ -193,9 +211,10 @@ export function replayFlyer(
   inputs: readonly FlyerInput[],
   ticks: number,
   maxTicks: number,
+  stop = false,
 ): FlyerState {
   if (
-    (course.version !== c.version && course.version !== c.legacyVersion) ||
+    !["flyer-1", "flyer-2", "flyer-3"].includes(course.version) ||
     !course.segments.length ||
     !Number.isSafeInteger(ticks) ||
     ticks < 1 ||
@@ -210,7 +229,7 @@ export function replayFlyer(
       !Number.isSafeInteger(input.tick) ||
       input.tick <= previous ||
       input.tick >= ticks ||
-      input.action !== (i % 2 === 0 ? "press" : "release")
+      input.action !== (course.version === "flyer-3" ? "flap" : i % 2 === 0 ? "press" : "release")
     )
       throw new RangeError("Invalid input log.");
     previous = input.tick;
@@ -221,7 +240,11 @@ export function replayFlyer(
     const input = inputs[cursor]?.tick === state.tick ? inputs[cursor++] : undefined;
     state = stepFlyer(course, state, input);
   }
-  if (state.tick !== ticks || cursor !== inputs.length || (!state.ended && ticks !== maxTicks))
+  if (
+    state.tick !== ticks ||
+    cursor !== inputs.length ||
+    (!state.ended && ticks !== maxTicks && !(stop && course.version === "flyer-3"))
+  )
     throw new RangeError("Replay did not end at the submitted tick.");
   return state;
 }

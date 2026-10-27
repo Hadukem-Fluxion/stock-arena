@@ -16,6 +16,12 @@ export interface TelegramBridge {
   };
   ready(): void;
   expand(): void;
+  requestFullscreen?(): void;
+  exitFullscreen?(): void;
+  isFullscreen?: boolean;
+  isVerticalSwipesEnabled?: boolean;
+  disableVerticalSwipes?(): void;
+  enableVerticalSwipes?(): void;
   openLink(url: string): void;
   openTelegramLink?(url: string): void;
   onEvent(event: "themeChanged", callback: () => void): void;
@@ -106,6 +112,26 @@ export function createTelegramAdapter(
       return session;
     },
     init,
+    enterGameMode() {
+      const bridge = app,
+        fullscreen = bridge?.isFullscreen,
+        swipes = bridge?.isVerticalSwipesEnabled;
+      // Each optional bridge operation can be unsupported independently.
+      const attempt = (fn?: () => void) => {
+        try {
+          fn?.();
+        } catch {
+          /* Optional host feature. */
+        }
+      };
+      attempt(() => bridge?.expand());
+      attempt(() => bridge?.requestFullscreen?.());
+      attempt(() => bridge?.disableVerticalSwipes?.());
+      return () => {
+        if (swipes !== false) attempt(() => bridge?.enableVerticalSwipes?.());
+        if (!fullscreen) attempt(() => bridge?.exitFullscreen?.());
+      };
+    },
     haptic(kind) {
       try {
         if (kind === "score") app?.HapticFeedback?.impactOccurred("light");

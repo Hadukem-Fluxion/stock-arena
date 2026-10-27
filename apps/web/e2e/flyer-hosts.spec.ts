@@ -119,7 +119,7 @@ test("Flyer works in the Discord SDK frame with Space and UI back", async ({ pag
     await page.goto("/discord-flyer");
     const activity = page.frameLocator("iframe");
     await activity.getByRole("button", { name: en.games.flyer.name }).click();
-    await activity.getByRole("button", { name: en.flyer.start, exact: true }).click();
+    await activity.getByRole("button", { name: en.flyer.tapPlay, exact: true }).click();
     const canvas = activity.locator("canvas");
     await expect(canvas).toBeVisible();
     await canvas.focus();

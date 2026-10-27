@@ -292,6 +292,22 @@ export const flyerDailyCourses = pgTable(
   ],
 );
 
+/** V3 has its own immutable daily course, preserving open v2 references. */
+export const flyerV3DailyCourses = pgTable(
+  "flyer_v3_daily_courses",
+  {
+    day: date("day").primaryKey(),
+    course: jsonb("course").$type<FlyerCourse>().notNull(),
+    createdAt: instant("created_at").notNull(),
+  },
+  (t) => [
+    check(
+      "flyer_daily_v3",
+      sql`${t.course}->>'version'='flyer-3' AND ${t.course}->>'day'=${t.day}::text`,
+    ),
+  ],
+);
+
 export const flyerSessions = pgTable(
   "flyer_sessions",
   {
@@ -326,6 +342,22 @@ export const flyerSessions = pgTable(
       "flyer_result",
       sql`(${t.finishedAt} IS NULL) = (${t.score} IS NULL) AND (${t.score} IS NULL) = (${t.ticks} IS NULL) AND (${t.score} IS NULL) = (${t.inputs} IS NULL) AND (${t.score} IS NULL) = (${t.day} IS NULL)`,
     ),
+  ],
+);
+
+export const flyerV3Results = pgTable(
+  "flyer_v3_results",
+  {
+    sessionId: uuid("session_id")
+      .primaryKey()
+      .references(() => flyerSessions.id),
+    pipes: integer("pipes").notNull(),
+    coins: integer("coins").notNull(),
+    endReason: text("end_reason").$type<"collision" | "retired" | "limit">().notNull(),
+  },
+  (t) => [
+    check("flyer_v3_counts", sql`${t.pipes}>=0 AND ${t.coins}>=0`),
+    check("flyer_v3_end_reason", sql`${t.endReason} IN ('collision','retired','limit')`),
   ],
 );
 
