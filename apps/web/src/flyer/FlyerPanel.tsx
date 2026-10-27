@@ -8,6 +8,7 @@ import {
   flyerProgress,
   flyerAssetIndex,
   flyerV3Course,
+  isFlapFlyer,
 } from "@stock-arena/game-core";
 import type { FlyerInput } from "@stock-arena/game-core";
 import type { PlatformAdapter } from "../platform/types.js";
@@ -111,6 +112,11 @@ export function FlyerPanel({
         height: `${fit.height}px`,
         left: `${fit.left}px`,
       });
+      target.parentElement?.style.setProperty("--flight-canvas-left", `${Math.max(0, fit.left)}px`);
+      target.parentElement?.style.setProperty(
+        "--flight-canvas-right",
+        `${Math.max(0, r.width - fit.left - fit.width)}px`,
+      );
     };
     resize();
     const observer = new ResizeObserver(resize);
@@ -141,7 +147,7 @@ export function FlyerPanel({
     if (!session || !canvas.current) return;
     const element = canvas.current,
       draw = flyerRenderer(element, session.course, { discord: platform.host === "discord" }),
-      v3 = session.course.version === "flyer-3",
+      v3 = isFlapFlyer(session.course),
       restore = enterFlyerHost(platform);
     let state = initialFlyer(),
       desired = false,
@@ -348,17 +354,17 @@ export function FlyerPanel({
           ref={canvas}
           tabIndex={session ? 0 : -1}
           aria-hidden={!session}
-          aria-label={session && session.course.version !== "flyer-3" ? copy.canvas : copy.v3Canvas}
+          aria-label={session && !isFlapFlyer(session.course) ? copy.canvas : copy.v3Canvas}
         />
       </div>
       <div className="flight-top">
         <button
-          onClick={() => (session?.course.version === "flyer-3" ? end.current() : onHome())}
-          aria-label={session?.course.version === "flyer-3" ? copy.exit : en.navigation.back}
+          onClick={() => (session && isFlapFlyer(session.course) ? end.current() : onHome())}
+          aria-label={session && isFlapFlyer(session.course) ? copy.exit : en.navigation.back}
         >
           {session ? "Ⅱ" : "←"}
         </button>
-        {session?.course.version !== "flyer-3" && (
+        {(!session || !isFlapFlyer(session.course)) && (
           <button
             onClick={() => {
               setMuted(!muted);

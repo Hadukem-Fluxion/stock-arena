@@ -14,7 +14,11 @@ Ohio status (24/10): PRs #30/#31 are integrated. Hadukem reports cutover complet
 
 ## Who does what
 
-T37 is implemented for review on `t37-flyer-gameplay`, after merged memory PR #38.
+T37 is integrated via PR #39, after memory PR #38. Its follow-up is implemented for review on
+`t37-flyer-polish` and adds flyer-3b coin trails every 3–4 buildings while preserving
+frozen flyer-3 courses/replays, clears the lobby title area and places the exit
+inside the canvas. Migration 0017 expands protocol compatibility only; cap/physics
+remain unchanged. No deployment or real database work by Codex.
 The approved Flyer v3 row defines full-height Start/Play/Game over screens,
 tap-to-flap physics, 1–3 real replay-verified coins per ten buildings and frozen
 primary-price result charts. Score is buildings + coins; the campaign daily-best

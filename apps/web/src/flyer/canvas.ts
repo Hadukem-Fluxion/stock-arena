@@ -2,6 +2,8 @@ import {
   GAME_CONFIG,
   flyerPipe,
   flyerCoins,
+  flyerCoinGroup,
+  isFlapFlyer,
   flyerProgress,
   flyerBirdAngle,
 } from "@stock-arena/game-core";
@@ -26,7 +28,7 @@ export function flyerRenderer(
     logos = logoCache(!!options.discord);
   canvas.width = c.width * ratio;
   canvas.height = (c.height + ground) * ratio;
-  const v3 = course.version === "flyer-3";
+  const v3 = isFlapFlyer(course);
   const bird = new Image();
   bird.src = v3 ? FLYER_BRAND.v3BirdSrc : FLYER_BRAND.birdSrc;
   const sky = ctx.createLinearGradient(0, 0, 0, c.height);
@@ -197,9 +199,9 @@ export function flyerRenderer(
         bottom = (pipe.center + pipe.gap / 2) / c.scale;
       if (x > c.width + 30 || x + c.pipeWidth < -30) continue;
       const color = buildingColor(pipe.segment.asset.primaryColor);
-      building(x, -12, top + 12, color, true, pipe.segment.changePct);
+      if (!options.lobby) building(x, -12, top + 12, color, true, pipe.segment.changePct);
       building(x, bottom, c.height - bottom, color, false, pipe.segment.changePct);
-      badge(x + c.pipeWidth / 2, top - 34, pipe.segment.asset.logo);
+      if (!options.lobby) badge(x + c.pipeWidth / 2, top - 34, pipe.segment.asset.logo);
       // Legacy decorative coins are preserved only for the old replay.
       const coinX = x + c.pipeSpacing * 0.55,
         coinY = pipe.center / c.scale - 42 + (reduced ? 0 : Math.sin(tick * 0.09 + i) * 3);
@@ -216,7 +218,7 @@ export function flyerRenderer(
       }
     }
     if (v3) {
-      const group = Math.floor(progress / c.v3.coinGroupPipes);
+      const group = flyerCoinGroup(course, progress);
       for (let g = Math.max(0, group - 1); g <= group + 1; g++)
         for (const coin of flyerCoins(course, g)) {
           if (state.collected?.includes(coin.id)) continue;

@@ -5,6 +5,8 @@ import {
   flyerCourse,
   flyerV2Course,
   flyerV3Course,
+  flyerV3bCourse,
+  isFlapFlyer,
   gameDay,
   predictionChange,
   replayFlyer,
@@ -167,13 +169,16 @@ export async function dailyV2Course(tx: FlyerTx, catalog: ReferenceCatalog, now:
 export async function dailyV3Course(tx: FlyerTx, catalog: ReferenceCatalog, now: Date) {
   return dailyCourse(tx, catalog, now, "flyer-3");
 }
+export async function dailyV3bCourse(tx: FlyerTx, catalog: ReferenceCatalog, now: Date) {
+  return dailyCourse(tx, catalog, now, "flyer-3b");
+}
 async function dailyCourse(
   tx: FlyerTx,
   catalog: ReferenceCatalog,
   now: Date,
-  version: "flyer-2" | "flyer-3",
+  version: "flyer-2" | "flyer-3" | "flyer-3b",
 ): Promise<FlyerCourse> {
-  const table = version === "flyer-3" ? flyerV3DailyCourses : flyerDailyCourses;
+  const table = version !== "flyer-2" ? flyerV3DailyCourses : flyerDailyCourses;
   const day = gameDay(now),
     [existing] = await tx.select().from(table).where(eq(table.day, day));
   if (existing) return existing.course;
@@ -228,7 +233,7 @@ async function dailyCourse(
     }
   }
   if (!segments.length) throw new FlyerError("FLYER_UNAVAILABLE", 503);
-  if (version === "flyer-3") {
+  if (version !== "flyer-2") {
     // Downsample in SQL: bounded 10-point payloads, no raw histories in API memory.
     const anchors = quotes.filter((q) => segments.some((s) => s.ticker === q.ticker));
     const rows = await tx.execute<{ ticker: string; bucket: number; price: string }>(sql`
@@ -259,12 +264,9 @@ async function dailyCourse(
     }
   }
   segments.sort((a, b) => a.ticker.localeCompare(b.ticker));
-  const course = (version === "flyer-3" ? flyerV3Course : flyerV2Course)(
-    randomBytes(4).readUInt32LE(),
-    day,
-    EXTENDED_CATALOG_VERSION,
-    segments,
-  );
+  const course = (
+    version === "flyer-3b" ? flyerV3bCourse : version === "flyer-3" ? flyerV3Course : flyerV2Course
+  )(randomBytes(4).readUInt32LE(), day, EXTENDED_CATALOG_VERSION, segments);
   const [inserted] = await tx
     .insert(table)
     .values({ day, course, createdAt: now })
@@ -277,7 +279,7 @@ async function dailyCourse(
 }
 async function resolveCourse(tx: FlyerTx, stored: StoredFlyerCourse): Promise<FlyerCourse> {
   if (!("dailyDay" in stored)) return stored;
-  const table = stored.version === "flyer-3" ? flyerV3DailyCourses : flyerDailyCourses;
+  const table = isFlapFlyer(stored) ? flyerV3DailyCourses : flyerDailyCourses;
   const [day] = await tx.select().from(table).where(eq(table.day, stored.dailyDay));
   if (!day || day.course.seed !== stored.seed) throw new FlyerError("FLYER_INVALID_REPLAY", 422);
   return day.course;
@@ -404,7 +406,7 @@ export function registerFlyer(
               .where(and(eq(flyerSessions.userId, userId), eq(flyerSessions.day, gameDay(now))));
             if ((count?.n ?? 0) >= limits!.maxFinishes) throw new FlyerError("FLYER_LIMIT");
             // Use this transaction for a coherent course; no network price calls.
-            const course = await (options.createCourse ?? dailyV3Course)(tx, catalog, now);
+            const course = await (options.createCourse ?? dailyV3bCourse)(tx, catalog, now);
             const [session] = await tx
               .insert(flyerSessions)
               .values({
@@ -502,18 +504,17 @@ export function registerFlyer(
               refId: `flyer:${day}:${session.id}`,
               createdAt: now,
             });
-          const stats =
-            course.version === "flyer-3"
-              ? {
-                  pipes: result.pipes ?? 0,
-                  coins: result.coins ?? 0,
-                  endReason: result.ended
-                    ? ("collision" as const)
-                    : finish.stop
-                      ? ("retired" as const)
-                      : ("limit" as const),
-                }
-              : undefined;
+          const stats = isFlapFlyer(course)
+            ? {
+                pipes: result.pipes ?? 0,
+                coins: result.coins ?? 0,
+                endReason: result.ended
+                  ? ("collision" as const)
+                  : finish.stop
+                    ? ("retired" as const)
+                    : ("limit" as const),
+              }
+            : undefined;
           if (stats) await tx.insert(flyerV3Results).values({ sessionId: session.id, ...stats });
           await rewardReferral(tx, userId, now);
           return {
