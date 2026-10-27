@@ -25,7 +25,8 @@ const c = GAME_CONFIG.flyer,
   copy = en.flyer;
 /** Decorative lobby only. No lobby price or score is submitted to the API. */
 const lobby = flyerV3Course(
-  123,
+  // Keep the optional coin trail inside the decorative lobby viewport.
+  90,
   "2026-10-26",
   "lobby",
   Object.entries(ASSETS).map(([ticker, asset]) => ({
