@@ -33,7 +33,7 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
     [legal, setLegal] = useState(false),
     [runsLeft, setRunsLeft] = useState<number | null>(null);
   const dialog = useRef<HTMLDialogElement>(null);
-  const [flyerBest, setFlyerBest] = useState<number | null>(null);
+  const [, setFlyerBest] = useState<number | null>(null);
   const checkin = useCheckin(platform, login.state === "ready"),
     prices = usePrices(platform, login.state === "ready");
   const catalog: AssetCatalog = checkin.view?.catalog ?? prices.view?.catalog ?? ASSETS;
@@ -198,7 +198,7 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
             {en.auth.errors.LINK_FAILED}
           </p>
         )}
-        {isGame && (
+        {isGame && screen !== "flyer" && (
           <div className="game-heading">
             <button
               className="back-button"
@@ -207,12 +207,7 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
             >
               ←
             </button>
-            <h1>{screen === "flyer" ? en.flyer.runTitle : game && en.games[game].name}</h1>
-            {screen === "flyer" && (
-              <span className="pill number" aria-label={en.flyer.best(flyerBest)}>
-                {en.flyer.record(flyerBest)}
-              </span>
-            )}
+            <h1>{game && en.games[game].name}</h1>
           </div>
         )}
         {screen === "home" && (
@@ -315,12 +310,13 @@ export function App({ platform = getPlatform() }: { platform?: PlatformAdapter }
           </section>
         )}
         {screen === "flyer" && (
-          <section className="card game-screen">
+          <section className="flight-root">
             <FlyerPanel
               platform={platform}
               enabled={login.state === "ready"}
               onAward={flyerAward}
               onBest={setFlyerBest}
+              onHome={() => navigate("home")}
             />
           </section>
         )}

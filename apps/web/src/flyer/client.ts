@@ -15,6 +15,7 @@ const segment = z.object({
   fact: z.string().nullable(),
   windowEndsAt: instant.optional(),
   lastSession: z.boolean().optional(),
+  chart: z.array(z.string()).min(10).max(20).optional(),
 });
 const courseBase = z.object({
   seed: z.number().int().nonnegative(),
@@ -33,7 +34,20 @@ export const courseSchema = z.discriminatedUnion("version", [
       .nonempty(),
   }),
   courseBase.extend({
-    version: z.literal(GAME_CONFIG.flyer.version),
+    version: z.literal("flyer-2"),
+    day: z.string(),
+    catalogVersion: z.string(),
+    segments: z
+      .array(
+        segment.extend({
+          prices: z.array(z.string()).length(2),
+          centers: z.array(z.number().int()).length(1),
+        }),
+      )
+      .nonempty(),
+  }),
+  courseBase.extend({
+    version: z.literal("flyer-3"),
     day: z.string(),
     catalogVersion: z.string(),
     segments: z
@@ -71,6 +85,9 @@ const resultSchema = z.object({
   pointsAwarded: z.number().int().nonnegative(),
   pointsToday: z.number().int(),
   newBest: z.boolean(),
+  pipes: z.number().int().nonnegative().optional(),
+  coins: z.number().int().nonnegative().optional(),
+  endReason: z.enum(["collision", "retired", "limit"]).optional(),
   course: courseSchema,
 });
 const row = z.object({
@@ -134,8 +151,14 @@ export function createFlyerClient(platform: PlatformAdapter) {
   return {
     read: () => call("", flyerViewSchema),
     start: () => call("/start", sessionSchema, {}),
-    finish: (id: string, ticks: number, score: number, inputs: FlyerInput[]) =>
-      call("/finish", resultSchema, { sessionId: id, ticks, score, inputs }),
+    finish: (id: string, ticks: number, score: number, inputs: FlyerInput[], stop?: boolean) =>
+      call("/finish", resultSchema, {
+        sessionId: id,
+        ticks,
+        score,
+        inputs,
+        ...(stop === undefined ? {} : { stop }),
+      }),
     cancel: (id: string) => call("/cancel", z.object({ ok: z.literal(true) }), { sessionId: id }),
     leaderboard: (period: "day" | "week" | "season") =>
       call(`/leaderboard?period=${period}`, leaderboardSchema),

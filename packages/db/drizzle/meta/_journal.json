@@ -113,6 +113,13 @@
       "when": 1793018398791,
       "tag": "0015_daylight-market",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1793057095244,
+      "tag": "0016_flyer-v3",
+      "breakpoints": true
     }
   ]
 }

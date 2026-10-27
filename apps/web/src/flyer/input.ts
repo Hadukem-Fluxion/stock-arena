@@ -81,3 +81,28 @@ export function bindFlyerInput(
     release();
   };
 }
+/** One impulse per deliberate gesture; repeat/compatibility events never hold the bird. */
+export function bindFlapInput(canvas: HTMLCanvasElement, flap: () => void) {
+  const down = (event: PointerEvent) => {
+    if (!event.isPrimary || event.button !== 0) return;
+    event.preventDefault();
+    canvas.focus({ preventScroll: true });
+    flap();
+  };
+  const key = (event: KeyboardEvent) => {
+    if (event.code !== "Space") return;
+    event.preventDefault();
+    if (!event.repeat) flap();
+  };
+  const prevent = (event: Event) => event.preventDefault();
+  canvas.addEventListener("pointerdown", down);
+  canvas.addEventListener("keydown", key);
+  canvas.addEventListener("touchstart", prevent, { passive: false });
+  canvas.addEventListener("contextmenu", prevent);
+  return () => {
+    canvas.removeEventListener("pointerdown", down);
+    canvas.removeEventListener("keydown", key);
+    canvas.removeEventListener("touchstart", prevent);
+    canvas.removeEventListener("contextmenu", prevent);
+  };
+}

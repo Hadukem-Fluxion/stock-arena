@@ -1,4 +1,10 @@
-import { GAME_CONFIG, flyerPipe } from "@stock-arena/game-core";
+import {
+  GAME_CONFIG,
+  flyerPipe,
+  flyerCoins,
+  flyerProgress,
+  flyerBirdAngle,
+} from "@stock-arena/game-core";
 import type { FlyerCourse, FlyerState } from "@stock-arena/game-core";
 import { flyerRenderer as legacyRenderer } from "./canvas-v1.js";
 import { buildingColor, logoCache } from "./visuals.js";
@@ -9,7 +15,7 @@ const c = GAME_CONFIG.flyer,
 export function flyerRenderer(
   canvas: HTMLCanvasElement,
   course: FlyerCourse,
-  options: { discord?: boolean } = {},
+  options: { discord?: boolean; lobby?: boolean } = {},
 ) {
   if (course.version === "flyer-1") return legacyRenderer(canvas, course);
   const context = canvas.getContext("2d");
@@ -20,13 +26,16 @@ export function flyerRenderer(
     logos = logoCache(!!options.discord);
   canvas.width = c.width * ratio;
   canvas.height = (c.height + ground) * ratio;
+  const v3 = course.version === "flyer-3";
   const bird = new Image();
-  bird.src = FLYER_BRAND.birdSrc;
+  bird.src = v3 ? FLYER_BRAND.v3BirdSrc : FLYER_BRAND.birdSrc;
   const sky = ctx.createLinearGradient(0, 0, 0, c.height);
   sky.addColorStop(0, "#76c9fb");
   sky.addColorStop(0.58, "#cbeef5");
   sky.addColorStop(1, "#f4ead8");
   let lastScore = 0,
+    lastCoins = 0,
+    coinAt = -100,
     scoreAt = -100,
     hitAt = 0;
   const trail: { x: number; y: number }[] = [];
@@ -127,13 +136,13 @@ export function flyerRenderer(
     }
     ctx.restore();
   }
-  function outlined(text: string, x: number, y: number, size: number) {
+  function outlined(text: string, x: number, y: number, size: number, fill = "#fff") {
     ctx.font = `700 ${size}px "Space Grotesk",sans-serif`;
     ctx.textAlign = "center";
     ctx.lineJoin = "round";
     ctx.lineWidth = Math.max(3, size / 12);
     ctx.strokeStyle = "#214759";
-    ctx.fillStyle = "#fff";
+    ctx.fillStyle = fill;
     ctx.strokeText(text, x, y);
     ctx.fillText(text, x, y);
   }
@@ -141,6 +150,10 @@ export function flyerRenderer(
     const reduced = motion.matches,
       tick = state.tick,
       now = performance.now();
+    if ((state.coins ?? 0) > lastCoins) {
+      lastCoins = state.coins ?? 0;
+      coinAt = tick;
+    }
     if (state.score !== lastScore) {
       lastScore = state.score;
       scoreAt = tick;
@@ -175,8 +188,9 @@ export function flyerRenderer(
       ctx.fillStyle = i % 2 ? "#bfcbdc" : "#cdd7e1";
       ctx.fillRect(x, c.height - h, 30, h);
     }
-    const first = Math.max(0, state.score - 1);
-    for (let i = first; i <= state.score + 3; i++) {
+    const progress = flyerProgress(course, state);
+    const first = Math.max(0, progress - 1);
+    for (let i = first; i <= progress + 3; i++) {
       const pipe = flyerPipe(course, i, state.distance),
         x = pipe.x / c.scale,
         top = (pipe.center - pipe.gap / 2) / c.scale,
@@ -186,10 +200,10 @@ export function flyerRenderer(
       building(x, -12, top + 12, color, true, pipe.segment.changePct);
       building(x, bottom, c.height - bottom, color, false, pipe.segment.changePct);
       badge(x + c.pipeWidth / 2, top - 34, pipe.segment.asset.logo);
-      // Coins are decorative and never enter the deterministic score calculation.
+      // Legacy decorative coins are preserved only for the old replay.
       const coinX = x + c.pipeSpacing * 0.55,
         coinY = pipe.center / c.scale - 42 + (reduced ? 0 : Math.sin(tick * 0.09 + i) * 3);
-      if (coinX > c.birdX - 8 && coinX < c.width) {
+      if (!v3 && coinX > c.birdX - 8 && coinX < c.width) {
         ctx.fillStyle = "#ffdf41";
         ctx.strokeStyle = "#d69b13";
         ctx.lineWidth = 2;
@@ -200,6 +214,29 @@ export function flyerRenderer(
         ctx.fillStyle = "#fff3b0";
         ctx.fillRect(coinX - 1, coinY - 3, 2, 6);
       }
+    }
+    if (v3) {
+      const group = Math.floor(progress / c.v3.coinGroupPipes);
+      for (let g = Math.max(0, group - 1); g <= group + 1; g++)
+        for (const coin of flyerCoins(course, g)) {
+          if (state.collected?.includes(coin.id)) continue;
+          const x = (coin.x - state.distance) / c.scale,
+            y = coin.y / c.scale;
+          if (x < -10 || x > c.width + 10) continue;
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.scale(reduced ? 1 : 0.65 + 0.35 * Math.abs(Math.cos(tick * 0.09)), 1);
+          ctx.fillStyle = "#ffda43";
+          ctx.strokeStyle = "#ad7200";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(0, 0, c.v3.coinRadius, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = "#fff5bf";
+          ctx.fillRect(-1, -4, 2, 8);
+          ctx.restore();
+        }
     }
     if (!reduced && !state.ended) {
       trail.push({ x: c.birdX, y: state.y / c.scale });
@@ -214,11 +251,18 @@ export function flyerRenderer(
         ctx.fill();
       }
     ctx.save();
-    ctx.translate(c.birdX, state.y / c.scale);
-    ctx.rotate(reduced ? 0 : Math.max(-0.36, Math.min(0.5, state.velocity / 9000)));
+    ctx.translate(options.lobby ? 145 : c.birdX, state.y / c.scale);
+    if (options.lobby) ctx.scale(1.55, 1.55);
+    ctx.rotate(
+      reduced
+        ? 0
+        : v3
+          ? (flyerBirdAngle(state.velocity) * Math.PI) / 180
+          : Math.max(-0.36, Math.min(0.5, state.velocity / 9000)),
+    );
     ctx.lineWidth = 3;
     ctx.strokeStyle = "#134d54";
-    ctx.fillStyle = "#22cdb0";
+    ctx.fillStyle = v3 ? "#20c997" : "#22cdb0";
     const wing = reduced ? 0 : Math.sin(tick * 0.45) * 4;
     ctx.beginPath();
     ctx.ellipse(-11, wing, 8, 4, -0.35, 0, Math.PI * 2);
@@ -241,16 +285,36 @@ export function flyerRenderer(
     ctx.ellipse(-3, wing + 4, 6, 3, 0.3, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
+    if (v3) {
+      ctx.fillStyle = "#ff9a35";
+      ctx.beginPath();
+      ctx.moveTo(12, -2);
+      ctx.lineTo(23, 3);
+      ctx.lineTo(12, 7);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      rounded(3, -14, 15, 8, 4, "#143342", "#10333a");
+      rounded(7, -12, 7, 2, 1, "#90ffd7");
+    }
     ctx.restore();
     ctx.fillStyle = "#8ad02b";
     ctx.fillRect(0, c.height, c.width, ground);
     ctx.fillStyle = "#60ab1d";
     ctx.fillRect(0, c.height, c.width, 4);
-    outlined(String(state.score), c.width / 2, 76, 60);
+    if (!v3) outlined(String(state.score), c.width / 2, 76, 60);
     if (!reduced && tick - scoreAt < 35) {
       const phase = (tick - scoreAt) / 35;
       ctx.globalAlpha = 1 - phase;
-      outlined(en.flyer.pipePoint, c.birdX + 28, state.y / c.scale - 25 - phase * 25, 22);
+      // Gold identifies a real pickup; legacy pipe points remain white.
+      if (v3 && tick - coinAt < 35) ctx.shadowColor = "#ffd342";
+      outlined(
+        en.flyer.pipePoint,
+        c.birdX + 28,
+        state.y / c.scale - 25 - phase * 25,
+        22,
+        v3 && tick - coinAt < 35 ? "#ffda43" : "#fff",
+      );
       for (let i = 0; i < 8; i++) {
         const a = (i * Math.PI) / 4;
         ctx.fillStyle = i % 2 ? "#ffd84f" : "#fff";
@@ -265,19 +329,22 @@ export function flyerRenderer(
         ctx.fill();
       }
       ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
     }
-    if (tick < c.countdownSeconds * c.ticksPerSecond)
+    if (!v3 && tick < c.countdownSeconds * c.ticksPerSecond)
       outlined(
         String(c.countdownSeconds - Math.floor(tick / c.ticksPerSecond)),
         c.width / 2,
         c.height / 2 + 20,
         88,
       );
-    rounded(56, c.height - 39, 248, 24, 12, "#163b55");
-    ctx.fillStyle = "#fff";
-    ctx.font = '600 11px "IBM Plex Sans",sans-serif';
-    ctx.textAlign = "center";
-    ctx.fillText(en.flyer.daylightHint, c.width / 2, c.height - 23);
+    if (!v3) {
+      rounded(56, c.height - 39, 248, 24, 12, "#163b55");
+      ctx.fillStyle = "#fff";
+      ctx.font = '600 11px "IBM Plex Sans",sans-serif';
+      ctx.textAlign = "center";
+      ctx.fillText(en.flyer.daylightHint, c.width / 2, c.height - 23);
+    }
     if (!reduced && collision) {
       ctx.fillStyle = `rgba(255,255,255,${collision * 0.45})`;
       ctx.fillRect(0, 0, c.width, c.height + ground);

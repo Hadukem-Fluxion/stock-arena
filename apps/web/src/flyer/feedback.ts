@@ -9,6 +9,7 @@ export function flyerFeedback(
   let audio: AudioContext | undefined,
     muted = false,
     lastScore = 0,
+    lastCoins = 0,
     lastCountdown = 0,
     hit = false;
   const media =
@@ -56,6 +57,7 @@ export function flyerFeedback(
     },
     reset() {
       lastScore = 0;
+      lastCoins = 0;
       lastCountdown = 0;
       hit = false;
     },
@@ -67,11 +69,13 @@ export function flyerFeedback(
       );
       if (countdown !== lastCountdown) {
         lastCountdown = countdown;
-        if (countdown) tone(520 + (GAME_CONFIG.flyer.countdownSeconds - countdown) * 90, 0.065);
+        if (countdown && state.started === undefined)
+          tone(520 + (GAME_CONFIG.flyer.countdownSeconds - countdown) * 90, 0.065);
       }
       if (state.score > lastScore) {
         lastScore = state.score;
-        tone(940, 0.085);
+        tone((state.coins ?? 0) > lastCoins ? 1320 : 940, 0.085);
+        lastCoins = state.coins ?? 0;
         haptic("score");
       }
       if (state.ended && !hit) {

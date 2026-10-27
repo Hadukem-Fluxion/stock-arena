@@ -1,3 +1,4 @@
+import { dailyV2Course } from "./flyer.js";
 import { randomUUID } from "node:crypto";
 import { beforeAll, afterAll, beforeEach, afterEach, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
@@ -35,7 +36,7 @@ function server() {
   return buildServer({
     logger: false,
     auth: { database: db, env, now: () => now },
-    flyer: { catalog },
+    flyer: { catalog, createCourse: dailyV2Course },
   });
 }
 beforeAll(() => db.migrate(), 30000);

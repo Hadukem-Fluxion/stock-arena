@@ -30,6 +30,7 @@ export interface PlatformAdapter {
   shareInvite?(code: string, url: string, message: string): Promise<void>;
   setBackButton?(handler: (() => void) | null): () => void;
   haptic?(kind: "score" | "collision"): void;
+  enterGameMode?(): () => void;
 }
 
 export type PlatformErrorCode =

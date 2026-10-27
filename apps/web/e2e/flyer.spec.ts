@@ -106,7 +106,7 @@ async function drive(page: Page, goal: number) {
       stop = true;
     });
     const loop = () => {
-      const canvas = document.querySelector<HTMLCanvasElement>(".flyer-stage canvas");
+      const canvas = document.querySelector<HTMLCanvasElement>(".flight-world canvas");
       if (stop || !canvas) return;
       const next =
         Number(canvas.dataset.score ?? 0) < goal &&
@@ -147,7 +147,7 @@ for (const width of [390, 1440])
       try {
         await page.goto("/#tgWebAppData=synthetic");
         await page.getByRole("button", { name: en.games.flyer.name }).click();
-        await page.getByRole("button", { name: c.start, exact: true }).click();
+        await page.getByRole("button", { name: c.tapPlay, exact: true }).click();
         const canvas = page
           .getByRole("application", { name: c.canvas })
           .or(page.getByLabel(c.canvas));
@@ -174,8 +174,8 @@ for (const width of [390, 1440])
     const f = await fixture(page, 3, false, true);
     try {
       await page.goto("/#tgWebAppData=synthetic&screen=flyer");
-      await page.getByRole("button", { name: c.start, exact: true }).click();
-      await expect(page.locator(".flyer-status")).toContainText(c.lastSession);
+      await page.getByRole("button", { name: c.tapPlay, exact: true }).click();
+      await expect(page.locator(".flight-announcement")).toContainText(c.lastSession);
       await drive(page, 1);
       await expect
         .poll(async () => Number(await page.locator("canvas").getAttribute("data-tick")))
@@ -183,7 +183,7 @@ for (const width of [390, 1440])
       await capture(page, info, `flyer-last-session-${width}.png`);
       await expect(page.getByText(c.newBest, { exact: true })).toBeVisible({ timeout: 20000 });
       await expect(
-        page.locator(".flyer-chart").getByText(c.lastSession, { exact: true }),
+        page.locator(".flight-chart").getByText(c.lastSession, { exact: true }),
       ).toBeVisible();
       expect(f.finishes).toHaveLength(1);
       await capture(page, info, `flyer-last-session-result-${width}.png`);
@@ -198,8 +198,8 @@ test("Flyer releases outside canvas, blocks touch menus and remains usable in la
   const f = await fixture(page);
   try {
     await page.goto("/#tgWebAppData=synthetic&screen=flyer");
-    await page.getByRole("button", { name: c.start, exact: true }).click();
-    const canvas = page.locator(".flyer-stage canvas");
+    await page.getByRole("button", { name: c.tapPlay, exact: true }).click();
+    const canvas = page.locator(".flight-world canvas");
     await canvas.scrollIntoViewIfNeeded();
     await canvas.dispatchEvent("pointerdown", { button: 0, isPrimary: true });
     await expect(canvas).toHaveAttribute("data-held", "true");
@@ -241,7 +241,7 @@ test("Flyer keeps its flight through the 15-second parent refresh and meets the 
   });
   try {
     await page.goto("/#tgWebAppData=synthetic&screen=flyer");
-    await page.getByRole("button", { name: c.start, exact: true }).click();
+    await page.getByRole("button", { name: c.tapPlay, exact: true }).click();
     await expect(page.locator("canvas")).toBeVisible();
     await drive(page, 100);
     await page.waitForTimeout(16000);
@@ -291,12 +291,12 @@ for (const width of [390, 1440])
       const card = page.getByRole("button", { name: en.games.flyer.name });
       await expect(card).toBeEnabled();
       await card.click();
-      await page.getByRole("button", { name: c.start, exact: true }).click();
+      await page.getByRole("button", { name: c.tapPlay, exact: true }).click();
       await expect(page.getByText(c.gettingCharts, { exact: true })).toBeVisible();
       await expect(page.getByRole("alert")).toHaveCount(0);
       await capture(page, info, `flyer-getting-charts-${width}.png`);
       await page.getByRole("button", { name: c.retry, exact: true }).click();
-      await expect(page.locator(".flyer-stage canvas")).toBeVisible();
+      await expect(page.locator(".flight-world canvas")).toBeVisible();
       expect(attempts).toBe(2);
       await page.getByRole("button", { name: en.navigation.back, exact: true }).click();
       await expect(card).toBeEnabled();
@@ -319,7 +319,7 @@ test("Flyer browser preview cannot start or submit, and maintenance blocks start
     await page.goto("/#tgWebAppData=synthetic&screen=flyer");
     await page.reload();
     await expect(page.getByText(en.maintenance)).toBeVisible();
-    await expect(page.getByRole("button", { name: c.start, exact: true })).toBeDisabled();
+    await expect(page.getByRole("button", { name: c.tapPlay, exact: true })).toBeDisabled();
   } finally {
     await f.close();
   }
@@ -332,7 +332,7 @@ test.describe("Flyer review recording", () => {
     const f = await fixture(page);
     try {
       await page.goto("/#tgWebAppData=synthetic&screen=flyer");
-      await page.getByRole("button", { name: c.start, exact: true }).click();
+      await page.getByRole("button", { name: c.tapPlay, exact: true }).click();
       await expect(page.locator("canvas")).toBeVisible();
       await drive(page, 3);
       await expect(page.getByText(c.newBest, { exact: true })).toBeVisible({ timeout: 20000 });

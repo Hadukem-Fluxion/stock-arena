@@ -144,16 +144,19 @@ claimed by this feature.
 
 ## mStocks Flyer
 
-Hold touch, mouse or Space to rise; release to fall. Gravity and rising acceleration
-are continuous, not tap impulses. Flyer v2 "Daylight Market" has a three-second
-countdown and one S&P 500 stock per building. The server intersects the dated index
-list with public xStocks stocks (no ETFs), leaving the seven core assets unchanged.
-Every player receives the same immutable course on a given UTC day; order repeats
-only after exhausting eligible stocks. A stock's positive 24h/last-session move
-raises its gap; a negative move lowers it. Changes clamp at ±5%, producing centers
-160–320px in the unchanged 360×480 world. Existing difficulty ramps apply every ten
-buildings. Official logos/colors identify buildings without visible ticker text;
-screen readers and results provide names and moves. Decorative coins award nothing.
+Tap, click or press Space for a fixed upward impulse; gravity pulls the bird down.
+Flyer v3 fills the available screen height, with a rendering-only camera crop on
+narrow screens. A stock's positive 24h/last-session move raises its gap; a negative
+move lowers it. Moves clamp at ±5%, producing centers 160–320px. Each UTC day has
+one frozen S&P 500/xStocks course shared by everyone; no stock repeats until the
+catalog is exhausted. Official logos/colors identify buildings, with names/moves
+in accessible announcements and results.
+
+One to three optional coins appear per ten-building group, in deterministic
+trails between buildings. Only actual integer circle-circle contact collects a
+coin, exactly once. **Run score = buildings passed + coins collected.** Coins
+change the run score, not the 50-point daily campaign cap. The server derives
+all counts; the client never supplies coin totals.
 
 Extended summaries use only primary prices, with the latest available reference
 at/before 24h earlier. Closed periods preserve the last session; after reopening,
@@ -161,10 +164,10 @@ the last known pre-boundary price may carry the reference until rolling history
 is available. Temporary samples retain 26h; frozen summaries/courses survive that
 retention. Incomplete/halted stocks are skipped when freezing a daily course.
 No usable summary means no session is consumed. Pools never supply course data.
-Already open flyer-1 sessions retain their original ten-chart-point segments and
-replay rules; new sessions use flyer-2. The daily course does not update mid-day.
+Already open flyer-1/flyer-2 sessions retain their original hold physics and
+replay rules; new sessions use flyer-3. The daily course does not update mid-day.
 
-Your best verified score per UTC day earns one point per pipe, up to 50 points.
+Your best verified score per UTC day earns one point per score unit, up to 50 points.
 Only the increase above previously paid daily-best points is awarded. Flyer points
 count in the main leaderboard and toward a referred friend's 200 gameplay points.
 Its own Today/Week/Season rankings use the best individual verified flight in the
@@ -172,18 +175,29 @@ window, with earliest attainment breaking ties. Finish time selects the game day
 Reaching the 50-point cap does not stop leaderboard play; private operational
 finish/session limits still apply. Invalid, reused or expired logs grant no points.
 
-The server stores and replays the input transitions at 60 Hz. A pending held press
-at collision is valid; an input at/after the terminal tick is not. Starting and
-finishing pause for maintenance without consuming a finish; cancellation remains
-available. Maintenance does not extend the 10-minute session expiry. Abandoned
-flights can be explicitly discarded without points.
+The server replays ordered flap ticks at 60 Hz, rejects repeated/out-of-order
+ticks and inputs at/after the terminal tick, and enforces wall-clock duration
+within ±15%. Idle ticks before the first flap are recorded without advancing the
+world. Leaving via the visible exit or losing focus/visibility ends the flight
+with its current verified score, rather than pausing the replay clock. The
+10-minute expiry and existing private finish/session limits still apply.
+Maintenance blocks starts/finishes, not cancellation. Unfinished flights can be
+discarded without points. Mobile fullscreen and swipe locks are restored on exit.
 
-The versioned public simulation config documents units and difficulty: 360×480 px,
-1000 integer units/px, rise acceleration 0.14 px/tick² and gravity 0.12 px/tick²,
-maximum rise 216 px/s and fall 240 px/s. Scroll starts at 108 px/s, adds 9 per
-segment and caps at 168; gaps start at 180 px, shrink by 8 and stop at 130. Pipes
-are 48 px wide, spaced 210 px apart; chart margins are 100 px. Client viewport
-size changes drawing scale only, never physics or scoring.
+V3 tuning (integer scale 1000, 60 Hz): gravity 0.22 px/tick², flap velocity
+−3.8 px/tick (−228 px/s), maximum fall 5.8 px/tick (348 px/s). Scroll starts at
+120 px/s, rises 9 px/s per ten buildings, caps at 180 px/s. Gaps start at 152px,
+shrink 8px per ten buildings and stop at 116px. Compared with v2 this narrows the
+safe corridor and raises gravity, targeting roughly 5–15 pipes during beginner
+practice; physical-phone playtesting must confirm that target. Coins do not
+accelerate the difficulty ramp. Canonical world remains 360×480px and the bird's
+circular hitbox remains radius 12px (the decorative outline/wing may extend
+beyond it); coins have radius 7px. Viewport resizing affects drawing only.
+
+Result charts use ten frozen primary-price samples per stock, downsampled in SQL
+when the daily course is created. No external fetch or pool price supplies a
+chart. Missing retained history has an explicit no-chart message. Existing
+daily reference summaries still supply gameplay even without chart history.
 
 Owner/admin may void a flight with a reason. It leaves score rankings and the
 best remaining valid score determines that day's corrected entitlement. Any excess

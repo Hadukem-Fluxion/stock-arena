@@ -20,12 +20,56 @@ One brief = one pull request. Paste the whole brief into Codex together with AGE
 | T35 public stats    | Integrated via PR #33; anonymous stats before T34                                                    |
 | T34                 | Integrated via PR #34; simplified 200-point qualification                                            |
 | T27 mStocks Flyer   | Integrated via PRs #35/#36; cross-session history and friendly chart retry retained for v1           |
-| T36 Daylight Market | Integrated via PR #37; production at 551d55d; build-memory follow-up in review                       |
+| T36 Daylight Market | Integrated via PR #37; build-memory follow-up integrated via PR #38; rollout is operator-owned       |
+| T37 Flyer v3        | Implementation complete; review on t37-flyer-gameplay; evidence in docs/review/t37                   |
 | T32                 | Settlement query optimization; required before T19 load test; not part of T26                        |
 
 Campaign decision for Mantle (not code): accepted reward identifiers (Bybit UID,
 Mantle address or both) and manual delivery process. Keep both fields optional
 until confirmed. This table records the official task status changes.
+
+## T37 — Flyer full-screen, tap-to-flap, charts and coins
+
+After memory PR #38, one PR on `t37-flyer-gameplay`. No merge, deployment or
+real database work. Approved reference: the **Flyer v3** row (Start, Play,
+Game over, Bird) at https://claude.ai/artifact/SnR71PUz9Amb8XUtNqmJgd.
+
+- Full-height 100dvh screens with safe areas, no app header/bottom navigation/card
+  or page scroll. Desktop letterboxes only at the sides; mobile fills the height
+  with a rendering-only horizontal camera crop. Preserve canonical physics and
+  circular hitbox. Resize/rotation must not reset the simulation. Restore page
+  styles on exit. Telegram requests fullscreen/expand and disables vertical swipes
+  while flying, restoring prior state afterward. A visible 44px exit ends the
+  flight with its verified current score; loss of focus/visibility also ends it,
+  rather than introducing unrecorded pauses into the wall-clock replay.
+- `flyer-3`: one fixed upward impulse per tap/click/Space, constant gravity and
+  minimum one-tick debounce. Version all tuning in GAME_CONFIG; keep open
+  flyer-1/flyer-2 physics/replays valid. Ordered flap ticks, strict bounds,
+  wall-clock ±15%, single-use server replay. Aim for 5–15 buildings for a beginner;
+  difficulty ramps every ten buildings, independently of coins.
+- Start: live decorative scene, large mStocks FLYER, animated bird, Best today,
+  Points today X/50 progress, TAP TO PLAY, Leaderboard and How to play modal;
+  Back/sound at top. Play: outlined score, coin count and 44px exit only;
+  "Tap to flap" before the first flap, never hold instructions in v3.
+- Game over: large heading, Score/NEW BEST, Stocks, Coins, earned/cap progress,
+  Charts you flew (official logos, accessible frozen primary 10–20-point
+  sparklines, blue/orange plus ▲/▼), See all, top gainers/decliners, PLAY AGAIN,
+  Home/Ranks/Share. Ranking opens separately. Missing chart history has an
+  explicit fallback, never fabricated values or external API price requests.
+- Flux bird: green #20c997 round body, dark outline, official transparent white
+  Fluxion PNG in the center, dark visor/mint shine, orange beak and white wing;
+  velocity tilt −25° to +70°, circular hitbox unchanged. Hadukem supplies the PNG;
+  do not recreate or alter the official mark.
+- Coins: **1–3 per group of ten buildings**, deterministic from the frozen daily
+  course, optional risk trails outside forced collisions. Integer circle-circle
+  collection once per coin in shared simulation; score = buildings + coins.
+  Client never supplies coin counts. Disappear on pickup with golden +1/sound.
+  Daily-best delta awards, campaign cap 50/day and referral eligibility unchanged.
+- Tests: v3 deterministic replay/coins/input rejection, legacy compatibility,
+  unique pickup, collision/miss, cap/delta, full-height/scroll restore, mocked
+  Telegram fullscreen/swipes, charts accessibility/fallback. Discord/Telegram/
+  browser at 390×844, 360×640 and 1440×900; all three screens and short gameplay
+  video in docs/review/t37. Physical-device performance remains an operator check.
 
 ## T36 — Flyer v2 "Daylight Market" and S&P 500 reference catalog
 
